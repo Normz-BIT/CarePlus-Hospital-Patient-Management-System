@@ -2,13 +2,12 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.careplus</groupId>
-    <artifactId>careplus_parent</artifactId>
+    <artifactId>careplus_pms</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>careplus_server</artifactId>
   <name>CarePlus Server</name>
   <description>Contains the components for the network server</description>
-  
   
 	<dependencies>
 		<dependency>
