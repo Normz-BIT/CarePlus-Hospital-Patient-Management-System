@@ -1,8 +1,16 @@
 # Compiled class file
+target/
 *.class
 
 # Log file
 *.log
+/logs
+
+# Eclipse
+.settings/
+.project
+.classpath
+bin/
 
 # BlueJ files
 *.ctxt
