@@ -1,6 +1,6 @@
 package com.careplus.common.enums;
 /*
- * Types of Complaints
+ * Status of Complaints
  * */
 public enum ComplaintStatus {
 	SUBMITTED,
