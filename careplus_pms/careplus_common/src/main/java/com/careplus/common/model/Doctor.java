@@ -3,6 +3,7 @@ package com.careplus.common.model;
 import java.util.List;
 
 import com.careplus.common.enums.DoctorSpecialization;
+import com.careplus.common.enums.UserRole;
 
 /*
  * Child of the Employee and Person Class
@@ -16,6 +17,17 @@ public class Doctor extends Employee {
 	private String licenseNo;
 	private List<Appointment> appointmentsList;
 	private List<MedicalRecord> medicalRecordsList;
+
+	public Doctor() {
+		super();
+		setRole(UserRole.DOCTOR);
+	}
+
+	public Doctor(String personId, String firstName, String lastName, String email, String phone, String password,
+			List<ChatMessages> complaint) {
+		super(personId, firstName, lastName, email, phone, password, UserRole.DOCTOR, complaint);
+
+	}
 
 	public DoctorSpecialization getSpecialization() {
 		return specialization;
