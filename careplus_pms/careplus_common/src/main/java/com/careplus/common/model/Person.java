@@ -25,34 +25,37 @@ public abstract class Person implements Serializable {
 	protected String phone;
 
 	protected String password;
-	
-	protected UserRole role; 
-	
-	protected List<ChatMessages> complaint;
 
+	protected UserRole role;
+
+	protected List<ChatMessages> complaint;
 
 	protected Person() {
 
 	}
 
-	protected Person(String personId,UserRole role, String firstName, String lastName, String email, String phone, String password) {
+	protected Person(String personId, String firstName, String lastName, String email, String phone, String password,
+			UserRole role, List<ChatMessages> complaint) {
 		this.personId = personId;
-		this.role = role;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.email = email;
 		this.phone = phone;
 		this.password = password;
+		this.role = role;
+		this.complaint = complaint;
 	}
 
-	
+
+
 	public UserRole getRole() {
 		return this.role;
 	}
+
 	public void setRole(UserRole role) {
 		this.role = role;
 	}
-	
+
 	public String getFullName() {
 		return firstName + " " + lastName;
 	}
@@ -104,7 +107,6 @@ public abstract class Person implements Serializable {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	
 
 	public List<ChatMessages> getComplaint() {
 		return complaint;
@@ -122,8 +124,9 @@ public abstract class Person implements Serializable {
 		if (!(obj instanceof Person)) {
 			return false;
 		}
-		if (getClass() != obj.getClass())
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		Person other = (Person) obj;
 		return personId != null && personId.equals(other.personId);
 	}

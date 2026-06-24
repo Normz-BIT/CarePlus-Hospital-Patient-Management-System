@@ -1,11 +1,14 @@
 package com.careplus.common.model;
 
 import java.util.Date;
+
+
 import java.util.List;
 
 import com.careplus.common.enums.UserRole;
 
-/*
+
+/* *
  * Child of the Person class
  * 	can make Payments
  * 	can make Complaints
@@ -36,7 +39,6 @@ public class Patient extends Person {
 	public Patient(String personId, String firstName, String lastName, String email, String phone, String password,
 			List<ChatMessages> complaint) {
 		super(personId, firstName, lastName, email, phone, password, UserRole.PATIENT, complaint);
-		// TODO Auto-generated constructor stub
 	}
 
 	public List<Payment> getPaymentList() {

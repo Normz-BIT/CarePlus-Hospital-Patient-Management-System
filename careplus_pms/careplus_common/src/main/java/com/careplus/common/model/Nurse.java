@@ -23,7 +23,6 @@ public class Nurse extends Employee {
 	public Nurse(String personId, String firstName, String lastName, String email, String phone, String password,
 			List<ChatMessages> complaint) {
 		super(personId, firstName, lastName, email, phone, password, UserRole.NURSE, complaint);
-		// TODO Auto-generated constructor stub
 	}
 
 	public NurseWard getWard() {

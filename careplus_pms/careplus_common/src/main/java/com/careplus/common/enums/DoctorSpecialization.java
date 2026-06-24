@@ -8,5 +8,4 @@ public enum DoctorSpecialization {
 	CARDIOLOGY,
 	PSYCHIATRY,
 	PEDIATRICS
-	
 }
