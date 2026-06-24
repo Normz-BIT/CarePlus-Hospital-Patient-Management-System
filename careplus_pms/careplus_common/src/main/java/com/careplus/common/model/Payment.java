@@ -1,10 +1,10 @@
 package com.careplus.common.model;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 /*
  * Payment class
+ * Patient has Payments
  */
 public class Payment implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -73,7 +73,7 @@ public class Payment implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(paymentId);
+		return Integer.hashCode(paymentId);
 	}
 
 }

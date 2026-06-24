@@ -3,6 +3,10 @@ package com.careplus.common.model;
 import java.io.Serializable;
 import java.util.Date;
 
+/*
+ * Patient has Vital Records
+ * Nurse records Vital signs
+ */
 
 public class VitalSigns implements Serializable {
 

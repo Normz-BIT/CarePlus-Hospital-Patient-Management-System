@@ -2,10 +2,13 @@ package com.careplus.common.model;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Objects;
-
 import com.careplus.common.enums.AppointmentStatus;
 
+
+/*
+ * Patient Books Appointments
+ * Doctor Attends Appointments
+ */
 public class Appointment implements Serializable{
 	private static final long serialVersionUID = 1L;
 
@@ -52,7 +55,7 @@ public class Appointment implements Serializable{
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(appontmentId);
+		return Integer.hashCode(appontmentId);
 	}
 
 	@Override

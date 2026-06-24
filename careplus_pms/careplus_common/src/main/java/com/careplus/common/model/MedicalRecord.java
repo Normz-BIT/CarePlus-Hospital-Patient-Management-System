@@ -3,7 +3,10 @@ package com.careplus.common.model;
 import java.io.Serializable;
 import java.util.Date;
 
-
+/*
+ * Patient has Medical records
+ * Doctor creates Medical records
+ */
 public class MedicalRecord implements Serializable{
 	private static final long serialVersionUID = 1L;
 	

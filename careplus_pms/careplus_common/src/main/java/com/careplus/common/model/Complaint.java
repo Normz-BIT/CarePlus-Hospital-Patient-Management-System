@@ -2,11 +2,14 @@ package com.careplus.common.model;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Objects;
 
 import com.careplus.common.enums.ComplaintCategory;
 import com.careplus.common.enums.ComplaintStatus;
-
+/*
+ * Patient files Complaints
+ * Receptionist handles Complaints
+ */
+		
 public class Complaint implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -109,7 +112,7 @@ public class Complaint implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(complaintId);
+		return Integer.hashCode(complaintId);
 	}
 
 
@@ -127,9 +130,5 @@ public class Complaint implements Serializable {
 		Complaint other = (Complaint) obj;
 		return complaintId == other.complaintId;
 	}
-	
-	
-	
-	
 	
 }
