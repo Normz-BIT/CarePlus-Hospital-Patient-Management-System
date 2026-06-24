@@ -1,6 +1,8 @@
 package com.careplus.common.model;
 
 import java.io.Serializable;
+import java.util.List;
+
 
 /**
  * Root of the person inheritance hierarchy
@@ -21,6 +23,9 @@ public abstract class Person implements Serializable {
 	private String phone;
 
 	private String password;
+	
+	private List<ChatMessages> complaint;
+
 
 	protected Person() {
 
@@ -86,21 +91,32 @@ public abstract class Person implements Serializable {
 	public void setPassword(String password) {
 		this.password = password;
 	}
+	
+
+	public List<ChatMessages> getComplaint() {
+		return complaint;
+	}
+
+	public void setComplaint(List<ChatMessages> complaint) {
+		this.complaint = complaint;
+	}
 
 	@Override
-	public boolean equals(Object o) {// allows us to compare object instances
-		if (this == o) {
+	public boolean equals(Object obj) {// allows us to compare object instances
+		if (this == obj) {
 			return true;
 		}
-		if (!(o instanceof Person)) {
+		if (!(obj instanceof Person)) {
 			return false;
 		}
-		Person other = (Person) o;
+		if (getClass() != obj.getClass())
+			return false;
+		Person other = (Person) obj;
 		return personId != null && personId.equals(other.personId);
 	}
 
 	@Override
-	public int hashCode() {// use id hash code
-		return personId == null ? 0 : personId.hashCode();
+	public int hashCode() {// use string id hash code
+		return (personId == null) ? 0 : personId.hashCode();
 	}
 }
