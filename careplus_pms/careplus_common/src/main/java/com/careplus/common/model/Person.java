@@ -3,6 +3,8 @@ package com.careplus.common.model;
 import java.io.Serializable;
 import java.util.List;
 
+import com.careplus.common.enums.UserRole;
+
 
 /**
  * Root of the person inheritance hierarchy
@@ -12,27 +14,30 @@ public abstract class Person implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private String personId;
+	protected String personId;
 
-	private String firstName;
+	protected String firstName;
 
-	private String lastName;
+	protected String lastName;
 
-	private String email;
+	protected String email;
 
-	private String phone;
+	protected String phone;
 
-	private String password;
+	protected String password;
 	
-	private List<ChatMessages> complaint;
+	protected UserRole role; 
+	
+	protected List<ChatMessages> complaint;
 
 
 	protected Person() {
 
 	}
 
-	protected Person(String personId, String firstName, String lastName, String email, String phone, String password) {
+	protected Person(String personId,UserRole role, String firstName, String lastName, String email, String phone, String password) {
 		this.personId = personId;
+		this.role = role;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.email = email;
@@ -40,6 +45,14 @@ public abstract class Person implements Serializable {
 		this.password = password;
 	}
 
+	
+	public UserRole getRole() {
+		return this.role;
+	}
+	public void setRole(UserRole role) {
+		this.role = role;
+	}
+	
 	public String getFullName() {
 		return firstName + " " + lastName;
 	}
