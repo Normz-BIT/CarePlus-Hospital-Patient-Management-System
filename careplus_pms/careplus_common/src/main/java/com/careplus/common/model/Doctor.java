@@ -1,0 +1,52 @@
+package com.careplus.common.model;
+
+import java.util.List;
+
+import com.careplus.common.enums.DoctorSpecialization;
+
+/*
+ * Child of the Employee and Person Class
+ * 
+ * Doctors create medical records and attend Appointments
+ */
+public class Doctor extends Employee {
+	private static final long serialVersionUID = 1L;
+
+	private DoctorSpecialization specialization;
+	private String licenseNo;
+	private List<Appointment> appointmentsList;
+	private List<MedicalRecord> medicalRecordsList;
+
+	public DoctorSpecialization getSpecialization() {
+		return specialization;
+	}
+
+	public void setSpecialization(DoctorSpecialization specialization) {
+		this.specialization = specialization;
+	}
+
+	public String getLicenseNo() {
+		return licenseNo;
+	}
+
+	public void setLicenseNo(String licenseNo) {
+		this.licenseNo = licenseNo;
+	}
+
+	public List<Appointment> getAppointmentsList() {
+		return appointmentsList;
+	}
+
+	public void setAppointmentsList(List<Appointment> appointmentsList) {
+		this.appointmentsList = appointmentsList;
+	}
+
+	public List<MedicalRecord> getMedicalRecordsList() {
+		return medicalRecordsList;
+	}
+
+	public void setMedicalRecordsList(List<MedicalRecord> medicalRecordsList) {
+		this.medicalRecordsList = medicalRecordsList;
+	}
+
+}
