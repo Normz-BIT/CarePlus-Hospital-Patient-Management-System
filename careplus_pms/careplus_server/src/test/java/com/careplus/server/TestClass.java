@@ -4,13 +4,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 
-
 class TestClass {
 
 	@Test
 	void test() {
 				
-		assertEquals(1,EchoServerTest.test());
+		//assertEquals(1,EchoServerTest.test());
+		assertEquals(1,DBConnectionTest.test());
 	}
 
 }
