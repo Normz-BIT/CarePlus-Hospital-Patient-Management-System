@@ -5,30 +5,35 @@ import java.util.List;
 
 import com.careplus.common.enums.UserRole;
 
+import jakarta.persistence.*;
 
 /**
  * Root of the person inheritance hierarchy
  */
+@Entity
+@Table(name = "person")
 
 public abstract class Person implements Serializable {
-
+	@Transient 
 	private static final long serialVersionUID = 1L;
-
+	@Id
+	@Column(name = "person_id", length = 10)
 	protected String personId;
-
+	@Column(name = "first_name", nullable = false, length = 50)
 	protected String firstName;
-
+	@Column(name = "last_name", nullable = false, length = 50)
 	protected String lastName;
-
+	 @Column(name = "email", nullable = false, unique = true, length = 120)
 	protected String email;
-
+	 @Column(name = "phone", length = 20)
 	protected String phone;
-
+	 @Column(name = "password", nullable = false, length = 255)
 	protected String password;
 
-	protected UserRole role;
-
-	protected List<ChatMessages> complaint;
+	 @Transient 
+	transient protected UserRole role;
+	 @Transient 
+	transient protected List<ChatMessages> complaint;
 
 	protected Person() {
 
@@ -45,8 +50,6 @@ public abstract class Person implements Serializable {
 		this.role = role;
 		this.complaint = complaint;
 	}
-
-
 
 	public UserRole getRole() {
 		return this.role;
