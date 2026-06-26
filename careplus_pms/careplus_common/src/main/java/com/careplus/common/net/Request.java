@@ -16,14 +16,24 @@ public class Request implements Serializable {
 
 	private String SessionToken;
 
-	protected Request() {
+	public Request() {
 
 	}
 
-	protected Request(RequestType type, Map<String, Object> params, String sessionToken) {
+	public Request(RequestType type, Map<String, Object> params, String sessionToken) {
 		this.type = type;
 		this.params = params;
 		SessionToken = sessionToken;
+	}
+	
+	public Request (RequestType type,String key, Object Value) {
+		this.type = type;
+		putMap(key, Value);
+	}
+	
+	//delegate for the Map 
+	public void putMap (String key, Object value) {
+		params.put(key,value);
 	}
 
 	public RequestType getType() {
