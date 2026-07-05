@@ -1,7 +1,6 @@
 package com.careplus.client.patient.controller;
 
 import java.io.IOException;
-
 import com.careplus.common.client.net.ServerConnection;
 import com.careplus.common.model.Complaint;
 import com.careplus.common.net.Request;
@@ -14,7 +13,8 @@ import com.careplus.common.net.Response;
  *	can Login
  *  can view Payments
  * 	can make/view Complaints
- * 	can set/view Appointments
+ * 	can set/view Appointments(follow-ups)
+ *	live chat with Receptionist,Doctors, Nurses (8:00 a.m. – 7:00 p.m.) 
  */
 
 public class PatientController {
@@ -29,6 +29,7 @@ public class PatientController {
 	}
 
 	public void onLogin() {
+		
 
 	}
 
