@@ -14,7 +14,7 @@ import jakarta.persistence.*;
 @Table(name = "person")
 
 public abstract class Person implements Serializable {
-	@Transient 
+	@Transient
 	private static final long serialVersionUID = 1L;
 	@Id
 	@Column(name = "person_id", length = 10)
@@ -23,16 +23,15 @@ public abstract class Person implements Serializable {
 	protected String firstName;
 	@Column(name = "last_name", nullable = false, length = 50)
 	protected String lastName;
-	 @Column(name = "email", nullable = false, unique = true, length = 120)
+	@Column(name = "email", nullable = false, unique = true, length = 120)
 	protected String email;
-	 @Column(name = "phone", length = 20)
+	@Column(name = "phone", length = 20)
 	protected String phone;
-	 @Column(name = "password", nullable = false, length = 255)
+	@Column(name = "password", nullable = false, length = 255)
 	protected String password;
 
-	 @Transient 
-	transient protected UserRole role;
-	 @Transient 
+	protected UserRole role;
+	@Transient
 	transient protected List<ChatMessages> complaint;
 
 	protected Person() {
