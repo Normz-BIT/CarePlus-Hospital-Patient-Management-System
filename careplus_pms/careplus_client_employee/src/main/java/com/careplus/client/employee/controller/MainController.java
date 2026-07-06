@@ -2,6 +2,9 @@ package com.careplus.client.employee.controller;
 
 import java.io.IOException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.careplus.common.client.net.ServerConnection;
 import com.careplus.common.enums.UserRole;
 import com.careplus.common.model.Doctor;
@@ -12,10 +15,14 @@ import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
 
+
+
 public class MainController {
 
 	private ServerConnection connection;
 	private EmployeeController current; // active role controller
+	
+	private static final Logger logger = LogManager.getLogger(MainController.class);
 
 	private UserRole role;
 
@@ -52,7 +59,10 @@ public class MainController {
 		Request req = new Request();
 		req.putMap("email", email);
 		req.putMap("password", password);
-		;
+		
+		
+		
+		
 		req.setType(RequestType.LOGIN_EMPLOYEE);
 
 		Response response = connection.send(req);
@@ -110,7 +120,8 @@ public class MainController {
 	}
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+		logger.error("File could not be opened or created: " );
+		logger.trace("file trace");
 
 	}
 
