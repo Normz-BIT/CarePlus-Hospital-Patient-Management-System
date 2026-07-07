@@ -3,7 +3,7 @@ package com.careplus.client.employee.controller;
 
 
 
-import com.careplus.common.client.net.ServerConnection;
+import com.careplus.common.client.net.Client;
 import com.careplus.common.model.Employee;
 
 /*
@@ -34,10 +34,10 @@ import com.careplus.common.model.Employee;
 public abstract class EmployeeController {
 
     protected final MainController main;
-    protected final ServerConnection connection;
+    protected final Client connection;
     protected final Employee employee;
 
-    protected EmployeeController(MainController main, ServerConnection connection, Employee employee) {
+    protected EmployeeController(MainController main, Client connection, Employee employee) {
         this.main = main;
         this.connection = connection;
         this.employee = employee;

@@ -1,13 +1,13 @@
 package com.careplus.client.employee.controller;
 
-import com.careplus.common.client.net.ServerConnection;
+import com.careplus.common.client.net.Client;
 import com.careplus.common.model.Receptionist;
 
 public class ReceptionistController extends EmployeeController {
 
 	// private final DoctorView view;
 
-	public ReceptionistController(MainController main, ServerConnection connection, Receptionist receptionist) {
+	public ReceptionistController(MainController main, Client connection, Receptionist receptionist) {
 		super(main, connection, receptionist);
 		// this.view = new ReceptionistView(receptionist);
 		// this.view.setLogoutHandler(this::logout);

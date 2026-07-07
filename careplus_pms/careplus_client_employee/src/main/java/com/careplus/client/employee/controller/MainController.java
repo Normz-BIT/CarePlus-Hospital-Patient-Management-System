@@ -1,11 +1,10 @@
 package com.careplus.client.employee.controller;
 
-import java.io.IOException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.careplus.common.client.net.ServerConnection;
+import com.careplus.common.client.net.Client;
 import com.careplus.common.enums.UserRole;
 import com.careplus.common.model.Doctor;
 import com.careplus.common.model.Employee;
@@ -19,19 +18,19 @@ import com.careplus.common.net.Response;
 
 public class MainController {
 
-	private ServerConnection connection;
+	private Client client;
 	private EmployeeController current; // active role controller
 	
 	private static final Logger logger = LogManager.getLogger(MainController.class);
 
 	private UserRole role;
 
-	private void start() {
+	
+	 public MainController() {
 
-		connect();
-
-		// login steps
-		login();
+	
+		client = new Client();
+		this.login();
 		// mainVeiw.showLogin
 
 	}
@@ -48,9 +47,9 @@ public class MainController {
 		// mainVeiw.showLogin
 	}
 
-	private void handleLogin(String email, String password) {
+	public void handleLogin(String email, String password) {
 
-		if (connection == null || !connection.isConnected()) {
+		if (client == null || !client.isConnected()) {
 			// mainView.showError("Not connected to server.");
 			return;
 		}
@@ -60,12 +59,9 @@ public class MainController {
 		req.putMap("email", email);
 		req.putMap("password", password);
 		
-		
-		
-		
 		req.setType(RequestType.LOGIN_EMPLOYEE);
 
-		Response response = connection.send(req);
+		Response response = client.send(req);
 
 		if (response == null || !(response.getSuccess())) {
 			// mainView.showError(response == null ? "No response from server." :
@@ -98,26 +94,17 @@ public class MainController {
 
 		switch (role) {
 		case DOCTOR:
-			return new DoctorController(this, connection, (Doctor) emp);
+			return new DoctorController(this, client, (Doctor) emp);
 		case NURSE:
-			return new NurseController(this, connection, (Nurse) emp);
+			return new NurseController(this, client, (Nurse) emp);
 		case RECEPTIONIST:
-			return new ReceptionistController(this, connection, (Receptionist) emp);
+			return new ReceptionistController(this, client, (Receptionist) emp);
 		default:
 			return null;
 		}
 
 	}
 
-	private void connect() {
-
-		try {
-			connection.connect();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 
 	public static void main(String[] args) {
 		logger.error("File could not be opened or created: " );

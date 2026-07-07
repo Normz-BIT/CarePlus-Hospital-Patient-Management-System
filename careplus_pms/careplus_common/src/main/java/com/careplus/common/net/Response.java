@@ -12,36 +12,46 @@ public class Response implements Serializable {
 	private Boolean success;
 	private String Message;
 	private Object data;
-	
-	protected Response() {
-		
+
+	public Response() {
+
 	}
 
-	protected Response(Boolean success, String message, Object data) {
+	public Response(Boolean success, String message, Object data) {
 		this.success = success;
 		Message = message;
 		this.data = data;
 	}
-	
-	
+
 	public Boolean getSuccess() {
 		return success;
 	}
+
 	public void setSuccess(Boolean success) {
 		this.success = success;
 	}
+
 	public String getMessage() {
 		return Message;
 	}
+
 	public void setMessage(String message) {
 		Message = message;
 	}
+
 	public Object getData() {
 		return data;
 	}
+
 	public void setData(Object data) {
 		this.data = data;
 	}
+
+	@Override
+	public String toString() {
+		return "Response [success=" + success + ", Message=" + Message + "\n, data=" + data + "]";
+	}
+	
 	
 
 }

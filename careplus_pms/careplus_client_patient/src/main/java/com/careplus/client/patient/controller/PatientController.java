@@ -1,7 +1,6 @@
 package com.careplus.client.patient.controller;
 
-import java.io.IOException;
-import com.careplus.common.client.net.ServerConnection;
+import com.careplus.common.client.net.Client;
 import com.careplus.common.model.Complaint;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
@@ -21,15 +20,14 @@ public class PatientController {
 
 	// private PatientView view;
 	// private Patient patient;
-	private ServerConnection connection;
+	private Client client;
 
 	private PatientController() {
 		//
-		connection = new ServerConnection();
+		client = new Client();
 	}
 
 	public void onLogin() {
-		
 
 	}
 
@@ -44,21 +42,25 @@ public class PatientController {
 	 */
 	public void OnSubmitComplaint() {
 
-		//TODO remove after testing
+		// TODO remove after testing
 		// create a complaint
 		Complaint complaint = new Complaint();
 
+		complaint.setDescription("Test for the server");
+
 		// create a request
+
 		Request req = new Request(RequestType.SUBMIT_COMPLAINT, "complaint", complaint);
 
 		// send to server and get response
-		Response response = connection.send(req);
+		Response response = client.send(req);
 
+		complaint = (Complaint) response.getData();
 		if (response.getSuccess()) {
 
-			System.out.println("Data from Server" + response.getData());
-			
-			//view.show("Success");
+			System.out.println("Data from Server: " + complaint.getDescription());
+
+			// view.show("Success");
 		}
 
 	}
@@ -92,26 +94,14 @@ public class PatientController {
 
 	}
 
-	// TODO add a retry button to UI to reconnect on disconnect
-	public void connect() {
-
-		try {
-			connection.connect();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	}
-
 	public static void main(String[] args) {
 
 		// create controller
-		//PatientController pt = new PatientController();
+		PatientController pt = new PatientController();
 
-		// Open Connection to server
-		// pt.connect();
+		// TODO for testing remove later
 
+		pt.OnSubmitComplaint();
 	}
 
 }
