@@ -1,6 +1,7 @@
 package com.careplus.common.net;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -14,26 +15,28 @@ public class Request implements Serializable {
 
 	private Map<String, Object> params;
 
-	private String SessionToken;
-
 	public Request() {
-
+		type = null;
+		params = new HashMap<>();
 	}
 
-	public Request(RequestType type, Map<String, Object> params, String sessionToken) {
+	public Request(RequestType type, Map<String, Object> params) {
 		this.type = type;
 		this.params = params;
-		SessionToken = sessionToken;
 	}
-	
-	public Request (RequestType type,String key, Object Value) {
+
+	public Request(RequestType type, String key, Object Value) {
 		this.type = type;
+		
+		if (params == null) {
+			params = new HashMap<>();
+		}
 		putMap(key, Value);
 	}
-	
-	//delegate for the Map 
-	public void putMap (String key, Object value) {
-		params.put(key,value);
+
+	// delegate for the Map
+	public void putMap(String key, Object value) {
+		params.put(key, value);
 	}
 
 	public RequestType getType() {
@@ -51,13 +54,5 @@ public class Request implements Serializable {
 	public void setParams(Map<String, Object> params) {
 		this.params = params;
 	}
-
-	public String getSessionToken() {
-		return SessionToken;
-	}
-
-	public void setSessionToken(String sessionToken) {
-		SessionToken = sessionToken;
-	}	
 
 }
