@@ -7,6 +7,9 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class Server {
 
 	ServerSocket serverSock;
@@ -16,6 +19,8 @@ public class Server {
 	int port = 8888;
 	int backlogCount = 1;
 
+	private static final Logger logger = LogManager.getLogger(Server.class);
+	
 	public Server() {
 		this.createConnection();
 		this.waitForRequests();
@@ -35,7 +40,7 @@ public class Server {
 		ClientHandler clientHandler = null;
 
 		try {
-			System.out.println("Server is listening on port " + port);
+			logger.info("Server is listening on port " + port);
 			while (true) {
 				socket = serverSock.accept();
 
@@ -46,7 +51,7 @@ public class Server {
 
 			}
 		} catch (EOFException ex) {
-			System.out.println("Client has terminted connections with the server" + ex.getMessage());
+			logger.warn("Client has terminted connections with the server" + ex.getMessage());
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		} 
