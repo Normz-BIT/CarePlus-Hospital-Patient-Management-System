@@ -1,5 +1,8 @@
 package com.careplus.client.patient.controller;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.careplus.common.client.net.Client;
 import com.careplus.common.model.Complaint;
 import com.careplus.common.net.Request;
@@ -22,6 +25,9 @@ public class PatientController {
 	// private Patient patient;
 	private Client client;
 
+	
+	private static final Logger logger = LogManager.getLogger(PatientController.class);
+	
 	private PatientController() {
 		//
 		client = new Client();
@@ -58,8 +64,8 @@ public class PatientController {
 		complaint = (Complaint) response.getData();
 		if (response.getSuccess()) {
 
-			System.out.println("Data from Server: " + complaint.getDescription());
-
+		
+			logger.info("Data from Server: " + complaint.getDescription());
 			// view.show("Success");
 		}
 
