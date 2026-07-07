@@ -1,38 +1,61 @@
 package com.careplus.common.model;
 
 import java.io.Serializable;
+import java.util.List;
+
+import com.careplus.common.enums.UserRole;
+
+import jakarta.persistence.*;
 
 /**
  * Root of the person inheritance hierarchy
  */
+@Entity
+@Table(name = "person")
 
 public abstract class Person implements Serializable {
-
+	@Transient
 	private static final long serialVersionUID = 1L;
+	@Id
+	@Column(name = "person_id", length = 10)
+	protected String personId;
+	@Column(name = "first_name", nullable = false, length = 50)
+	protected String firstName;
+	@Column(name = "last_name", nullable = false, length = 50)
+	protected String lastName;
+	@Column(name = "email", nullable = false, unique = true, length = 120)
+	protected String email;
+	@Column(name = "phone", length = 20)
+	protected String phone;
+	@Column(name = "password", nullable = false, length = 255)
+	protected String password;
 
-	private String personId;
-
-	private String firstName;
-
-	private String lastName;
-
-	private String email;
-
-	private String phone;
-
-	private String password;
+	protected UserRole role;
+	@Transient
+	transient protected List<ChatMessages> complaint;
 
 	protected Person() {
 
 	}
 
-	protected Person(String personId, String firstName, String lastName, String email, String phone, String password) {
+	protected Person(String personId, String firstName, String lastName, String email, String phone, String password,
+			UserRole role, List<ChatMessages> complaint) {
 		this.personId = personId;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.email = email;
 		this.phone = phone;
 		this.password = password;
+		this.role = role;
+		this.complaint = complaint;
+	}
+
+	public UserRole getRole() {
+		return this.role;
+	}
+
+	public void setRole(UserRole role) {
+		this.role = role;
 	}
 
 	public String getFullName() {
@@ -87,20 +110,31 @@ public abstract class Person implements Serializable {
 		this.password = password;
 	}
 
+	public List<ChatMessages> getComplaint() {
+		return complaint;
+	}
+
+	public void setComplaint(List<ChatMessages> complaint) {
+		this.complaint = complaint;
+	}
+
 	@Override
-	public boolean equals(Object o) {// allows us to compare object instances
-		if (this == o) {
+	public boolean equals(Object obj) {// allows us to compare object instances
+		if (this == obj) {
 			return true;
 		}
-		if (!(o instanceof Person)) {
+		if (!(obj instanceof Person)) {
 			return false;
 		}
-		Person other = (Person) o;
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		Person other = (Person) obj;
 		return personId != null && personId.equals(other.personId);
 	}
 
 	@Override
-	public int hashCode() {// use id hash code
-		return personId == null ? 0 : personId.hashCode();
+	public int hashCode() {// use string id hash code
+		return (personId == null) ? 0 : personId.hashCode();
 	}
 }
