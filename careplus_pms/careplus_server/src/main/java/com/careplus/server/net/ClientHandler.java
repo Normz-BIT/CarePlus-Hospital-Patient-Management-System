@@ -5,9 +5,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.List;
 
-import com.careplus.common.model.Complaint;
+import com.careplus.common.model.Patient;
 import com.careplus.common.net.Request;
+import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
 
 public class ClientHandler extends Thread {
@@ -34,23 +36,36 @@ public class ClientHandler extends Thread {
 
 			Request req = (Request) inputStream.readObject();
 
-			Complaint complaint = (Complaint) req.getParams().get("complaint");
-			System.out.println("Server: " + req.getType() + " " + complaint.getDescription());
+			RequestType reqtype = req.getType();
 
-			complaint.setDescription("Modified by server");
-			
-			Response resp = new Response(true, "Completed", (Object) complaint);
-			
+			Response resp = new Response();
+
+			switch (reqtype) {
+
+			case LOGIN:
+				
+				resp.setSuccess(true);
+
+				Patient test1 = new Patient("PT1001","Dave","Brown","DBrowan@email.com","12312312","Here I AM",List.of());
+				resp.setData(test1);
+				
+				break;
+			default:
+				break;
+
+			}
+
 			outputStream.writeObject(resp);
 
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		finally {
+
+		} finally {
 			try {
 				if (socket != null && !socket.isClosed()) {
 					socket.close();
