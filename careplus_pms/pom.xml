@@ -54,7 +54,6 @@
 	<modules>
 		<module>careplus_common</module>
 		<module>careplus_server</module>
-		<module>careplus_client_patient</module>
-		<module>careplus_client_employee</module>
+		<module>careplus_client</module>
 	</modules>
 </project>

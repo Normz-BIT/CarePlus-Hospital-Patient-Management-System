@@ -1,8 +1,7 @@
 package com.careplus.common.net;
 
 public enum RequestType {
-    LOGIN_PATIENT,
-    LOGIN_EMPLOYEE,
+    LOGIN,
     GET_DOCTORS,
     GET_DEPARTMENTS,
     SCHEDULE_APPOINTMENT,
@@ -23,6 +22,9 @@ public enum RequestType {
     ADD_DIAGNOSIS,
     UPDATE_DIAGNOSIS,
     GET_DIAGNOSIS_RECORDS,
+    GET_ASSIGNED_PATIENTS,
+    SCHEDULE_FOLLOWUP,
+    GET_ASSIGNED_CASES,
     RECORD_VITALS,
     CHAT_SEND,
     CHAT_POLL

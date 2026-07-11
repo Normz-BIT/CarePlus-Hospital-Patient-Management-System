@@ -42,6 +42,7 @@ public class Server {
 		try {
 			logger.info("Server is listening on port " + port);
 			while (true) {
+				
 				socket = serverSock.accept();
 
 				// create a new thread for each client
