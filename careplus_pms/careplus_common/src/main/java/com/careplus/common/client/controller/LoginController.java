@@ -39,6 +39,7 @@ public class LoginController {
 		// password, and returns the concrete Patient/Doctor/Nurse/Receptionist
 		// so the dashboard can show the right menus.
 		Request request = new Request();
+		
 		request.setType(RequestType.LOGIN);
 		request.putMap("id", id);
 		request.putMap("password", password);

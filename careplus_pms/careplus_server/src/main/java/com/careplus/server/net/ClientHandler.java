@@ -5,20 +5,23 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.List;
 
-import com.careplus.common.model.Patient;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
+import com.careplus.server.service.AuthService;
 
 public class ClientHandler extends Thread {
 	private Socket socket;
 	private ObjectOutputStream outputStream;
 	private ObjectInputStream inputStream;
+	
+	
+	private AuthService authservice;
 
 	public ClientHandler(Socket socket) {
 		this.socket = socket;
+		authservice =  new AuthService();
 	}
 
 	public void getStreams() {
@@ -44,10 +47,14 @@ public class ClientHandler extends Thread {
 
 			case LOGIN:
 				
-				resp.setSuccess(true);
+				///resp.setSuccess(true);
 
-				Patient test1 = new Patient("PT1001","Dave","Brown","DBrowan@email.com","12312312","Here I AM",List.of());
-				resp.setData(test1);
+				//Patient test1 = new Patient("PT1001","Dave","Brown","DBrowan@email.com","12312312","Here I AM",List.of());
+				//resp.setData(test1);
+				resp = authservice.login(req);
+				
+				
+				
 				
 				break;
 			default:

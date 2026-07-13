@@ -27,6 +27,8 @@ public class HibernateUtil {
 
 			try {
 				sessionFactory = new Configuration().configure().buildSessionFactory();
+				
+				
 
 				System.out.println("SessionFactory created successfully.");
 			} catch (Exception e) {
