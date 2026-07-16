@@ -15,16 +15,15 @@ public class ClientHandler extends Thread {
 	private Socket socket;
 	private ObjectOutputStream outputStream;
 	private ObjectInputStream inputStream;
-	
-	
+
 	private AuthService authservice;
 
 	public ClientHandler(Socket socket) {
 		this.socket = socket;
-		authservice =  new AuthService();
+		authservice = new AuthService();
 	}
 
-	public void getStreams() {
+	private void getStreams() {
 		try {
 			outputStream = new ObjectOutputStream(socket.getOutputStream());
 			inputStream = new ObjectInputStream(socket.getInputStream());
@@ -33,54 +32,70 @@ public class ClientHandler extends Thread {
 		}
 	}
 
+	private void closeConnection() {
+
+		try {
+			if (socket != null && !socket.isClosed()) {
+				socket.close();
+				System.out.println("Socket closed. Thread terminating.");
+			}
+		} catch (IOException e) {
+			System.out.println("Failed to close socket: " + e.getMessage());
+		}
+
+	}
+
 	@Override
 	public void run() {
 		try {
 
-			Request req = (Request) inputStream.readObject();
+			this.getStreams();
 
-			RequestType reqtype = req.getType();
+			while (true) {
 
-			Response resp = new Response();
+				System.out.println("Waiting for input..");
+				Request req = (Request) inputStream.readObject();
 
-			switch (reqtype) {
+				RequestType reqtype = req.getType();
 
-			case LOGIN:
-				
-				///resp.setSuccess(true);
+				Response resp = new Response();
 
-				//Patient test1 = new Patient("PT1001","Dave","Brown","DBrowan@email.com","12312312","Here I AM",List.of());
-				//resp.setData(test1);
-				resp = authservice.login(req);
-				
-				
-				
-				
-				break;
-			default:
-				break;
+				switch (reqtype) {
+
+				case LOGIN:
+
+					/// resp.setSuccess(true);
+
+					// Patient test1 = new
+					// Patient("PT1001","Dave","Brown","DBrowan@email.com","12312312","Here I
+					// AM",List.of());
+					// resp.setData(test1);
+					resp = authservice.login(req);
+
+					break;
+				default:
+					break;
+
+				}
+
+				outputStream.writeObject(resp);
 
 			}
-
-			outputStream.writeObject(resp);
 
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Class not found Exception:" + e.getMessage());
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Error:" + e.getMessage());
 
-		} finally {
-			try {
-				if (socket != null && !socket.isClosed()) {
-					socket.close();
-					System.out.println("Socket closed. Thread terminating.");
-				}
-			} catch (IOException e) {
-				System.out.println("Failed to close socket: " + e.getMessage());
-			}
 		}
+
+		finally {
+
+			closeConnection();
+		}
+
 	}
 }

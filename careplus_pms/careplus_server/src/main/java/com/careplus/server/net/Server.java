@@ -16,11 +16,13 @@ public class Server {
 	Socket socket;
 	ObjectOutputStream outputStream;
 	ObjectInputStream inputStream;
+	ClientHandler clientHandler = null;
 	int port = 8888;
 	int backlogCount = 1;
+	String clientId = "";
 
 	private static final Logger logger = LogManager.getLogger(Server.class);
-	
+
 	public Server() {
 		this.createConnection();
 		this.waitForRequests();
@@ -37,26 +39,26 @@ public class Server {
 
 	public void waitForRequests() {
 
-		ClientHandler clientHandler = null;
+		while (true) {
+			try {
+				logger.info("Server is listening on port " + port);
 
-		try {
-			logger.info("Server is listening on port " + port);
-			
-			while (true) {
-				
 				socket = serverSock.accept();
+				clientId = socket.getInetAddress().getHostAddress() + ":" + socket.getPort();
+				logger.info("Client connected: " + clientId);
 
 				// create a new thread for each client
 				clientHandler = new ClientHandler(socket);
-				
-				clientHandler.getStreams();
+				clientHandler.setName(clientId);
 				clientHandler.start();
 
+				logger.info("Active threads: " + Thread.activeCount());
+
+			} catch (EOFException ex) {
+				logger.warn("Client has terminted connections with the server" + ex.getMessage());
+			} catch (IOException ex) {
+				ex.printStackTrace();
 			}
-		} catch (EOFException ex) {
-			logger.warn("Client has terminted connections with the server" + ex.getMessage());
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		} 
+		}
 	}
 }
