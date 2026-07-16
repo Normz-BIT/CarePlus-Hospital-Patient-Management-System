@@ -23,9 +23,6 @@ public class VitalsController {
 		view.getBtnClear().addActionListener(e -> view.clearFields());
 	}
 
-	private Response send(Request request) {
-		return new Client().send(request);
-	}
 
 	private void record() {
 		String patientId = view.getTxtPatientId().getText().trim();
@@ -47,7 +44,8 @@ public class VitalsController {
 		req.putMap("observations", view.getTxtObservations().getText().trim());
 		req.putMap("nursingNotes", view.getTxtNursingNotes().getText().trim());
 
-		Response res = send(req);
+		Response res = Client.send(req);
+		
 		view.showMessage(res == null ? "No response from server." : res.getMessage());
 	}
 
@@ -63,7 +61,7 @@ public class VitalsController {
 
 	@SuppressWarnings("unchecked")
 	private void refresh() {
-		Response res = send(new Request(RequestType.GET_ASSIGNED_CASES, "nurse", "current"));
+		Response res = Client.send(new Request(RequestType.GET_ASSIGNED_CASES, "nurse", "current"));
 		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 			return;
 		}

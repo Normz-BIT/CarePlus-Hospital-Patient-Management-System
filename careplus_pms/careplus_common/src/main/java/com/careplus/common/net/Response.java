@@ -14,7 +14,9 @@ public class Response implements Serializable {
 	private Object data;
 
 	public Response() {
-
+		success = null;
+		Message = null;
+		data = null;
 	}
 
 	public Response(Boolean success, String message, Object data) {

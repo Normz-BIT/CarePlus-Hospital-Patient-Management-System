@@ -19,7 +19,7 @@ public class DoctorsController {
 
     @SuppressWarnings("unchecked")
     private void refresh() {
-        Response res = new Client().send(new Request(RequestType.GET_DOCTORS, "all", true));
+        Response res = Client.send(new Request(RequestType.GET_DOCTORS, "all", true));
         if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
             return;
         }

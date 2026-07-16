@@ -67,14 +67,14 @@ public class EmployeeComplaintController {
 
 	/** Sends a change request, reports the result, and reloads the list. */
 	private void submit(Request req) {
-		Response res = new Client().send(req);
+		Response res = Client.send(req);
 		view.showMessage(res == null ? "No response from server." : res.getMessage());
 		refresh();
 	}
 
 	@SuppressWarnings("unchecked")
 	private void refresh() {
-		Response res = new Client().send(new Request(RequestType.GET_ALL_COMPLAINTS, "all", true));
+		Response res = Client.send(new Request(RequestType.GET_ALL_COMPLAINTS, "all", true));
 		if (res == null || !Boolean.TRUE.equals(res.getSuccess()))
 			return;
 		allComplaints.clear();

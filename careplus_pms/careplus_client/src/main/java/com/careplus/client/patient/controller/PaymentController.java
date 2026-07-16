@@ -24,14 +24,14 @@ public class PaymentController {
 		req.setType(RequestType.MAKE_PAYMENT);
 		req.putMap("amount", view.getTxtAmount().getText().trim());
 		req.putMap("method", view.getTxtMethod().getText().trim());
-		Response res = new Client().send(req);
+		Response res = Client.send(req);
 		view.showMessage(res == null ? "No response from server." : res.getMessage());
 		refresh();
 	}
 
 	@SuppressWarnings("unchecked")
 	private void refresh() {
-		Response res = new Client().send(new Request(RequestType.GET_MY_PAYMENTS, "patientId", "current"));
+		Response res = Client.send(new Request(RequestType.GET_MY_PAYMENTS, "patientId", "current"));
 		if (res == null || !Boolean.TRUE.equals(res.getSuccess()))
 			return;
 		view.clearTable();

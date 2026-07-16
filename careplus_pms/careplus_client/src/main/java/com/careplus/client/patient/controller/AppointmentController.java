@@ -26,7 +26,7 @@ public class AppointmentController {
         view.getBtnUpdate().addActionListener(e -> schedule());
     }
 
-    private Response send(Request request) { return new Client().send(request); }
+    private Response send(Request request) { return Client.send(request); }
 
     private void loadLookups() {
         Response doctors = send(new Request(RequestType.GET_DOCTORS, "role", "doctor"));

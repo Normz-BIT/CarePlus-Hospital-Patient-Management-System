@@ -28,7 +28,7 @@ public class ChatController {
 		req.putMap("sender", "Patient");
 		req.putMap("recipient", String.valueOf(view.getCboRecipient().getSelectedItem()));
 		req.putMap("message", msg);
-		Response res = new Client().send(req);
+		Response res = Client.send(req);
 		if (res == null || !Boolean.TRUE.equals(res.getSuccess()))
 			view.showMessage(res == null ? "No response from server." : res.getMessage());
 		view.clearMessageField();
@@ -37,7 +37,7 @@ public class ChatController {
 
 	@SuppressWarnings("unchecked")
 	private void refresh() {
-		Response res = new Client().send(new Request(RequestType.CHAT_POLL, "user", "current"));
+		Response res = Client.send(new Request(RequestType.CHAT_POLL, "user", "current"));
 		if (res == null || !Boolean.TRUE.equals(res.getSuccess()))
 			return;
 		view.clearConversation();

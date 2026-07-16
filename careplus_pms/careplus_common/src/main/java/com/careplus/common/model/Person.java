@@ -113,6 +113,12 @@ public abstract class Person implements Serializable {
 	public void setPassword(String password) {
 		this.password = password;
 	}
+	
+	@Override
+	public String toString() {
+		return "Person [personId=" + personId + ", firstName=" + firstName + ", lastName=" + lastName + ", email="
+				+ email + ", phone=" + phone + ", role=" + role + "]";
+	}
 
 	@Override
 	public boolean equals(Object obj) {// allows us to compare object instances

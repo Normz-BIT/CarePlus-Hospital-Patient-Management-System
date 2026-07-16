@@ -26,7 +26,7 @@ public class ComplaintController {
 	}
 
 	private Response send(Request request) {
-		return new Client().send(request);
+		return  Client.send(request);
 	}
 
 	private void submit() {

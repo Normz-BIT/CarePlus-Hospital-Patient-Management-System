@@ -23,9 +23,6 @@ public class PatientsController {
 		view.getBtnClear().addActionListener(e -> view.clearFields());
 	}
 
-	private Response send(Request request) {
-		return new Client().send(request);
-	}
 
 	private void scheduleFollowUp() {
 		String patientId = view.getTxtPatientId().getText().trim();
@@ -43,7 +40,7 @@ public class PatientsController {
 		req.putMap("date", view.getTxtDate().getText().trim());
 		req.putMap("time", view.getTxtTime().getText().trim());
 
-		Response res = send(req);
+		Response res = Client.send(req);
 		view.showMessage(res == null ? "No response from server." : res.getMessage());
 	}
 
@@ -58,7 +55,7 @@ public class PatientsController {
 
 	@SuppressWarnings("unchecked")
 	private void refresh() {
-		Response res = send(new Request(RequestType.GET_ASSIGNED_PATIENTS, "doctor", "current"));
+		Response res = Client.send(new Request(RequestType.GET_ASSIGNED_PATIENTS, "doctor", "current"));
 		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 			return;
 		}

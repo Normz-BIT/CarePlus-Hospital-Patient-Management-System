@@ -1,6 +1,5 @@
 package com.careplus.common.client.net;
 
-
 import java.net.Socket;
 
 import com.careplus.common.net.Request;
@@ -15,26 +14,24 @@ import java.io.ObjectOutputStream;
 
 public class Client {
 	// client socket
-	private Socket socket;
-	private ObjectInputStream inputStream;
-	private ObjectOutputStream outputStream;
+	private static Socket socket;
+	private static ObjectInputStream inputStream;
+	private static ObjectOutputStream outputStream;
 
-	private Response response;
+	private static Response response;
 
-	// right now we only running locally so set static
+	// right now we are only running locally so set static
 	private final static String host = "localhost";
 	private final static int port = 8888;
 
-	
 	public Client() {
 
 		this.createConnection();
 		this.getStreams();
 
 	}
-	
-	
-	public void createConnection()  {
+
+	private void createConnection() {
 
 		try {
 			socket = new Socket(host, port);
@@ -45,9 +42,7 @@ public class Client {
 		}
 	}
 
-	
-	
-	public void getStreams() {
+	private void getStreams() {
 		try {
 			outputStream = new ObjectOutputStream(socket.getOutputStream());
 			inputStream = new ObjectInputStream(socket.getInputStream());
@@ -56,13 +51,15 @@ public class Client {
 		}
 	}
 
-	public Response send(Request request) {
+	public static Response send(Request request) {
 
 		response = null;
-
 		
-		// TODO throw all exception to controller 
-		// this makes it easier for the program flow and for logging
+		if (!isConnected()) {
+			
+			new Client();
+		}
+
 		try {
 
 			outputStream.writeObject(request);
@@ -82,17 +79,18 @@ public class Client {
 		}
 
 		return response;
+
 	}
 
-	public Socket getSocket() {
+	public static Socket getSocket() {
 		return socket;
 	}
 
-	public boolean isConnected() {
-		return socket != null  && !socket.isClosed();
+	public static boolean isConnected() {
+		return socket != null && !socket.isClosed();
 	}
 
-	public void disconnect(){
+	public static void disconnect() {
 		try {
 			if (socket != null && !socket.isClosed()) {
 				outputStream.close();

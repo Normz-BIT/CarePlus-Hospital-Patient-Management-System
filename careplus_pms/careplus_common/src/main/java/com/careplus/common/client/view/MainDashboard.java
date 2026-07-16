@@ -63,6 +63,7 @@ public class MainDashboard extends JFrame {
         menuBar.add(buildSystemMenu());
 
         Map<String, JMenu> menusByGroup = new LinkedHashMap<>();
+        
         for (DashboardFeature feature : features) {
             if (currentUser != null && !feature.visibleFor(currentUser.getRole())) {
                 continue;

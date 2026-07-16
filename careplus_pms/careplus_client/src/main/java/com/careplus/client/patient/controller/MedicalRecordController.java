@@ -20,7 +20,7 @@ public class MedicalRecordController {
 
 	@SuppressWarnings("unchecked")
 	private void refresh() {
-		Response res = new Client().send(new Request(RequestType.GET_MEDICAL_RECORDS, "patientId", "current"));
+		Response res = Client.send(new Request(RequestType.GET_MEDICAL_RECORDS, "patientId", "current"));
 		if (res == null || !Boolean.TRUE.equals(res.getSuccess()))
 			return;
 		view.clearTable();

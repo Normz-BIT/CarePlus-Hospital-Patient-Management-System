@@ -34,7 +34,7 @@ public class StaffChatController {
 		req.putMap("sender", "Staff");
 		req.putMap("recipient", patient);
 		req.putMap("message", message);
-		Response res = new Client().send(req);
+		Response res = Client.send(req);
 		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 			view.showMessage(res == null ? "No response from server." : res.getMessage());
 		}
@@ -45,8 +45,7 @@ public class StaffChatController {
 	@SuppressWarnings("unchecked")
 	private void refresh() {
 		String patient = view.getTxtPatient().getText().trim();
-		Response res = new Client()
-				.send(new Request(RequestType.CHAT_POLL, "user", patient.isEmpty() ? "current" : patient));
+		Response res = Client.send(new Request(RequestType.CHAT_POLL, "user", patient.isEmpty() ? "current" : patient));
 		if (res == null || !Boolean.TRUE.equals(res.getSuccess()))
 			return;
 		view.clearConversation();

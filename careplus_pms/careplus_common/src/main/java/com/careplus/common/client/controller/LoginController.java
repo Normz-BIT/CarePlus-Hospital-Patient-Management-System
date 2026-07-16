@@ -15,7 +15,6 @@ public class LoginController {
 	private final Login view;
 	private final List<DashboardFeature> features;
 
-
 	public LoginController(Login view, List<DashboardFeature> features) {
 		this.view = view;
 		this.features = features;
@@ -39,12 +38,12 @@ public class LoginController {
 		// password, and returns the concrete Patient/Doctor/Nurse/Receptionist
 		// so the dashboard can show the right menus.
 		Request request = new Request();
-		
+
 		request.setType(RequestType.LOGIN);
 		request.putMap("id", id);
 		request.putMap("password", password);
 
-		Response response = new Client().send(request);
+		Response response =  Client.send(request);
 
 		if (response != null && Boolean.TRUE.equals(response.getSuccess()) && response.getData() instanceof Person) {
 			Person user = (Person) response.getData();
@@ -55,4 +54,8 @@ public class LoginController {
 			view.showMessage(response == null ? "No response from server." : response.getMessage());
 		}
 	}
+	
+	
+	
+	
 }
