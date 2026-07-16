@@ -12,7 +12,7 @@ import jakarta.persistence.*;
  */
 @Entity
 @Table(name = "person")
-
+@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Person implements Serializable {
 	@Transient
 	private static final long serialVersionUID = 1L;
@@ -30,9 +30,13 @@ public abstract class Person implements Serializable {
 	@Column(name = "password", nullable = false, length = 255)
 	protected String password;
 
+	
+	transient List<ChatMessages> complaint;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "role", nullable = false)
 	protected UserRole role;
-	@Transient
-	transient protected List<ChatMessages> complaint;
+
 
 	protected Person() {
 
@@ -109,13 +113,11 @@ public abstract class Person implements Serializable {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-
-	public List<ChatMessages> getComplaint() {
-		return complaint;
-	}
-
-	public void setComplaint(List<ChatMessages> complaint) {
-		this.complaint = complaint;
+	
+	@Override
+	public String toString() {
+		return "Person [personId=" + personId + ", firstName=" + firstName + ", lastName=" + lastName + ", email="
+				+ email + ", phone=" + phone + ", role=" + role + "]";
 	}
 
 	@Override

@@ -7,6 +7,11 @@ import java.util.List;
 
 import com.careplus.common.enums.UserRole;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+
 
 /* *
  * Child of the Person class
@@ -17,19 +22,22 @@ import com.careplus.common.enums.UserRole;
  *  has Medical Records
  *    
  */
-public class Patient extends Person {
-	private static final long serialVersionUID = 1L;
 
+@Entity
+@Table(name = "patient")
+public class Patient extends Person {
+	
+	@Transient
+	private static final long serialVersionUID = 1L;
+	@Column(name = "date_of_birth")
 	private Date dateofBrith;
+	@Column(name = "gender")
 	private String gender;
+	@Column(name = "adress")
 	private String address;
+	@Column(name = "medical_history")
 	private String medicalHistory;
 
-	private List<Payment> paymentList;
-	private List<Complaint> complaintsList;
-	private List<Appointment> appointmentList;
-	private List<VitalSigns> vitalSignsList;
-	private List<MedicalRecord> medMeidcalRecordsList;
 
 	public Patient() {
 		super();
@@ -41,46 +49,7 @@ public class Patient extends Person {
 		super(personId, firstName, lastName, email, phone, password, UserRole.PATIENT, complaint);
 	}
 
-	public List<Payment> getPaymentList() {
-		return paymentList;
-	}
-
-	public void setPaymentList(List<Payment> paymentList) {
-		this.paymentList = paymentList;
-	}
-
-	public List<Complaint> getComplaintsList() {
-		return complaintsList;
-	}
-
-	public void setComplaintsList(List<Complaint> complaintsList) {
-		this.complaintsList = complaintsList;
-	}
-
-	public List<Appointment> getAppointmentList() {
-		return appointmentList;
-	}
-
-	public void setAppointmentList(List<Appointment> appointmentList) {
-		this.appointmentList = appointmentList;
-	}
-
-	public List<VitalSigns> getVitalSignsList() {
-		return vitalSignsList;
-	}
-
-	public void setVitalSignsList(List<VitalSigns> vitalSignsList) {
-		this.vitalSignsList = vitalSignsList;
-	}
-
-	public List<MedicalRecord> getMedMeidcalRecordsList() {
-		return medMeidcalRecordsList;
-	}
-
-	public void setMedMeidcalRecordsList(List<MedicalRecord> medMeidcalRecordsList) {
-		this.medMeidcalRecordsList = medMeidcalRecordsList;
-	}
-
+	
 	public Date getDateofBrith() {
 		return dateofBrith;
 	}

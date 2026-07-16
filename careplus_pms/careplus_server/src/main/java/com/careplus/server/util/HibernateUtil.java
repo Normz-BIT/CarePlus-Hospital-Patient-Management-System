@@ -6,8 +6,6 @@ import org.hibernate.cfg.Configuration;
 
 /*
  * Creates a single sessions factory that will be used by other classes to access the MYSQL database
- * TODO
- * If we have errors may need to use volatile and synchronized access modifiers for threading
  */
 
 public class HibernateUtil {
@@ -27,6 +25,8 @@ public class HibernateUtil {
 
 			try {
 				sessionFactory = new Configuration().configure().buildSessionFactory();
+				
+				
 
 				System.out.println("SessionFactory created successfully.");
 			} catch (Exception e) {
