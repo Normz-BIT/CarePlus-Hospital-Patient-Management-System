@@ -48,7 +48,7 @@ CREATE TABLE employee (
 -- DOCTOR
 CREATE TABLE doctor (
     person_id      VARCHAR(10) NOT NULL,
-    specialization VARCHAR(80),
+    specialization ENUM('GENERAL', 'DERMATOLOGY', 'CARDIOLOGY', 'PEDIATRICS', 'PSYCHIATRY') NOT NULL,
     license_no     VARCHAR(40),
     CONSTRAINT pk_doctor PRIMARY KEY (person_id),
     CONSTRAINT fk_doctor_employee FOREIGN KEY (person_id)
@@ -56,10 +56,11 @@ CREATE TABLE doctor (
     CONSTRAINT uq_doctor_license UNIQUE (license_no)
 ) ENGINE=InnoDB;
 
+
 -- Nurse
 CREATE TABLE nurse (
     person_id VARCHAR(10) NOT NULL,
-    ward      VARCHAR(60),
+    ward      ENUM('PEDIATRIC', 'NEONATAL', 'ONCOLOGY', 'EMERGENCY') NOT NULL,
     CONSTRAINT pk_nurse PRIMARY KEY (person_id),
     CONSTRAINT fk_nurse_employee FOREIGN KEY (person_id)
         REFERENCES employee (person_id) ON DELETE CASCADE
