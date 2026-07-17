@@ -24,8 +24,7 @@ public class ClientHandler extends Thread {
 		this.socket = socket;
 		authservice = new AuthService();
 		paymentService = new PaymentService();
-		
-		
+
 	}
 
 	private void getStreams() {
@@ -71,13 +70,15 @@ public class ClientHandler extends Thread {
 					resp = authservice.login(req);
 					break;
 				case MAKE_PAYMENT:
-			
+
 					resp = paymentService.pay(req);
-			
+					break;
+
 				case GET_MY_PAYMENTS:
-					
+
 					resp = paymentService.getPayments(req);
-					
+					break;
+
 				default:
 					break;
 

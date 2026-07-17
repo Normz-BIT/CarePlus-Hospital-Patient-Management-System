@@ -48,6 +48,7 @@ public class PaymentController {
 
 			payment.setPaymentDate(LocalDateTime.now());
 
+			//TODO log4j2
 			System.out.println(payment.toString());
 
 			req.putMap("payment", payment);
@@ -61,7 +62,7 @@ public class PaymentController {
 			// TODO
 		}
 
-		refresh();
+		//refresh();
 
 	}
 
