@@ -19,7 +19,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
-public class Appointment extends JInternalFrame {
+public class AppointmentView extends JInternalFrame {
 
 	private static final long serialVersionUID = 1L;
 
@@ -47,7 +47,7 @@ public class Appointment extends JInternalFrame {
 	private JTable tblAppointments;
 	private DefaultTableModel tableModel;
 
-	public Appointment() {
+	public AppointmentView() {
 
 		super("Appointments", true, true, true, true);
 

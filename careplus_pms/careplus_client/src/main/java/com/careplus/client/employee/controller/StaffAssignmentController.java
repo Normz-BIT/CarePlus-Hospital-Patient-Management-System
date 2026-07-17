@@ -2,16 +2,16 @@ package com.careplus.client.employee.controller;
 
 import java.util.List;
 
-import com.careplus.client.employee.view.StaffAssignment;
+import com.careplus.client.employee.view.StaffAssignmentView;
 import com.careplus.common.client.net.Client;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
 
 public class StaffAssignmentController {
-	private final StaffAssignment view;
+	private final StaffAssignmentView view;
 
-	public StaffAssignmentController(StaffAssignment view) {
+	public StaffAssignmentController(StaffAssignmentView view) {
 		this.view = view;
 		init();
 		loadCombos();

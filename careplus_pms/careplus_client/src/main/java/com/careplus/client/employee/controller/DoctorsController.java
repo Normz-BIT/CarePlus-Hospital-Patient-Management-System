@@ -2,16 +2,16 @@ package com.careplus.client.employee.controller;
 
 import java.util.List;
 
-import com.careplus.client.employee.view.Doctors;
+import com.careplus.client.employee.view.DoctorsView;
 import com.careplus.common.client.net.Client;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
 
 public class DoctorsController {
-    private final Doctors view;
+    private final DoctorsView view;
 
-    public DoctorsController(Doctors view) {
+    public DoctorsController(DoctorsView view) {
         this.view = view;
         view.getBtnRefresh().addActionListener(e -> refresh());
         refresh();

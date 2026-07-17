@@ -2,16 +2,16 @@ package com.careplus.client.patient.controller;
 
 import java.util.List;
 
-import com.careplus.client.patient.view.MedicalRecord;
+import com.careplus.client.patient.view.MedicalRecordView;
 import com.careplus.common.client.net.Client;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
 
 public class MedicalRecordController {
-	private final MedicalRecord view;
+	private final MedicalRecordView view;
 
-	public MedicalRecordController(MedicalRecord view) {
+	public MedicalRecordController(MedicalRecordView view) {
 		this.view = view;
 		view.getBtnRefresh().addActionListener(e -> refresh());
 		view.getBtnClear().addActionListener(e -> view.clearFields());

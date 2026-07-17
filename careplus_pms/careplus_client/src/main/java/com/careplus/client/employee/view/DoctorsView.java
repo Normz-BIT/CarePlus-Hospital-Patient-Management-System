@@ -18,7 +18,7 @@ import javax.swing.table.DefaultTableModel;
  * Read-only directory of doctors (used by receptionists when assigning staff
  * and by doctors for reference).
  */
-public class Doctors extends JInternalFrame {
+public class DoctorsView extends JInternalFrame {
 
 	private static final long serialVersionUID = 1L;
 
@@ -28,7 +28,7 @@ public class Doctors extends JInternalFrame {
 	private JTable tblDoctors;
 	private DefaultTableModel tableModel;
 
-	public Doctors() {
+	public DoctorsView() {
 
 		super("Doctors", true, true, true, true);
 

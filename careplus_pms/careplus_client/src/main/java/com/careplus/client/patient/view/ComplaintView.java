@@ -1,4 +1,4 @@
-package com.careplus.client.employee.view;
+package com.careplus.client.patient.view;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -17,84 +17,96 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
-public class StaffAssignment extends JInternalFrame {
+public class ComplaintView extends JInternalFrame {
 
 	private static final long serialVersionUID = 1L;
 
+	// Labels
 	private JLabel lblTitle;
-	private JLabel lblComplaintId;
-	private JLabel lblStaffId;
-	private JLabel lblDepartment;
+	private JLabel lblCategory;
 	private JLabel lblPriority;
-	private JLabel lblNotes;
+	private JLabel lblDescription;
 
-	private JTextField txtComplaintId;
-	private JTextField txtStaffId;
-	private JComboBox<String> cboDepartment;
+	// Components
+	private JComboBox<String> cboCategory;
 	private JComboBox<String> cboPriority;
-	private JTextArea txtNotes;
+	private JTextArea txtDescription;
 
-	private JButton btnAssign;
+	// Buttons
+	private JButton btnSubmit;
 	private JButton btnUpdate;
+	private JButton btnDelete;
 	private JButton btnRefresh;
 	private JButton btnClear;
 
-	private JTable tblAssignments;
+	// Table
+	private JTable tblComplaints;
 	private DefaultTableModel tableModel;
 
-	public StaffAssignment() {
-		super("Staff Assignment", true, true, true, true);
+	public ComplaintView() {
+
+		super("Complaints", true, true, true, true);
 
 		initializeComponents();
 		buildGUI();
 
-		setSize(1000, 650);
+		setSize(950, 600);
 		setVisible(true);
+
 	}
 
 	private void initializeComponents() {
-		lblTitle = new JLabel("Staff Assignment");
+
+		lblTitle = new JLabel("Complaint Management");
 		lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
 
-		lblComplaintId = new JLabel("Complaint ID");
-		lblStaffId = new JLabel("Staff ID");
-		lblDepartment = new JLabel("Department");
+		lblCategory = new JLabel("Category");
 		lblPriority = new JLabel("Priority");
-		lblNotes = new JLabel("Notes");
+		lblDescription = new JLabel("Description");
 
-		txtComplaintId = new JTextField(20);
-		txtStaffId = new JTextField(20);
-
-		cboDepartment = new JComboBox<>();
+		cboCategory = new JComboBox<>();
 		cboPriority = new JComboBox<>();
 
-		txtNotes = new JTextArea(4, 30);
-		txtNotes.setLineWrap(true);
-		txtNotes.setWrapStyleWord(true);
+		cboCategory.addItem("Medical");
+		cboCategory.addItem("Billing");
+		cboCategory.addItem("Appointment");
+		cboCategory.addItem("Staff");
+		cboCategory.addItem("Other");
 
-		btnAssign = new JButton("Assign");
+		cboPriority.addItem("Low");
+		cboPriority.addItem("Medium");
+		cboPriority.addItem("High");
+
+		txtDescription = new JTextArea(5, 30);
+		txtDescription.setLineWrap(true);
+		txtDescription.setWrapStyleWord(true);
+
+		btnSubmit = new JButton("Submit");
 		btnUpdate = new JButton("Update");
+		btnDelete = new JButton("Delete");
 		btnRefresh = new JButton("Refresh");
 		btnClear = new JButton("Clear");
 
 		tableModel = new DefaultTableModel();
-		tableModel.setColumnIdentifiers(
-				new Object[] { "Assignment ID", "Complaint ID", "Staff ID", "Department", "Priority", "Status" });
 
-		tblAssignments = new JTable(tableModel);
-		tblAssignments.setRowHeight(25);
+		tableModel.setColumnIdentifiers(new Object[] { "Complaint ID", "Category", "Priority", "Date", "Status" });
+
+		tblComplaints = new JTable(tableModel);
+		tblComplaints.setRowHeight(25);
+
 	}
 
 	private void buildGUI() {
+
 		JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
 		mainPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
 		JPanel formPanel = new JPanel(new GridBagLayout());
 
 		GridBagConstraints gbc = new GridBagConstraints();
+
 		gbc.insets = new Insets(6, 6, 6, 6);
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 
@@ -107,109 +119,100 @@ public class StaffAssignment extends JInternalFrame {
 
 		gbc.gridx = 0;
 		gbc.gridy = 1;
-		formPanel.add(lblComplaintId, gbc);
+		formPanel.add(lblCategory, gbc);
 
 		gbc.gridx = 1;
-		formPanel.add(txtComplaintId, gbc);
+		formPanel.add(cboCategory, gbc);
 
 		gbc.gridx = 0;
 		gbc.gridy = 2;
-		formPanel.add(lblStaffId, gbc);
-
-		gbc.gridx = 1;
-		formPanel.add(txtStaffId, gbc);
-
-		gbc.gridx = 0;
-		gbc.gridy = 3;
-		formPanel.add(lblDepartment, gbc);
-
-		gbc.gridx = 1;
-		formPanel.add(cboDepartment, gbc);
-
-		gbc.gridx = 0;
-		gbc.gridy = 4;
 		formPanel.add(lblPriority, gbc);
 
 		gbc.gridx = 1;
 		formPanel.add(cboPriority, gbc);
 
 		gbc.gridx = 0;
-		gbc.gridy = 5;
+		gbc.gridy = 3;
 		gbc.anchor = GridBagConstraints.NORTHWEST;
-		formPanel.add(lblNotes, gbc);
+		formPanel.add(lblDescription, gbc);
 
 		gbc.gridx = 1;
-		formPanel.add(new JScrollPane(txtNotes), gbc);
+		formPanel.add(new JScrollPane(txtDescription), gbc);
 
 		JPanel buttonPanel = new JPanel(new FlowLayout());
 
-		buttonPanel.add(btnAssign);
+		buttonPanel.add(btnSubmit);
 		buttonPanel.add(btnUpdate);
+		buttonPanel.add(btnDelete);
 		buttonPanel.add(btnRefresh);
 		buttonPanel.add(btnClear);
 
 		mainPanel.add(formPanel, BorderLayout.NORTH);
-		mainPanel.add(new JScrollPane(tblAssignments), BorderLayout.CENTER);
+		mainPanel.add(new JScrollPane(tblComplaints), BorderLayout.CENTER);
 		mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
 		add(mainPanel);
+
 	}
+
+	/*
+	 * ===================== Helper Methods =====================
+	 */
 
 	public void clearTable() {
 		tableModel.setRowCount(0);
 	}
 
-	public void addAssignment(Object[] row) {
+	public void addComplaint(Object[] row) {
 		tableModel.addRow(row);
 	}
 
 	public void clearFields() {
-		txtComplaintId.setText("");
-		txtStaffId.setText("");
-		txtNotes.setText("");
 
-		cboDepartment.removeAllItems();
-		cboPriority.removeAllItems();
+		cboCategory.setSelectedIndex(0);
+		cboPriority.setSelectedIndex(0);
+		txtDescription.setText("");
+
 	}
 
 	public void showMessage(String message) {
 		JOptionPane.showMessageDialog(this, message);
 	}
 
-	public JTextField getTxtComplaintId() {
-		return txtComplaintId;
-	}
+	/*
+	 * ===================== Getters =====================
+	 */
 
-	public JTextField getTxtStaffId() {
-		return txtStaffId;
-	}
-
-	public JComboBox<String> getCboDepartment() {
-		return cboDepartment;
+	public JComboBox<String> getCboCategory() {
+		return cboCategory;
 	}
 
 	public JComboBox<String> getCboPriority() {
 		return cboPriority;
 	}
 
-	public JTextArea getTxtNotes() {
-		return txtNotes;
+	public JTextArea getTxtDescription() {
+		return txtDescription;
 	}
 
-	public JTable getTblAssignments() {
-		return tblAssignments;
+	public JTable getTblComplaints() {
+		return tblComplaints;
 	}
 
 	public DefaultTableModel getTableModel() {
 		return tableModel;
 	}
 
-	public JButton getBtnAssign() {
-		return btnAssign;
+	public JButton getBtnSubmit() {
+		return btnSubmit;
 	}
 
 	public JButton getBtnUpdate() {
 		return btnUpdate;
+	}
+
+	public JButton getBtnDelete() {
+		return btnDelete;
 	}
 
 	public JButton getBtnRefresh() {
@@ -219,4 +222,5 @@ public class StaffAssignment extends JInternalFrame {
 	public JButton getBtnClear() {
 		return btnClear;
 	}
+
 }

@@ -25,55 +25,55 @@ public class ClientApp {
 
 				// Patient features
 				new DashboardFeature("Patient", "Appointments", Set.of(UserRole.PATIENT), () -> {
-					Appointment view = new Appointment();
+					AppointmentView view = new AppointmentView();
 					new AppointmentController(view);
 					return view;
 				}), new DashboardFeature("Patient", "Complaints", Set.of(UserRole.PATIENT), () -> {
-					Complaint view = new Complaint();
+					ComplaintView view = new ComplaintView();
 					new ComplaintController(view);
 					return view;
 				}), new DashboardFeature("Patient", "Medical Records", Set.of(UserRole.PATIENT), () -> {
-					MedicalRecord view = new MedicalRecord();
+					MedicalRecordView view = new MedicalRecordView();
 					new MedicalRecordController(view);
 					return view;
 				}), new DashboardFeature("Patient", "Payments", Set.of(UserRole.PATIENT), () -> {
-					Payment view = new Payment();
+					PaymentView view = new PaymentView();
 					new PaymentController(view);
 					return view;
 				}), new DashboardFeature("Patient", "Chat", Set.of(UserRole.PATIENT), () -> {
-					Chat view = new Chat();
+					ChatView view = new ChatView();
 					new ChatController(view);
 					return view;
 				}),
 
 				// Employee features
 				new DashboardFeature("Employee", "Diagnosis", Set.of(UserRole.DOCTOR), () -> {
-					Diagnosis view = new Diagnosis();
+					DiagnosisView view = new DiagnosisView();
 					new DiagnosisController(view);
 					return view;
 				}), new DashboardFeature("Employee", "Complaint Manager", Set.of(UserRole.RECEPTIONIST), () -> {
-					EmployeeComplaint view = new EmployeeComplaint();
+					EmployeeComplaintView view = new EmployeeComplaintView();
 					new EmployeeComplaintController(view);
 					return view;
 				}), new DashboardFeature("Employee", "Staff Assignment", Set.of(UserRole.RECEPTIONIST), () -> {
-					StaffAssignment view = new StaffAssignment();
+					StaffAssignmentView view = new StaffAssignmentView();
 					new StaffAssignmentController(view);
 					return view;
 				}), new DashboardFeature("Employee", "My Patients", Set.of(UserRole.DOCTOR), () -> {
-					Patients view = new Patients();
+					PatientsView view = new PatientsView();
 					new PatientsController(view);
 					return view;
 				}), new DashboardFeature("Employee", "Doctors", Set.of(UserRole.DOCTOR, UserRole.RECEPTIONIST), () -> {
-					Doctors view = new Doctors();
+					DoctorsView view = new DoctorsView();
 					new DoctorsController(view);
 					return view;
 				}), new DashboardFeature("Employee", "Nurse Station", Set.of(UserRole.NURSE), () -> {
-					Vitals view = new Vitals();
+					VitalsView view = new VitalsView();
 					new VitalsController(view);
 					return view;
 				}), new DashboardFeature("Employee", "Staff Chat",
 						Set.of(UserRole.DOCTOR, UserRole.NURSE, UserRole.RECEPTIONIST), () -> {
-							StaffChat view = new StaffChat();
+							StaffChatView view = new StaffChatView();
 							new StaffChatController(view);
 							return view;
 						}));

@@ -2,16 +2,16 @@ package com.careplus.client.patient.controller;
 
 import java.util.List;
 
-import com.careplus.client.patient.view.Chat;
+import com.careplus.client.patient.view.ChatView;
 import com.careplus.common.client.net.Client;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
 
 public class ChatController {
-	private final Chat view;
+	private final ChatView view;
 
-	public ChatController(Chat view) {
+	public ChatController(ChatView view) {
 		this.view = view;
 		view.getBtnSend().addActionListener(e -> sendMessage());
 		view.getBtnRefresh().addActionListener(e -> refresh());

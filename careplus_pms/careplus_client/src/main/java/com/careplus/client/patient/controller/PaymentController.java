@@ -2,16 +2,16 @@ package com.careplus.client.patient.controller;
 
 import java.util.List;
 
-import com.careplus.client.patient.view.Payment;
+import com.careplus.client.patient.view.PaymentView;
 import com.careplus.common.client.net.Client;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
 
 public class PaymentController {
-	private final Payment view;
+	private final PaymentView view;
 
-	public PaymentController(Payment view) {
+	public PaymentController(PaymentView view) {
 		this.view = view;
 		view.getBtnPay().addActionListener(e -> pay());
 		view.getBtnRefresh().addActionListener(e -> refresh());

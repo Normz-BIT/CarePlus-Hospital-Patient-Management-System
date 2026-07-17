@@ -15,73 +15,72 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
-public class MedicalRecord extends JInternalFrame {
+public class PaymentView extends JInternalFrame {
 
 	private static final long serialVersionUID = 1L;
 
 	// Labels
 	private JLabel lblTitle;
-	private JLabel lblDiagnosis;
-	private JLabel lblTreatment;
-	private JLabel lblPrescription;
+	private JLabel lblPaymentId;
+	private JLabel lblAmount;
+	private JLabel lblMethod;
+	private JLabel lblStatus;
 
 	// Fields
-	private JTextField txtDiagnosis;
-	private JTextArea txtTreatment;
-	private JTextArea txtPrescription;
+	private JTextField txtPaymentId;
+	private JTextField txtAmount;
+	private JTextField txtMethod;
+	private JTextField txtStatus;
 
 	// Buttons
+	private JButton btnPay;
 	private JButton btnRefresh;
 	private JButton btnClear;
 
 	// Table
-	private JTable tblMedicalRecords;
+	private JTable tblPayments;
 	private DefaultTableModel tableModel;
 
-	public MedicalRecord() {
+	public PaymentView() {
 
-		super("Medical Records", true, true, true, true);
+		super("Payments", true, true, true, true);
 
 		initializeComponents();
 		buildGUI();
 
-		setSize(950, 600);
+		setSize(900, 600);
 		setVisible(true);
 
 	}
 
 	private void initializeComponents() {
 
-		lblTitle = new JLabel("Medical Records");
+		lblTitle = new JLabel("Payment Management");
 		lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
 
-		lblDiagnosis = new JLabel("Diagnosis");
-		lblTreatment = new JLabel("Treatment");
-		lblPrescription = new JLabel("Prescription");
+		lblPaymentId = new JLabel("Payment ID");
+		lblAmount = new JLabel("Amount");
+		lblMethod = new JLabel("Payment Method");
+		lblStatus = new JLabel("Status");
 
-		txtDiagnosis = new JTextField(30);
+		txtPaymentId = new JTextField(20);
+		txtAmount = new JTextField(20);
+		txtMethod = new JTextField(20);
+		txtStatus = new JTextField(20);
 
-		txtTreatment = new JTextArea(4, 30);
-		txtTreatment.setLineWrap(true);
-		txtTreatment.setWrapStyleWord(true);
-
-		txtPrescription = new JTextArea(4, 30);
-		txtPrescription.setLineWrap(true);
-		txtPrescription.setWrapStyleWord(true);
-
+		btnPay = new JButton("Make Payment");
 		btnRefresh = new JButton("Refresh");
 		btnClear = new JButton("Clear");
 
 		tableModel = new DefaultTableModel();
 
-		tableModel.setColumnIdentifiers(new Object[] { "Record ID", "Diagnosis", "Treatment", "Prescription", "Date" });
+		tableModel.setColumnIdentifiers(new Object[] { "Payment ID", "Amount", "Method", "Status", "Date" });
 
-		tblMedicalRecords = new JTable(tableModel);
-		tblMedicalRecords.setRowHeight(25);
+		tblPayments = new JTable(tableModel);
+		tblPayments.setRowHeight(25);
 
 	}
 
@@ -107,33 +106,40 @@ public class MedicalRecord extends JInternalFrame {
 
 		gbc.gridx = 0;
 		gbc.gridy = 1;
-		formPanel.add(lblDiagnosis, gbc);
+		formPanel.add(lblPaymentId, gbc);
 
 		gbc.gridx = 1;
-		formPanel.add(txtDiagnosis, gbc);
+		formPanel.add(txtPaymentId, gbc);
 
 		gbc.gridx = 0;
 		gbc.gridy = 2;
-		gbc.anchor = GridBagConstraints.NORTHWEST;
-		formPanel.add(lblTreatment, gbc);
+		formPanel.add(lblAmount, gbc);
 
 		gbc.gridx = 1;
-		formPanel.add(new JScrollPane(txtTreatment), gbc);
+		formPanel.add(txtAmount, gbc);
 
 		gbc.gridx = 0;
 		gbc.gridy = 3;
-		formPanel.add(lblPrescription, gbc);
+		formPanel.add(lblMethod, gbc);
 
 		gbc.gridx = 1;
-		formPanel.add(new JScrollPane(txtPrescription), gbc);
+		formPanel.add(txtMethod, gbc);
+
+		gbc.gridx = 0;
+		gbc.gridy = 4;
+		formPanel.add(lblStatus, gbc);
+
+		gbc.gridx = 1;
+		formPanel.add(txtStatus, gbc);
 
 		JPanel buttonPanel = new JPanel(new FlowLayout());
 
+		buttonPanel.add(btnPay);
 		buttonPanel.add(btnRefresh);
 		buttonPanel.add(btnClear);
 
 		mainPanel.add(formPanel, BorderLayout.NORTH);
-		mainPanel.add(new JScrollPane(tblMedicalRecords), BorderLayout.CENTER);
+		mainPanel.add(new JScrollPane(tblPayments), BorderLayout.CENTER);
 		mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
 		add(mainPanel);
@@ -144,15 +150,16 @@ public class MedicalRecord extends JInternalFrame {
 		tableModel.setRowCount(0);
 	}
 
-	public void addMedicalRecord(Object[] row) {
+	public void addPayment(Object[] row) {
 		tableModel.addRow(row);
 	}
 
 	public void clearFields() {
 
-		txtDiagnosis.setText("");
-		txtTreatment.setText("");
-		txtPrescription.setText("");
+		txtPaymentId.setText("");
+		txtAmount.setText("");
+		txtMethod.setText("");
+		txtStatus.setText("");
 
 	}
 
@@ -160,24 +167,32 @@ public class MedicalRecord extends JInternalFrame {
 		JOptionPane.showMessageDialog(this, message);
 	}
 
-	public JTextField getTxtDiagnosis() {
-		return txtDiagnosis;
+	public JTextField getTxtPaymentId() {
+		return txtPaymentId;
 	}
 
-	public JTextArea getTxtTreatment() {
-		return txtTreatment;
+	public JTextField getTxtAmount() {
+		return txtAmount;
 	}
 
-	public JTextArea getTxtPrescription() {
-		return txtPrescription;
+	public JTextField getTxtMethod() {
+		return txtMethod;
 	}
 
-	public JTable getTblMedicalRecords() {
-		return tblMedicalRecords;
+	public JTextField getTxtStatus() {
+		return txtStatus;
+	}
+
+	public JTable getTblPayments() {
+		return tblPayments;
 	}
 
 	public DefaultTableModel getTableModel() {
 		return tableModel;
+	}
+
+	public JButton getBtnPay() {
+		return btnPay;
 	}
 
 	public JButton getBtnRefresh() {

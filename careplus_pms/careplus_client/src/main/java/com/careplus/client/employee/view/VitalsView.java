@@ -23,7 +23,7 @@ import javax.swing.table.DefaultTableModel;
  * Nurse workspace: view assigned cases and record vital signs, patient
  * observations, and nursing notes.
  */
-public class Vitals extends JInternalFrame {
+public class VitalsView extends JInternalFrame {
 
 	private static final long serialVersionUID = 1L;
 
@@ -51,7 +51,7 @@ public class Vitals extends JInternalFrame {
 	private JTable tblCases;
 	private DefaultTableModel tableModel;
 
-	public Vitals() {
+	public VitalsView() {
 
 		super("Nurse Station", true, true, true, true);
 

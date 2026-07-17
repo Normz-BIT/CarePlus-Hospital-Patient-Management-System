@@ -1,7 +1,5 @@
 package com.careplus.common.model;
 
-import java.util.List;
-
 import com.careplus.common.enums.DoctorSpecialization;
 import com.careplus.common.enums.UserRole;
 

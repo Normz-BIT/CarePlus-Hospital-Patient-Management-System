@@ -127,10 +127,13 @@ public class MainDashboard extends JFrame {
     /** Makes a frame visible, restored, selected and on top. */
     private void focus(JInternalFrame frame) {
         try {
+        	
+        	frame.setMaximum(true);
             frame.setVisible(true);
             frame.setIcon(false);
             frame.setSelected(true);
             frame.toFront();
+           
         } catch (Exception ex) {
             
         }

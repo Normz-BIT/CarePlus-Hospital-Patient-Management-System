@@ -1,4 +1,4 @@
-package com.careplus.client.patient.view;
+package com.careplus.client.employee.view;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -17,27 +17,31 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
-public class Complaint extends JInternalFrame {
+public class EmployeeComplaintView extends JInternalFrame {
 
 	private static final long serialVersionUID = 1L;
 
 	// Labels
 	private JLabel lblTitle;
+	private JLabel lblComplaintId;
 	private JLabel lblCategory;
 	private JLabel lblPriority;
-	private JLabel lblDescription;
+	private JLabel lblStatus;
+	private JLabel lblRemarks;
 
 	// Components
+	private JTextField txtComplaintId;
 	private JComboBox<String> cboCategory;
 	private JComboBox<String> cboPriority;
-	private JTextArea txtDescription;
+	private JComboBox<String> cboStatus;
+	private JTextArea txtRemarks;
 
 	// Buttons
-	private JButton btnSubmit;
-	private JButton btnUpdate;
-	private JButton btnDelete;
+	private JButton btnAssign;
+	private JButton btnResolve;
 	private JButton btnRefresh;
 	private JButton btnClear;
 
@@ -45,14 +49,19 @@ public class Complaint extends JInternalFrame {
 	private JTable tblComplaints;
 	private DefaultTableModel tableModel;
 
-	public Complaint() {
+	// Summary + category filter
+	private JLabel lblSummary;
+	private JComboBox<String> cboFilter;
+	private JButton btnSearch;
 
-		super("Complaints", true, true, true, true);
+	public EmployeeComplaintView() {
+
+		super("Complaint Manager", true, true, true, true);
 
 		initializeComponents();
 		buildGUI();
 
-		setSize(950, 600);
+		setSize(1000, 650);
 		setVisible(true);
 
 	}
@@ -62,39 +71,38 @@ public class Complaint extends JInternalFrame {
 		lblTitle = new JLabel("Complaint Management");
 		lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
 
+		lblComplaintId = new JLabel("Complaint ID");
 		lblCategory = new JLabel("Category");
 		lblPriority = new JLabel("Priority");
-		lblDescription = new JLabel("Description");
+		lblStatus = new JLabel("Status");
+		lblRemarks = new JLabel("Remarks");
+
+		txtComplaintId = new JTextField(20);
 
 		cboCategory = new JComboBox<>();
 		cboPriority = new JComboBox<>();
+		cboStatus = new JComboBox<>();
 
-		cboCategory.addItem("Medical");
-		cboCategory.addItem("Billing");
-		cboCategory.addItem("Appointment");
-		cboCategory.addItem("Staff");
-		cboCategory.addItem("Other");
+		txtRemarks = new JTextArea(4, 30);
+		txtRemarks.setLineWrap(true);
+		txtRemarks.setWrapStyleWord(true);
 
-		cboPriority.addItem("Low");
-		cboPriority.addItem("Medium");
-		cboPriority.addItem("High");
-
-		txtDescription = new JTextArea(5, 30);
-		txtDescription.setLineWrap(true);
-		txtDescription.setWrapStyleWord(true);
-
-		btnSubmit = new JButton("Submit");
-		btnUpdate = new JButton("Update");
-		btnDelete = new JButton("Delete");
+		btnAssign = new JButton("Assign");
+		btnResolve = new JButton("Resolve");
 		btnRefresh = new JButton("Refresh");
 		btnClear = new JButton("Clear");
 
 		tableModel = new DefaultTableModel();
 
-		tableModel.setColumnIdentifiers(new Object[] { "Complaint ID", "Category", "Priority", "Date", "Status" });
+		tableModel.setColumnIdentifiers(
+				new Object[] { "Complaint ID", "Category", "Priority", "Status", "Patient", "Date" });
 
 		tblComplaints = new JTable(tableModel);
 		tblComplaints.setRowHeight(25);
+
+		lblSummary = new JLabel(" ");
+		cboFilter = new JComboBox<>();
+		btnSearch = new JButton("Search");
 
 	}
 
@@ -119,45 +127,67 @@ public class Complaint extends JInternalFrame {
 
 		gbc.gridx = 0;
 		gbc.gridy = 1;
+		formPanel.add(lblComplaintId, gbc);
+
+		gbc.gridx = 1;
+		formPanel.add(txtComplaintId, gbc);
+
+		gbc.gridx = 0;
+		gbc.gridy = 2;
 		formPanel.add(lblCategory, gbc);
 
 		gbc.gridx = 1;
 		formPanel.add(cboCategory, gbc);
 
 		gbc.gridx = 0;
-		gbc.gridy = 2;
+		gbc.gridy = 3;
 		formPanel.add(lblPriority, gbc);
 
 		gbc.gridx = 1;
 		formPanel.add(cboPriority, gbc);
 
 		gbc.gridx = 0;
-		gbc.gridy = 3;
-		gbc.anchor = GridBagConstraints.NORTHWEST;
-		formPanel.add(lblDescription, gbc);
+		gbc.gridy = 4;
+		formPanel.add(lblStatus, gbc);
 
 		gbc.gridx = 1;
-		formPanel.add(new JScrollPane(txtDescription), gbc);
+		formPanel.add(cboStatus, gbc);
+
+		gbc.gridx = 0;
+		gbc.gridy = 5;
+		gbc.anchor = GridBagConstraints.NORTHWEST;
+		formPanel.add(lblRemarks, gbc);
+
+		gbc.gridx = 1;
+		formPanel.add(new JScrollPane(txtRemarks), gbc);
 
 		JPanel buttonPanel = new JPanel(new FlowLayout());
 
-		buttonPanel.add(btnSubmit);
-		buttonPanel.add(btnUpdate);
-		buttonPanel.add(btnDelete);
+		buttonPanel.add(btnAssign);
+		buttonPanel.add(btnResolve);
 		buttonPanel.add(btnRefresh);
 		buttonPanel.add(btnClear);
 
-		mainPanel.add(formPanel, BorderLayout.NORTH);
+		JPanel filterRow = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		filterRow.add(new JLabel("Filter Category"));
+		filterRow.add(cboFilter);
+		filterRow.add(btnSearch);
+
+		JPanel summaryPanel = new JPanel(new BorderLayout());
+		summaryPanel.add(lblSummary, BorderLayout.NORTH);
+		summaryPanel.add(filterRow, BorderLayout.SOUTH);
+
+		JPanel northPanel = new JPanel(new BorderLayout());
+		northPanel.add(formPanel, BorderLayout.NORTH);
+		northPanel.add(summaryPanel, BorderLayout.SOUTH);
+
+		mainPanel.add(northPanel, BorderLayout.NORTH);
 		mainPanel.add(new JScrollPane(tblComplaints), BorderLayout.CENTER);
 		mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
 		add(mainPanel);
 
 	}
-
-	/*
-	 * ===================== Helper Methods =====================
-	 */
 
 	public void clearTable() {
 		tableModel.setRowCount(0);
@@ -169,9 +199,12 @@ public class Complaint extends JInternalFrame {
 
 	public void clearFields() {
 
-		cboCategory.setSelectedIndex(0);
-		cboPriority.setSelectedIndex(0);
-		txtDescription.setText("");
+		txtComplaintId.setText("");
+		txtRemarks.setText("");
+
+		cboCategory.removeAllItems();
+		cboPriority.removeAllItems();
+		cboStatus.removeAllItems();
 
 	}
 
@@ -179,9 +212,26 @@ public class Complaint extends JInternalFrame {
 		JOptionPane.showMessageDialog(this, message);
 	}
 
-	/*
-	 * ===================== Getters =====================
-	 */
+	/** Sets the plain-text summary line. */
+	public void setSummary(String text) {
+		lblSummary.setText(text);
+	}
+
+	public JLabel getLblSummary() {
+		return lblSummary;
+	}
+
+	public JComboBox<String> getCboFilter() {
+		return cboFilter;
+	}
+
+	public JButton getBtnSearch() {
+		return btnSearch;
+	}
+
+	public JTextField getTxtComplaintId() {
+		return txtComplaintId;
+	}
 
 	public JComboBox<String> getCboCategory() {
 		return cboCategory;
@@ -191,8 +241,12 @@ public class Complaint extends JInternalFrame {
 		return cboPriority;
 	}
 
-	public JTextArea getTxtDescription() {
-		return txtDescription;
+	public JComboBox<String> getCboStatus() {
+		return cboStatus;
+	}
+
+	public JTextArea getTxtRemarks() {
+		return txtRemarks;
 	}
 
 	public JTable getTblComplaints() {
@@ -203,16 +257,12 @@ public class Complaint extends JInternalFrame {
 		return tableModel;
 	}
 
-	public JButton getBtnSubmit() {
-		return btnSubmit;
+	public JButton getBtnAssign() {
+		return btnAssign;
 	}
 
-	public JButton getBtnUpdate() {
-		return btnUpdate;
-	}
-
-	public JButton getBtnDelete() {
-		return btnDelete;
+	public JButton getBtnResolve() {
+		return btnResolve;
 	}
 
 	public JButton getBtnRefresh() {

@@ -2,16 +2,16 @@ package com.careplus.client.employee.controller;
 
 import java.util.List;
 
-import com.careplus.client.employee.view.Vitals;
+import com.careplus.client.employee.view.VitalsView;
 import com.careplus.common.client.net.Client;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
 
 public class VitalsController {
-	private final Vitals view;
+	private final VitalsView view;
 
-	public VitalsController(Vitals view) {
+	public VitalsController(VitalsView view) {
 		this.view = view;
 		init();
 		refresh();

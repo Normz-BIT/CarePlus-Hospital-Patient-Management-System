@@ -15,7 +15,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-public class Chat extends JInternalFrame {
+public class ChatView extends JInternalFrame {
 
 	private static final long serialVersionUID = 1L;
 
@@ -32,7 +32,7 @@ public class Chat extends JInternalFrame {
 	private JButton btnRefresh;
 	private JButton btnClear;
 
-	public Chat() {
+	public ChatView() {
 
 		super("Patient Support Chat", true, true, true, true);
 

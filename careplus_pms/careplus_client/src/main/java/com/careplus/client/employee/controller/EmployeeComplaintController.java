@@ -6,7 +6,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-import com.careplus.client.employee.view.EmployeeComplaint;
+import com.careplus.client.employee.view.EmployeeComplaintView;
 import com.careplus.common.client.net.Client;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
@@ -18,10 +18,10 @@ public class EmployeeComplaintController {
 	private static final int CATEGORY_COL = 1;
 	private static final int STATUS_COL = 3;
 
-	private final EmployeeComplaint view;
+	private final EmployeeComplaintView view;
 	private final List<Object[]> allComplaints = new ArrayList<>();
 
-	public EmployeeComplaintController(EmployeeComplaint view) {
+	public EmployeeComplaintController(EmployeeComplaintView view) {
 		this.view = view;
 		init();
 		loadCombos();

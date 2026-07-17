@@ -1,4 +1,4 @@
-package com.careplus.client.patient.view;
+package com.careplus.client.employee.view;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -18,70 +18,64 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
-public class Payment extends JInternalFrame {
+/**
+ * Doctor's assigned-patients directory: lists patient id, name, contact,
+ * complaint and history, and lets the doctor schedule a follow-up.
+ */
+public class PatientsView extends JInternalFrame {
 
 	private static final long serialVersionUID = 1L;
 
-	// Labels
 	private JLabel lblTitle;
-	private JLabel lblPaymentId;
-	private JLabel lblAmount;
-	private JLabel lblMethod;
-	private JLabel lblStatus;
+	private JLabel lblPatientId;
+	private JLabel lblDate;
+	private JLabel lblTime;
 
-	// Fields
-	private JTextField txtPaymentId;
-	private JTextField txtAmount;
-	private JTextField txtMethod;
-	private JTextField txtStatus;
+	private JTextField txtPatientId;
+	private JTextField txtDate;
+	private JTextField txtTime;
 
-	// Buttons
-	private JButton btnPay;
+	private JButton btnFollowUp;
 	private JButton btnRefresh;
 	private JButton btnClear;
 
-	// Table
-	private JTable tblPayments;
+	private JTable tblPatients;
 	private DefaultTableModel tableModel;
 
-	public Payment() {
+	public PatientsView() {
 
-		super("Payments", true, true, true, true);
+		super("My Patients", true, true, true, true);
 
 		initializeComponents();
 		buildGUI();
 
-		setSize(900, 600);
+		setSize(1050, 650);
 		setVisible(true);
-
 	}
 
 	private void initializeComponents() {
 
-		lblTitle = new JLabel("Payment Management");
+		lblTitle = new JLabel("Assigned Patients");
 		lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
 
-		lblPaymentId = new JLabel("Payment ID");
-		lblAmount = new JLabel("Amount");
-		lblMethod = new JLabel("Payment Method");
-		lblStatus = new JLabel("Status");
+		lblPatientId = new JLabel("Patient ID");
+		lblDate = new JLabel("Follow-up Date");
+		lblTime = new JLabel("Follow-up Time");
 
-		txtPaymentId = new JTextField(20);
-		txtAmount = new JTextField(20);
-		txtMethod = new JTextField(20);
-		txtStatus = new JTextField(20);
+		txtPatientId = new JTextField(20);
+		txtDate = new JTextField(20);
+		txtTime = new JTextField(20);
 
-		btnPay = new JButton("Make Payment");
+		btnFollowUp = new JButton("Schedule Follow-up");
 		btnRefresh = new JButton("Refresh");
 		btnClear = new JButton("Clear");
 
 		tableModel = new DefaultTableModel();
+		tableModel
+				.setColumnIdentifiers(new Object[] { "Patient ID", "Name", "Contact", "Complaint", "Medical History" });
 
-		tableModel.setColumnIdentifiers(new Object[] { "Payment ID", "Amount", "Method", "Status", "Date" });
-
-		tblPayments = new JTable(tableModel);
-		tblPayments.setRowHeight(25);
-
+		tblPatients = new JTable(tableModel);
+		tblPatients.setRowHeight(25);
 	}
 
 	private void buildGUI() {
@@ -90,109 +84,86 @@ public class Payment extends JInternalFrame {
 		mainPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
 		JPanel formPanel = new JPanel(new GridBagLayout());
-
 		GridBagConstraints gbc = new GridBagConstraints();
-
 		gbc.insets = new Insets(6, 6, 6, 6);
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 
 		gbc.gridx = 0;
 		gbc.gridy = 0;
 		gbc.gridwidth = 2;
-
 		formPanel.add(lblTitle, gbc);
-
 		gbc.gridwidth = 1;
 
 		gbc.gridx = 0;
 		gbc.gridy = 1;
-		formPanel.add(lblPaymentId, gbc);
-
+		formPanel.add(lblPatientId, gbc);
 		gbc.gridx = 1;
-		formPanel.add(txtPaymentId, gbc);
+		formPanel.add(txtPatientId, gbc);
 
 		gbc.gridx = 0;
 		gbc.gridy = 2;
-		formPanel.add(lblAmount, gbc);
-
+		formPanel.add(lblDate, gbc);
 		gbc.gridx = 1;
-		formPanel.add(txtAmount, gbc);
+		formPanel.add(txtDate, gbc);
 
 		gbc.gridx = 0;
 		gbc.gridy = 3;
-		formPanel.add(lblMethod, gbc);
-
+		formPanel.add(lblTime, gbc);
 		gbc.gridx = 1;
-		formPanel.add(txtMethod, gbc);
-
-		gbc.gridx = 0;
-		gbc.gridy = 4;
-		formPanel.add(lblStatus, gbc);
-
-		gbc.gridx = 1;
-		formPanel.add(txtStatus, gbc);
+		formPanel.add(txtTime, gbc);
 
 		JPanel buttonPanel = new JPanel(new FlowLayout());
-
-		buttonPanel.add(btnPay);
+		buttonPanel.add(btnFollowUp);
 		buttonPanel.add(btnRefresh);
 		buttonPanel.add(btnClear);
 
 		mainPanel.add(formPanel, BorderLayout.NORTH);
-		mainPanel.add(new JScrollPane(tblPayments), BorderLayout.CENTER);
+		mainPanel.add(new JScrollPane(tblPatients), BorderLayout.CENTER);
 		mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
 		add(mainPanel);
-
 	}
 
 	public void clearTable() {
 		tableModel.setRowCount(0);
 	}
 
-	public void addPayment(Object[] row) {
+	public void addPatient(Object[] row) {
 		tableModel.addRow(row);
 	}
 
 	public void clearFields() {
-
-		txtPaymentId.setText("");
-		txtAmount.setText("");
-		txtMethod.setText("");
-		txtStatus.setText("");
-
+		txtPatientId.setText("");
+		txtDate.setText("");
+		txtTime.setText("");
 	}
 
 	public void showMessage(String message) {
 		JOptionPane.showMessageDialog(this, message);
 	}
 
-	public JTextField getTxtPaymentId() {
-		return txtPaymentId;
+	public JTextField getTxtPatientId() {
+		return txtPatientId;
 	}
 
-	public JTextField getTxtAmount() {
-		return txtAmount;
+	public JTextField getTxtDate() {
+		return txtDate;
 	}
 
-	public JTextField getTxtMethod() {
-		return txtMethod;
+	public JTextField getTxtTime() {
+		return txtTime;
 	}
 
-	public JTextField getTxtStatus() {
-		return txtStatus;
-	}
-
-	public JTable getTblPayments() {
-		return tblPayments;
+	public JTable getTblPatients() {
+		return tblPatients;
 	}
 
 	public DefaultTableModel getTableModel() {
 		return tableModel;
 	}
 
-	public JButton getBtnPay() {
-		return btnPay;
+	public JButton getBtnFollowUp() {
+		return btnFollowUp;
 	}
 
 	public JButton getBtnRefresh() {
@@ -202,5 +173,4 @@ public class Payment extends JInternalFrame {
 	public JButton getBtnClear() {
 		return btnClear;
 	}
-
 }

@@ -2,16 +2,16 @@ package com.careplus.client.employee.controller;
 
 import java.util.List;
 
-import com.careplus.client.employee.view.StaffChat;
+import com.careplus.client.employee.view.StaffChatView;
 import com.careplus.common.client.net.Client;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
 
 public class StaffChatController {
-	private final StaffChat view;
+	private final StaffChatView view;
 
-	public StaffChatController(StaffChat view) {
+	public StaffChatController(StaffChatView view) {
 		this.view = view;
 		view.getBtnSend().addActionListener(e -> sendMessage());
 		view.getBtnRefresh().addActionListener(e -> refresh());

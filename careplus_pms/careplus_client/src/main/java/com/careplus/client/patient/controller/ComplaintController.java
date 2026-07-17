@@ -2,16 +2,16 @@ package com.careplus.client.patient.controller;
 
 import java.util.List;
 
-import com.careplus.client.patient.view.Complaint;
+import com.careplus.client.patient.view.ComplaintView;
 import com.careplus.common.client.net.Client;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
 
 public class ComplaintController {
-	private final Complaint view;
+	private final ComplaintView view;
 
-	public ComplaintController(Complaint view) {
+	public ComplaintController(ComplaintView view) {
 		this.view = view;
 		init();
 		refresh();

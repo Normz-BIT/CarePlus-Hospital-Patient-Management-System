@@ -2,16 +2,16 @@ package com.careplus.client.employee.controller;
 
 import java.util.List;
 
-import com.careplus.client.employee.view.Diagnosis;
+import com.careplus.client.employee.view.DiagnosisView;
 import com.careplus.common.client.net.Client;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
 
 public class DiagnosisController {
-	private final Diagnosis view;
+	private final DiagnosisView view;
 
-	public DiagnosisController(Diagnosis view) {
+	public DiagnosisController(DiagnosisView view) {
 		this.view = view;
 		init();
 		loadStatus();

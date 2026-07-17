@@ -18,7 +18,7 @@ import javax.swing.JTextField;
  * Employee side of the live chat staff pick a patient and exchange messages,
  * responding to and updating patients on their requests.
  */
-public class StaffChat extends JInternalFrame {
+public class StaffChatView extends JInternalFrame {
 
 	private static final long serialVersionUID = 1L;
 
@@ -32,7 +32,7 @@ public class StaffChat extends JInternalFrame {
 	private JButton btnRefresh;
 	private JButton btnClear;
 
-	public StaffChat() {
+	public StaffChatView() {
 
 		super("Staff Chat", true, true, true, true);
 

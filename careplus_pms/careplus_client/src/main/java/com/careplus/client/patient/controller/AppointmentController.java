@@ -2,16 +2,16 @@ package com.careplus.client.patient.controller;
 
 import java.util.List;
 
-import com.careplus.client.patient.view.Appointment;
+import com.careplus.client.patient.view.AppointmentView;
 import com.careplus.common.client.net.Client;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
 
 public class AppointmentController {
-    private final Appointment view;
+    private final AppointmentView view;
 
-    public AppointmentController(Appointment view) {
+    public AppointmentController(AppointmentView view) {
         this.view = view;
         init();
         loadLookups();
