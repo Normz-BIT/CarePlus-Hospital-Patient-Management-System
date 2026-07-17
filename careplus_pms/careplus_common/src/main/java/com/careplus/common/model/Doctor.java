@@ -15,17 +15,15 @@ public class Doctor extends Employee {
 
 	private DoctorSpecialization specialization;
 	private String licenseNo;
-	private List<Appointment> appointmentsList;
-	private List<MedicalRecord> medicalRecordsList;
+
 
 	public Doctor() {
 		super();
 		setRole(UserRole.DOCTOR);
 	}
 
-	public Doctor(String personId, String firstName, String lastName, String email, String phone, String password,
-			List<ChatMessages> complaint) {
-		super(personId, firstName, lastName, email, phone, password, UserRole.DOCTOR, complaint);
+	public Doctor(String personId, String firstName, String lastName, String email, String phone, String password) {
+		super(personId, firstName, lastName, email, phone, password, UserRole.DOCTOR);
 
 	}
 
@@ -45,20 +43,5 @@ public class Doctor extends Employee {
 		this.licenseNo = licenseNo;
 	}
 
-	public List<Appointment> getAppointmentsList() {
-		return appointmentsList;
-	}
-
-	public void setAppointmentsList(List<Appointment> appointmentsList) {
-		this.appointmentsList = appointmentsList;
-	}
-
-	public List<MedicalRecord> getMedicalRecordsList() {
-		return medicalRecordsList;
-	}
-
-	public void setMedicalRecordsList(List<MedicalRecord> medicalRecordsList) {
-		this.medicalRecordsList = medicalRecordsList;
-	}
 
 }

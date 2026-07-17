@@ -1,7 +1,6 @@
 package com.careplus.common.model;
 
 import java.io.Serializable;
-import java.util.List;
 
 import com.careplus.common.enums.UserRole;
 
@@ -17,21 +16,18 @@ public abstract class Person implements Serializable {
 	@Transient
 	private static final long serialVersionUID = 1L;
 	@Id
-	@Column(name = "person_id", length = 10)
+	@Column(name = "person_id")
 	protected String personId;
-	@Column(name = "first_name", nullable = false, length = 50)
+	@Column(name = "first_name", nullable = false)
 	protected String firstName;
-	@Column(name = "last_name", nullable = false, length = 50)
+	@Column(name = "last_name", nullable = false)
 	protected String lastName;
-	@Column(name = "email", nullable = false, unique = true, length = 120)
+	@Column(name = "email", nullable = false, unique = true)
 	protected String email;
 	@Column(name = "phone", length = 20)
 	protected String phone;
-	@Column(name = "password", nullable = false, length = 255)
+	@Column(name = "password", nullable = false)
 	protected String password;
-
-	
-	transient List<ChatMessages> complaint;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "role", nullable = false)
@@ -43,7 +39,7 @@ public abstract class Person implements Serializable {
 	}
 
 	protected Person(String personId, String firstName, String lastName, String email, String phone, String password,
-			UserRole role, List<ChatMessages> complaint) {
+			UserRole role) {
 		this.personId = personId;
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -51,7 +47,6 @@ public abstract class Person implements Serializable {
 		this.phone = phone;
 		this.password = password;
 		this.role = role;
-		this.complaint = complaint;
 	}
 
 	public UserRole getRole() {

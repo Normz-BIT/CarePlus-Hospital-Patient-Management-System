@@ -2,16 +2,11 @@ package com.careplus.common.model;
 
 import java.util.Date;
 
-
-import java.util.List;
-
 import com.careplus.common.enums.UserRole;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
-
 
 /* *
  * Child of the Person class
@@ -26,7 +21,7 @@ import jakarta.persistence.Transient;
 @Entity
 @Table(name = "patient")
 public class Patient extends Person {
-	
+
 	@Transient
 	private static final long serialVersionUID = 1L;
 	@Column(name = "date_of_birth")
@@ -38,18 +33,15 @@ public class Patient extends Person {
 	@Column(name = "medical_history")
 	private String medicalHistory;
 
-
 	public Patient() {
 		super();
 		setRole(UserRole.PATIENT);
 	}
 
-	public Patient(String personId, String firstName, String lastName, String email, String phone, String password,
-			List<ChatMessages> complaint) {
-		super(personId, firstName, lastName, email, phone, password, UserRole.PATIENT, complaint);
+	public Patient(String personId, String firstName, String lastName, String email, String phone, String password) {
+		super(personId, firstName, lastName, email, phone, password, UserRole.PATIENT);
 	}
 
-	
 	public Date getDateofBrith() {
 		return dateofBrith;
 	}

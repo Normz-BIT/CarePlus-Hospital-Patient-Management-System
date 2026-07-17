@@ -1,7 +1,6 @@
 package com.careplus.common.model;
 
 import java.util.Date;
-import java.util.List;
 
 import com.careplus.common.enums.UserRole;
 
@@ -21,8 +20,8 @@ public abstract class Employee extends Person {
 	}
 	
 	protected Employee(String personId, String firstName, String lastName, String email, String phone, String password,
-			UserRole role, List<ChatMessages> complaint) {
-		super(personId, firstName, lastName, email, phone, password, role, complaint);
+			UserRole role) {
+		super(personId, firstName, lastName, email, phone, password, role);
 		
 	}
 
