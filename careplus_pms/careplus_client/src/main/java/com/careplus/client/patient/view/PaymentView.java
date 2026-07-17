@@ -15,6 +15,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
@@ -24,16 +25,12 @@ public class PaymentView extends JInternalFrame {
 
 	// Labels
 	private JLabel lblTitle;
-	private JLabel lblPaymentId;
 	private JLabel lblAmount;
-	private JLabel lblMethod;
-	private JLabel lblStatus;
+	private JLabel lblDiscrip;
 
 	// Fields
-	private JTextField txtPaymentId;
 	private JTextField txtAmount;
-	private JTextField txtMethod;
-	private JTextField txtStatus;
+	private JTextArea txtDiscrip;
 
 	// Buttons
 	private JButton btnPay;
@@ -61,15 +58,13 @@ public class PaymentView extends JInternalFrame {
 		lblTitle = new JLabel("Payment Management");
 		lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
 
-		lblPaymentId = new JLabel("Payment ID");
 		lblAmount = new JLabel("Amount");
-		lblMethod = new JLabel("Payment Method");
-		lblStatus = new JLabel("Status");
+		lblDiscrip = new JLabel("Discription");
 
-		txtPaymentId = new JTextField(20);
 		txtAmount = new JTextField(20);
-		txtMethod = new JTextField(20);
-		txtStatus = new JTextField(20);
+		txtDiscrip = new JTextArea(3,20);
+		txtDiscrip.setLineWrap(true);
+		txtDiscrip.setWrapStyleWord(true);
 
 		btnPay = new JButton("Make Payment");
 		btnRefresh = new JButton("Refresh");
@@ -77,7 +72,7 @@ public class PaymentView extends JInternalFrame {
 
 		tableModel = new DefaultTableModel();
 
-		tableModel.setColumnIdentifiers(new Object[] { "Payment ID", "Amount", "Method", "Status", "Date" });
+		tableModel.setColumnIdentifiers(new Object[] { "Payment ID", "Amount Paid", "Outstanding Balance", "Discription", "Date" });
 
 		tblPayments = new JTable(tableModel);
 		tblPayments.setRowHeight(25);
@@ -106,34 +101,23 @@ public class PaymentView extends JInternalFrame {
 
 		gbc.gridx = 0;
 		gbc.gridy = 1;
-		formPanel.add(lblPaymentId, gbc);
-
-		gbc.gridx = 1;
-		formPanel.add(txtPaymentId, gbc);
-
-		gbc.gridx = 0;
-		gbc.gridy = 2;
 		formPanel.add(lblAmount, gbc);
 
 		gbc.gridx = 1;
 		formPanel.add(txtAmount, gbc);
 
 		gbc.gridx = 0;
-		gbc.gridy = 3;
-		formPanel.add(lblMethod, gbc);
+		gbc.gridy = 2;
+		
+		formPanel.add(lblDiscrip, gbc);
 
 		gbc.gridx = 1;
-		formPanel.add(txtMethod, gbc);
-
-		gbc.gridx = 0;
-		gbc.gridy = 4;
-		formPanel.add(lblStatus, gbc);
-
-		gbc.gridx = 1;
-		formPanel.add(txtStatus, gbc);
-
+		gbc.gridheight = 3;
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.weighty = 1.0;		
+		formPanel.add(txtDiscrip, gbc);
+		
 		JPanel buttonPanel = new JPanel(new FlowLayout());
-
 		buttonPanel.add(btnPay);
 		buttonPanel.add(btnRefresh);
 		buttonPanel.add(btnClear);
@@ -156,10 +140,8 @@ public class PaymentView extends JInternalFrame {
 
 	public void clearFields() {
 
-		txtPaymentId.setText("");
 		txtAmount.setText("");
-		txtMethod.setText("");
-		txtStatus.setText("");
+		txtDiscrip.setText("");
 
 	}
 
@@ -167,20 +149,13 @@ public class PaymentView extends JInternalFrame {
 		JOptionPane.showMessageDialog(this, message);
 	}
 
-	public JTextField getTxtPaymentId() {
-		return txtPaymentId;
-	}
-
 	public JTextField getTxtAmount() {
 		return txtAmount;
 	}
 
-	public JTextField getTxtMethod() {
-		return txtMethod;
-	}
 
-	public JTextField getTxtStatus() {
-		return txtStatus;
+	public JTextArea getTxtDiscription() {
+		return txtDiscrip;
 	}
 
 	public JTable getTblPayments() {
@@ -202,5 +177,6 @@ public class PaymentView extends JInternalFrame {
 	public JButton getBtnClear() {
 		return btnClear;
 	}
+
 
 }

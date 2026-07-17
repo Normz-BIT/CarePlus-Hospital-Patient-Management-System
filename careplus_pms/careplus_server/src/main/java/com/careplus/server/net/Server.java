@@ -37,6 +37,17 @@ public class Server {
 		}
 	}
 
+	public void closeConnection() {
+		if (serverSock != null && !serverSock.isClosed()) {
+			try {
+				serverSock.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
 	public void waitForRequests() {
 
 		while (true) {
@@ -59,6 +70,7 @@ public class Server {
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}
+
 		}
 	}
 }

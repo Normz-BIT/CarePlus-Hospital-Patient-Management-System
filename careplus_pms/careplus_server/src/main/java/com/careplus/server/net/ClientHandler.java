@@ -10,6 +10,7 @@ import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
 import com.careplus.server.service.AuthService;
+import com.careplus.server.service.PaymentService;
 
 public class ClientHandler extends Thread {
 	private Socket socket;
@@ -17,10 +18,14 @@ public class ClientHandler extends Thread {
 	private ObjectInputStream inputStream;
 
 	private AuthService authservice;
+	private PaymentService paymentService;
 
 	public ClientHandler(Socket socket) {
 		this.socket = socket;
 		authservice = new AuthService();
+		paymentService = new PaymentService();
+		
+		
 	}
 
 	private void getStreams() {
@@ -63,16 +68,16 @@ public class ClientHandler extends Thread {
 				switch (reqtype) {
 
 				case LOGIN:
-
-					/// resp.setSuccess(true);
-
-					// Patient test1 = new
-					// Patient("PT1001","Dave","Brown","DBrowan@email.com","12312312","Here I
-					// AM",List.of());
-					// resp.setData(test1);
 					resp = authservice.login(req);
-
 					break;
+				case MAKE_PAYMENT:
+			
+					resp = paymentService.pay(req);
+			
+				case GET_MY_PAYMENTS:
+					
+					resp = paymentService.getPayments(req);
+					
 				default:
 					break;
 
@@ -89,7 +94,6 @@ public class ClientHandler extends Thread {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			System.out.println("Error:" + e.getMessage());
-
 		}
 
 		finally {

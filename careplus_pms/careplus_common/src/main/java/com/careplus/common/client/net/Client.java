@@ -87,7 +87,12 @@ public class Client {
 	}
 
 	public static boolean isConnected() {
+		
+		boolean close  = !socket.isClosed();
+		boolean both  = socket != null && !socket.isClosed();
 		return socket != null && !socket.isClosed();
+		
+		
 	}
 
 	public static void disconnect() {

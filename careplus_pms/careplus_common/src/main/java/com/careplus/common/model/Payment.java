@@ -1,27 +1,64 @@
 package com.careplus.common.model;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
+
+import jakarta.persistence.*;
 
 /*
  * Payment class
  * Patient has Payments
  */
+
+@Entity
+@Table(name = "payment")
 public class Payment implements Serializable {
+
+	@Transient
 	private static final long serialVersionUID = 1L;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "payment_id")
 	private int paymentId;
+	@Column(name = "amount_paid")
 	private double amountPaid;
+	@Column(name = "outstanding_balance")
 	private double outstandingBalance;
+	@Column(name = "description")
 	private String description;
+	@Column(name = "payment_date")
+	private LocalDateTime paymentDate;
+	@Column(name = "patient_id")
+	private String patientId;
 
 	public Payment() {
 
 	}
 
-	public Payment(int paymentId, double amountPaid, double outstandingBalance, String description) {
+	public Payment(int paymentId, double amountPaid, double outstandingBalance, String description,
+			LocalDateTime paymentDate, String patientId) {
 		this.paymentId = paymentId;
 		this.amountPaid = amountPaid;
 		this.outstandingBalance = outstandingBalance;
 		this.description = description;
+		this.paymentDate = paymentDate;
+		this.patientId = patientId;
+	}
+
+	public LocalDateTime getPaymentDate() {
+		return paymentDate;
+	}
+
+	public void setPaymentDate(LocalDateTime paymentDate) {
+		this.paymentDate = paymentDate;
+	}
+
+	public String getPatientId() {
+		return patientId;
+	}
+
+	public void setPatientId(String patientId) {
+		this.patientId = patientId;
 	}
 
 	public int getPaymentId() {
@@ -54,6 +91,13 @@ public class Payment implements Serializable {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	@Override
+	public String toString() {
+		return "Payment [paymentId=" + paymentId + ", amountPaid=" + amountPaid + ", outstandingBalance="
+				+ outstandingBalance + ", description=" + description + ", paymentDate=" + paymentDate + ", patientId="
+				+ patientId + "]";
 	}
 
 	@Override

@@ -12,5 +12,6 @@
 		<!-- mapping class="com.mcnz.jpa.examples.Player" / -->
 		<mapping class="com.careplus.common.model.Person"/>
 		<mapping class="com.careplus.common.model.Patient"/>
+		<mapping class="com.careplus.common.model.Payment"/>
     </session-factory>
 </hibernate-configuration>
