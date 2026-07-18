@@ -26,6 +26,7 @@ public class LoginController {
 	}
 
 	private void login() {
+		
 		String id = view.getTxtId().getText().trim();
 		String password = String.valueOf(view.getTxtPassword().getPassword());
 
@@ -45,13 +46,19 @@ public class LoginController {
 
 		Response response =  Client.send(request);
 
-		if (response != null && Boolean.TRUE.equals(response.getSuccess()) && response.getData() instanceof Person) {
+		if (response != null && response.getSuccess()) {
+			
 			Person user = (Person) response.getData();
+			
 			MainDashboard dashboard = new MainDashboard(user, features);
 			dashboard.setVisible(true);
 			view.dispose();
+			
+			//TODO log4j2
+			
 		} else {
 			view.showMessage(response == null ? "No response from server." : response.getMessage());
+		     //TODO log4j2
 		}
 	}
 	
