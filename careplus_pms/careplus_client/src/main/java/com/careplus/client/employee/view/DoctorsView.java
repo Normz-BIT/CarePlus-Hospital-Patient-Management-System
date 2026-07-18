@@ -3,15 +3,19 @@ package com.careplus.client.employee.view;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.KeyEvent;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.KeyStroke;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -34,8 +38,9 @@ public class DoctorsView extends JInternalFrame {
 
 		initializeComponents();
 		buildGUI();
+		configureKeyboardShortcuts();
 
-		setSize(900, 550);
+		setSize(1000, 550);
 		setVisible(true);
 	}
 
@@ -45,12 +50,26 @@ public class DoctorsView extends JInternalFrame {
 		lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
 
 		btnRefresh = new JButton("Refresh");
+		btnRefresh.setMnemonic(KeyEvent.VK_R);
+		btnRefresh.setToolTipText("Reload the doctors directory. Shortcut: Alt+R or F5.");
 
 		tableModel = new DefaultTableModel();
-		tableModel.setColumnIdentifiers(new Object[] { "Doctor ID", "Name", "Specialization", "Department" });
+		tableModel.setColumnIdentifiers(
+				new Object[] {
+						"Doctor ID",
+						"First Name",
+						"Last Name",
+						"Email",
+						"Phone",
+						"Department",
+						"Hire Date",
+						"Specialization",
+						"License Number"
+				});
 
 		tblDoctors = new JTable(tableModel);
 		tblDoctors.setRowHeight(25);
+		tblDoctors.setToolTipText("Displays doctor information from the CarePlus system.");
 	}
 
 	private void buildGUI() {
@@ -69,6 +88,26 @@ public class DoctorsView extends JInternalFrame {
 		mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
 		add(mainPanel);
+	}
+
+	/*
+	 * Configure Keyboard Shortcuts
+	 */
+	private void configureKeyboardShortcuts() {
+
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0), "refresh");
+
+		getRootPane().getActionMap().put("refresh", new AbstractAction() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				btnRefresh.doClick();
+			}
+		});
+
 	}
 
 	public void clearTable() {

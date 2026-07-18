@@ -6,10 +6,14 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -18,6 +22,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.table.DefaultTableModel;
 
 public class StaffAssignmentView extends JInternalFrame {
@@ -46,24 +51,25 @@ public class StaffAssignmentView extends JInternalFrame {
 	private DefaultTableModel tableModel;
 
 	public StaffAssignmentView() {
-		super("Staff Assignment", true, true, true, true);
+		super("Complaint Staff Assignment", true, true, true, true);
 
 		initializeComponents();
 		buildGUI();
+		configureKeyboardShortcuts();
 
 		setSize(1000, 650);
 		setVisible(true);
 	}
 
 	private void initializeComponents() {
-		lblTitle = new JLabel("Staff Assignment");
+		lblTitle = new JLabel("Complaint Staff Assignment");
 		lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
 
 		lblComplaintId = new JLabel("Complaint ID");
-		lblStaffId = new JLabel("Staff ID");
-		lblDepartment = new JLabel("Department");
-		lblPriority = new JLabel("Priority");
-		lblNotes = new JLabel("Notes");
+		lblStaffId = new JLabel("Employee ID");
+		lblDepartment = new JLabel("Employee Department");
+		lblPriority = new JLabel("Complaint Status");
+		lblNotes = new JLabel("Assignment Notes");
 
 		txtComplaintId = new JTextField(20);
 		txtStaffId = new JTextField(20);
@@ -75,17 +81,49 @@ public class StaffAssignmentView extends JInternalFrame {
 		txtNotes.setLineWrap(true);
 		txtNotes.setWrapStyleWord(true);
 
+		lblComplaintId.setDisplayedMnemonic(KeyEvent.VK_I);
+		lblComplaintId.setLabelFor(txtComplaintId);
+
+		lblStaffId.setDisplayedMnemonic(KeyEvent.VK_E);
+		lblStaffId.setLabelFor(txtStaffId);
+
+		lblDepartment.setDisplayedMnemonic(KeyEvent.VK_D);
+		lblDepartment.setLabelFor(cboDepartment);
+
+		lblPriority.setDisplayedMnemonic(KeyEvent.VK_S);
+		lblPriority.setLabelFor(cboPriority);
+
+		lblNotes.setDisplayedMnemonic(KeyEvent.VK_N);
+		lblNotes.setLabelFor(txtNotes);
+
+		txtComplaintId.setToolTipText("Enter the complaint ID to be assigned. Shortcut: Alt+I.");
+		txtStaffId.setToolTipText("Enter the employee ID receiving the complaint. Shortcut: Alt+E.");
+		cboDepartment.setToolTipText("Select the employee's department. Shortcut: Alt+D.");
+		cboPriority.setToolTipText("Select the complaint status. Shortcut: Alt+S.");
+		txtNotes.setToolTipText("Enter optional assignment notes. Shortcut: Alt+N.");
+
 		btnAssign = new JButton("Assign");
 		btnUpdate = new JButton("Update");
 		btnRefresh = new JButton("Refresh");
 		btnClear = new JButton("Clear");
 
+		btnAssign.setMnemonic(KeyEvent.VK_A);
+		btnUpdate.setMnemonic(KeyEvent.VK_U);
+		btnRefresh.setMnemonic(KeyEvent.VK_R);
+		btnClear.setMnemonic(KeyEvent.VK_C);
+
+		btnAssign.setToolTipText("Assign the complaint to the employee. Shortcut: Alt+A or Ctrl+Enter.");
+		btnUpdate.setToolTipText("Update the selected assignment. Shortcut: Alt+U or Ctrl+U.");
+		btnRefresh.setToolTipText("Reload staff assignments. Shortcut: Alt+R or F5.");
+		btnClear.setToolTipText("Clear the assignment fields. Shortcut: Alt+C or Escape.");
+
 		tableModel = new DefaultTableModel();
 		tableModel.setColumnIdentifiers(
-				new Object[] { "Assignment ID", "Complaint ID", "Staff ID", "Department", "Priority", "Status" });
+				new Object[] { "Complaint ID", "Employee ID", "Department", "Complaint Status", "Assignment Notes" });
 
 		tblAssignments = new JTable(tableModel);
 		tblAssignments.setRowHeight(25);
+		tblAssignments.setToolTipText("Select an assignment to view or update.");
 	}
 
 	private void buildGUI() {
@@ -153,6 +191,62 @@ public class StaffAssignmentView extends JInternalFrame {
 		mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
 		add(mainPanel);
+	}
+
+	private void configureKeyboardShortcuts() {
+
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, InputEvent.CTRL_DOWN_MASK), "assign");
+
+		getRootPane().getActionMap().put("assign", new AbstractAction() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				btnAssign.doClick();
+			}
+		});
+
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_U, InputEvent.CTRL_DOWN_MASK), "update");
+
+		getRootPane().getActionMap().put("update", new AbstractAction() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				btnUpdate.doClick();
+			}
+		});
+
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0), "refresh");
+
+		getRootPane().getActionMap().put("refresh", new AbstractAction() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				btnRefresh.doClick();
+			}
+		});
+
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "clear");
+
+		getRootPane().getActionMap().put("clear", new AbstractAction() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				btnClear.doClick();
+			}
+		});
+
 	}
 
 	public void clearTable() {

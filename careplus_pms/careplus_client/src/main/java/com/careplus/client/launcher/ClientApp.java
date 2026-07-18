@@ -3,6 +3,11 @@ package com.careplus.client.launcher;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.SwingUtilities;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.careplus.client.employee.controller.*;
 import com.careplus.client.employee.view.*;
 
@@ -19,6 +24,11 @@ import com.careplus.common.enums.UserRole;
  */
 public class ClientApp {
 
+	private static final Logger logger = LogManager.getLogger(ClientApp.class);
+
+	/*
+	 * Assign Views and Controllers to User Roles
+	 */
 	public static List<DashboardFeature> assignFeatures() {
 
 		return List.of(
@@ -80,18 +90,35 @@ public class ClientApp {
 
 	}
 
+	/*
+	 * Start CarePlus Client Application
+	 */
 	public static void main(String[] args) {
 
-		
-		//get list of controllers and views and who can access them
-		List<DashboardFeature> features = assignFeatures();
+		SwingUtilities.invokeLater(() -> {
 
-		//initialise client connection
-		new Client();
+			try {
 
-		Login login = new Login();
-		new LoginController(login, features);
-		login.setVisible(true);
+				logger.info("Starting CarePlus client application");
+
+				//get list of controllers and views and who can access them
+				List<DashboardFeature> features = assignFeatures();
+
+				//initialise client connection
+				new Client();
+
+				Login login = new Login();
+				new LoginController(login, features);
+				login.setVisible(true);
+
+				logger.info("CarePlus login view opened successfully");
+
+			} catch (Exception e) {
+
+				// TODO
+				logger.error("CarePlus client application could not be started", e);
+			}
+		});
 
 	}
 }

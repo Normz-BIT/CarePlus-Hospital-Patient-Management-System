@@ -1,15 +1,24 @@
 package com.careplus.client.patient.controller;
 
+import java.util.Date;
 import java.util.List;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.careplus.client.patient.view.ComplaintView;
 import com.careplus.common.client.net.Client;
+import com.careplus.common.client.view.MainDashboard;
+import com.careplus.common.enums.ComplaintCategory;
+import com.careplus.common.enums.ComplaintStatus;
+import com.careplus.common.model.Complaint;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
 
 public class ComplaintController {
 	private final ComplaintView view;
+	private static final Logger logger = LogManager.getLogger(ComplaintController.class);
 
 	public ComplaintController(ComplaintView view) {
 		this.view = view;
@@ -26,45 +35,129 @@ public class ComplaintController {
 	}
 
 	private Response send(Request request) {
-		return  Client.send(request);
+		return Client.send(request);
 	}
 
 	private void submit() {
 		String desc = view.getTxtDescription().getText().trim();
+
 		if (desc.isEmpty()) {
 			view.showMessage("Complaint description is required.");
+			logger.warn("Complaint rejected because the description was empty");
+
 			return;
 		}
+
 		Request req = new Request();
 		req.setType(RequestType.SUBMIT_COMPLAINT);
-		req.putMap("category", String.valueOf(view.getCboCategory().getSelectedItem()));
-		req.putMap("priority", String.valueOf(view.getCboPriority().getSelectedItem()));
-		req.putMap("description", desc);
-		Response res = send(req);
-		view.showMessage(res == null ? "No response from server." : res.getMessage());
-		refresh();
+
+		Complaint complaint = new Complaint();
+
+		try {
+
+			complaint.setDescription(desc);
+
+			complaint.setCategory(
+					ComplaintCategory.valueOf(
+							String.valueOf(view.getCboCategory().getSelectedItem())));
+
+			complaint.setStatus(ComplaintStatus.SUBMITTED);
+
+			complaint.setDateSubmitteDate(new Date());
+
+			if (!view.getTxtParentId().getText().trim().isEmpty()) {
+				complaint.setComplaintParentId(
+						Integer.parseInt(view.getTxtParentId().getText().trim()));
+			}
+
+			//TODO log4j2
+			logger.info("Complaint created: {}", complaint.toString());
+
+			req.putMap("complaint", complaint);
+			req.putMap("patientId", MainDashboard.getCurrentUser().getPersonId());
+
+			Response res = send(req);
+
+			view.showMessage(res == null ? "No response from server." : res.getMessage());
+
+			if (res == null) {
+				logger.error("No response received from server while submitting complaint");
+			} else {
+				logger.info("Server complaint response: {}", res.getMessage());
+			}
+
+		} catch (Exception e) {
+
+			// TODO
+			logger.error("An error occurred while submitting complaint", e);
+			view.showMessage("Unable to submit complaint: " + e.getMessage());
+		}
+
+		//refresh();
+
 	}
 
 	private void delete() {
 		int row = view.getTblComplaints().getSelectedRow();
+
 		if (row < 0) {
 			view.showMessage("Select a complaint to delete.");
+			logger.warn("Complaint deletion attempted without selecting a record");
+
 			return;
 		}
-		Request req = new Request(RequestType.DELETE_COMPLAINT, "complaintId", view.getTableModel().getValueAt(row, 0));
+
+		Request req = new Request(
+				RequestType.DELETE_COMPLAINT,
+				"complaintId",
+				view.getTableModel().getValueAt(row, 0));
+
 		Response res = send(req);
+
 		view.showMessage(res == null ? "No response from server." : res.getMessage());
+
+		if (res == null) {
+			logger.error("No response received from server while deleting complaint");
+		} else {
+			logger.info("Complaint deletion response: {}", res.getMessage());
+		}
+
 		refresh();
 	}
 
 	@SuppressWarnings("unchecked")
 	private void refresh() {
-		Response res = send(new Request(RequestType.GET_MY_COMPLAINTS, "patientId", "current"));
-		if (res == null || !Boolean.TRUE.equals(res.getSuccess()))
+		Response res = send(
+				new Request(
+						RequestType.GET_MY_COMPLAINTS,
+						"patientId",
+						MainDashboard.getCurrentUser().getPersonId()));
+
+		if (res == null || !res.getSuccess()) {
+
+			logger.warn("Complaint records could not be retrieved");
 			return;
+		}
+
 		view.clearTable();
-		if (res.getData() instanceof List<?>)
-			for (Object row : (List<Object>) res.getData())
-				view.addComplaint((Object[]) row);
+
+		for (Complaint row : (List<Complaint>) res.getData()) {
+
+			Object[] viewRow = new Object[] {
+					row.getComplaintId(),
+					row.getComplaintParentId(),
+					row.getCategory(),
+					row.getDescription(),
+					row.getDateSubmitteDate(),
+					row.getResponse(),
+					row.getResponseDate(),
+					row.getStatus()
+			};
+
+			view.addComplaint(viewRow);
+		}
+
+		logger.info("Complaint records refreshed successfully");
+
 	}
 }

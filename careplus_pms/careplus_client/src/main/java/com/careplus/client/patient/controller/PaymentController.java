@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.careplus.client.patient.view.PaymentView;
 import com.careplus.common.client.net.Client;
 import com.careplus.common.client.view.MainDashboard;
@@ -14,6 +17,7 @@ import com.careplus.common.net.Response;
 
 public class PaymentController {
 	private final PaymentView view;
+	private static final Logger logger = LogManager.getLogger(PaymentController.class);
 
 	public PaymentController(PaymentView view) {
 		this.view = view;
@@ -35,8 +39,9 @@ public class PaymentController {
 
 			payment.setAmountPaid(Double.parseDouble(view.getTxtAmount().getText().trim()));
 
-			if (payment.getAmountPaid()<=0) {
+			if (payment.getAmountPaid() <= 0) {
 				view.showMessage("Amount must be greater than zero (0)");
+				logger.warn("Payment rejected because the amount was not greater than zero");
 			
 				return;
 			}
@@ -49,7 +54,7 @@ public class PaymentController {
 			payment.setPaymentDate(LocalDateTime.now());
 
 			//TODO log4j2
-			System.out.println(payment.toString());
+			logger.info("Payment created: {}", payment.toString());
 
 			req.putMap("payment", payment);
 
@@ -57,9 +62,17 @@ public class PaymentController {
 
 			view.showMessage(res == null ? "No response from server." : res.getMessage());
 
+			if (res == null) {
+				logger.error("No response received from server while making payment");
+			} else {
+				logger.info("Server payment response: {}", res.getMessage());
+			}
+
 		} catch (Exception e) {
 
 			// TODO
+			logger.error("An error occurred while making payment", e);
+			view.showMessage("Unable to complete payment: " + e.getMessage());
 		}
 
 		//refresh();
@@ -73,6 +86,7 @@ public class PaymentController {
 
 		if (res == null || !res.getSuccess()) {
 
+			logger.warn("Payment records could not be retrieved");
 			return;
 		}
 
@@ -91,6 +105,8 @@ public class PaymentController {
 		    view.addPayment(viewRow);
 		}
 
+		logger.info("Payment records refreshed successfully");
 
 	}
+}
 }

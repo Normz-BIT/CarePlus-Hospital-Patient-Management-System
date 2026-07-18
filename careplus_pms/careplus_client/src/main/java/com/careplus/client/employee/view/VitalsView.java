@@ -6,9 +6,13 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -17,6 +21,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -57,6 +62,7 @@ public class VitalsView extends JInternalFrame {
 
 		initializeComponents();
 		buildGUI();
+		configureKeyboardShortcuts();
 
 		setSize(1000, 700);
 		setVisible(true);
@@ -70,7 +76,7 @@ public class VitalsView extends JInternalFrame {
 		lblPatientId = new JLabel("Patient ID");
 		lblTemperature = new JLabel("Temperature (°C)");
 		lblBloodPressure = new JLabel("Blood Pressure");
-		lblPulse = new JLabel("Pulse (bpm)");
+		lblPulse = new JLabel("Heart Rate (bpm)");
 		lblRespiratory = new JLabel("Respiratory Rate");
 		lblObservations = new JLabel("Observations");
 		lblNursingNotes = new JLabel("Nursing Notes");
@@ -89,15 +95,64 @@ public class VitalsView extends JInternalFrame {
 		txtNursingNotes.setLineWrap(true);
 		txtNursingNotes.setWrapStyleWord(true);
 
+		lblPatientId.setDisplayedMnemonic(KeyEvent.VK_P);
+		lblPatientId.setLabelFor(txtPatientId);
+
+		lblTemperature.setDisplayedMnemonic(KeyEvent.VK_T);
+		lblTemperature.setLabelFor(txtTemperature);
+
+		lblBloodPressure.setDisplayedMnemonic(KeyEvent.VK_B);
+		lblBloodPressure.setLabelFor(txtBloodPressure);
+
+		lblPulse.setDisplayedMnemonic(KeyEvent.VK_H);
+		lblPulse.setLabelFor(txtPulse);
+
+		lblRespiratory.setDisplayedMnemonic(KeyEvent.VK_R);
+		lblRespiratory.setLabelFor(txtRespiratory);
+
+		lblObservations.setDisplayedMnemonic(KeyEvent.VK_O);
+		lblObservations.setLabelFor(txtObservations);
+
+		lblNursingNotes.setDisplayedMnemonic(KeyEvent.VK_N);
+		lblNursingNotes.setLabelFor(txtNursingNotes);
+
+		txtPatientId.setToolTipText("Enter the patient's ID. Shortcut: Alt+P.");
+		txtTemperature.setToolTipText("Enter the patient's temperature in degrees Celsius. Shortcut: Alt+T.");
+		txtBloodPressure.setToolTipText("Enter the blood pressure, for example 120/80. Shortcut: Alt+B.");
+		txtPulse.setToolTipText("Enter the patient's heart rate in beats per minute. Shortcut: Alt+H.");
+		txtRespiratory.setToolTipText("Enter the respiratory rate. Shortcut: Alt+R.");
+		txtObservations.setToolTipText("Enter observations about the patient's condition. Shortcut: Alt+O.");
+		txtNursingNotes.setToolTipText("Enter additional nursing notes. Shortcut: Alt+N.");
+
 		btnRecord = new JButton("Record");
 		btnRefresh = new JButton("Refresh Cases");
 		btnClear = new JButton("Clear");
 
+		btnRecord.setMnemonic(KeyEvent.VK_E);
+		btnRefresh.setMnemonic(KeyEvent.VK_F);
+		btnClear.setMnemonic(KeyEvent.VK_C);
+
+		btnRecord.setToolTipText("Record the patient's vital signs. Shortcut: Alt+E or Ctrl+Enter.");
+		btnRefresh.setToolTipText("Reload vital-sign records. Shortcut: Alt+F or F5.");
+		btnClear.setToolTipText("Clear the vital-sign fields. Shortcut: Alt+C or Escape.");
+
 		tableModel = new DefaultTableModel();
-		tableModel.setColumnIdentifiers(new Object[] { "Patient ID", "Name", "Ward", "Complaint", "Status" });
+		tableModel.setColumnIdentifiers(
+				new Object[] {
+						"Vital ID",
+						"Patient ID",
+						"Temperature",
+						"Blood Pressure",
+						"Heart Rate",
+						"Respiratory Rate",
+						"Observations",
+						"Nursing Notes",
+						"Recorded At"
+				});
 
 		tblCases = new JTable(tableModel);
 		tblCases.setRowHeight(25);
+		tblCases.setToolTipText("Displays recorded patient vital signs.");
 	}
 
 	private void buildGUI() {
@@ -154,6 +209,52 @@ public class VitalsView extends JInternalFrame {
 		panel.add(label, gbc);
 		gbc.gridx = 1;
 		panel.add(field, gbc);
+	}
+
+	/*
+	 * Configure Keyboard Shortcuts
+	 */
+	private void configureKeyboardShortcuts() {
+
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, InputEvent.CTRL_DOWN_MASK), "record");
+
+		getRootPane().getActionMap().put("record", new AbstractAction() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				btnRecord.doClick();
+			}
+		});
+
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0), "refresh");
+
+		getRootPane().getActionMap().put("refresh", new AbstractAction() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				btnRefresh.doClick();
+			}
+		});
+
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "clear");
+
+		getRootPane().getActionMap().put("clear", new AbstractAction() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				btnClear.doClick();
+			}
+		});
+
 	}
 
 	public void clearTable() {

@@ -7,27 +7,39 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 
+/*
+ * Login View
+ * Allows patients and employees to access the CarePlus system
+ */
 public class Login extends JFrame {
 
     private static final long serialVersionUID = 1L;
 
+    // Labels
     private JLabel lblTitle;
     private JLabel lblId;
     private JLabel lblPassword;
 
+    // Fields
     private JTextField txtId;
     private JPasswordField txtPassword;
 
+    // Buttons
     private JButton btnLogin;
     private JButton btnClear;
     private JButton btnExit;
@@ -39,6 +51,7 @@ public class Login extends JFrame {
         initializeComponents();
         buildGUI();
         registerEvents();
+        configureKeyboardShortcuts();
 
         setSize(500, 320);
         setLocationRelativeTo(null);
@@ -47,6 +60,9 @@ public class Login extends JFrame {
 
     }
 
+    /*
+     * Initialize Login Components
+     */
     private void initializeComponents() {
 
         lblTitle = new JLabel("CarePlus Hospital Management System");
@@ -58,9 +74,26 @@ public class Login extends JFrame {
         txtId = new JTextField(20);
         txtPassword = new JPasswordField(20);
 
+        lblId.setDisplayedMnemonic(KeyEvent.VK_I);
+        lblId.setLabelFor(txtId);
+
+        lblPassword.setDisplayedMnemonic(KeyEvent.VK_P);
+        lblPassword.setLabelFor(txtPassword);
+
+        txtId.setToolTipText("Enter your patient or employee ID. Shortcut: Alt+I.");
+        txtPassword.setToolTipText("Enter your account password. Shortcut: Alt+P.");
+
         btnLogin = new JButton("Login");
         btnClear = new JButton("Clear");
         btnExit = new JButton("Exit");
+
+        btnLogin.setMnemonic(KeyEvent.VK_L);
+        btnClear.setMnemonic(KeyEvent.VK_C);
+        btnExit.setMnemonic(KeyEvent.VK_X);
+
+        btnLogin.setToolTipText("Sign in to CarePlus. Shortcut: Alt+L or Enter.");
+        btnClear.setToolTipText("Clear the login fields. Shortcut: Alt+C or Escape.");
+        btnExit.setToolTipText("Exit the application. Shortcut: Alt+X or Ctrl+Q.");
 
         btnLogin.setPreferredSize(new Dimension(100, 35));
         btnClear.setPreferredSize(new Dimension(100, 35));
@@ -68,6 +101,9 @@ public class Login extends JFrame {
 
     }
 
+    /*
+     * Build Login Interface
+     */
     private void buildGUI() {
 
         JPanel formPanel = new JPanel(new GridBagLayout());
@@ -112,16 +148,55 @@ public class Login extends JFrame {
 
     }
 
+    /*
+     * Register Login Events
+     */
     private void registerEvents() {
 
         btnClear.addActionListener(e -> {
 
             txtId.setText("");
             txtPassword.setText("");
+            txtId.requestFocusInWindow();
 
         });
 
         btnExit.addActionListener(e -> System.exit(0));
+
+    }
+
+    /*
+     * Configure Keyboard Shortcuts
+     */
+    private void configureKeyboardShortcuts() {
+
+        getRootPane().setDefaultButton(btnLogin);
+
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "clear");
+
+        getRootPane().getActionMap().put("clear", new AbstractAction() {
+
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                btnClear.doClick();
+            }
+        });
+
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK), "exit");
+
+        getRootPane().getActionMap().put("exit", new AbstractAction() {
+
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                btnExit.doClick();
+            }
+        });
 
     }
 

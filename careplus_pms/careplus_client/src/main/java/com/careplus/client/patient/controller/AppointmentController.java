@@ -1,78 +1,181 @@
 package com.careplus.client.patient.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.careplus.client.patient.view.AppointmentView;
 import com.careplus.common.client.net.Client;
+import com.careplus.common.client.view.MainDashboard;
+import com.careplus.common.enums.AppointmentStatus;
+import com.careplus.common.model.Appointment;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
 
 public class AppointmentController {
-    private final AppointmentView view;
+	private final AppointmentView view;
+	private static final Logger logger = LogManager.getLogger(AppointmentController.class);
 
-    public AppointmentController(AppointmentView view) {
-        this.view = view;
-        init();
-        loadLookups();
-        refresh();
-    }
+	public AppointmentController(AppointmentView view) {
+		this.view = view;
+		init();
+		loadLookups();
+		refresh();
+	}
 
-    private void init() {
-        view.getBtnSchedule().addActionListener(e -> schedule());
-        view.getBtnRefresh().addActionListener(e -> refresh());
-        view.getBtnClear().addActionListener(e -> view.clearFields());
-        view.getBtnCancel().addActionListener(e -> cancel());
-        view.getBtnUpdate().addActionListener(e -> schedule());
-    }
+	private void init() {
+		view.getBtnSchedule().addActionListener(e -> schedule());
+		view.getBtnRefresh().addActionListener(e -> refresh());
+		view.getBtnClear().addActionListener(e -> view.clearFields());
+		view.getBtnCancel().addActionListener(e -> cancel());
+		view.getBtnUpdate().addActionListener(e -> schedule());
+	}
 
-    private Response send(Request request) { return Client.send(request); }
+	private Response send(Request request) {
+		return Client.send(request);
+	}
 
-    private void loadLookups() {
-        Response doctors = send(new Request(RequestType.GET_DOCTORS, "role", "doctor"));
-        if (doctors != null && Boolean.TRUE.equals(doctors.getSuccess())) fillCombo(view.getCboDoctor(), doctors.getData());
-        Response departments = send(new Request(RequestType.GET_DEPARTMENTS, "type", "appointment"));
-        if (departments != null && Boolean.TRUE.equals(departments.getSuccess())) fillCombo(view.getCboDepartment(), departments.getData());
-    }
+	private void loadLookups() {
+		Response doctors = send(new Request(RequestType.GET_DOCTORS, "role", "doctor"));
 
-    @SuppressWarnings("unchecked")
-    private void fillCombo(javax.swing.JComboBox<String> combo, Object data) {
-        combo.removeAllItems();
-        if (data instanceof List<?>) for (Object value : (List<Object>) data) combo.addItem(String.valueOf(value));
-    }
+		if (doctors != null && Boolean.TRUE.equals(doctors.getSuccess())) {
+			fillCombo(view.getCboDoctor(), doctors.getData());
+		}
 
-    private void schedule() {
-        if (view.getTxtDate().getText().trim().isEmpty() || view.getTxtTime().getText().trim().isEmpty()) {
-            view.showMessage("Date and time are required.");
-            return;
-        }
-        Request req = new Request();
-        req.setType(RequestType.SCHEDULE_APPOINTMENT);
-        req.putMap("doctor", String.valueOf(view.getCboDoctor().getSelectedItem()));
-        req.putMap("department", String.valueOf(view.getCboDepartment().getSelectedItem()));
-        req.putMap("date", view.getTxtDate().getText().trim());
-        req.putMap("time", view.getTxtTime().getText().trim());
-        Response res = send(req);
-        view.showMessage(res == null ? "No response from server." : res.getMessage());
-        refresh();
-    }
+		Response departments = send(new Request(RequestType.GET_DEPARTMENTS, "type", "appointment"));
 
-    private void cancel() {
-        int row = view.getTblAppointments().getSelectedRow();
-        if (row < 0) { view.showMessage("Select an appointment to cancel."); return; }
-        Object id = view.getTableModel().getValueAt(row, 0);
-        Request req = new Request(RequestType.CANCEL_APPOINTMENT, "appointmentId", id);
-        Response res = send(req);
-        view.showMessage(res == null ? "No response from server." : res.getMessage());
-        refresh();
-    }
+		if (departments != null && Boolean.TRUE.equals(departments.getSuccess())) {
+			fillCombo(view.getCboDepartment(), departments.getData());
+		}
+	}
 
-    @SuppressWarnings("unchecked")
-    private void refresh() {
-        Response res = send(new Request(RequestType.GET_MY_APPOINTMENTS, "patientId", "current"));
-        if (res == null || !Boolean.TRUE.equals(res.getSuccess())) return;
-        view.clearTable();
-        if (res.getData() instanceof List<?>) for (Object row : (List<Object>) res.getData()) view.addAppointment((Object[]) row);
-    }
+	@SuppressWarnings("unchecked")
+	private void fillCombo(javax.swing.JComboBox<String> combo, Object data) {
+		combo.removeAllItems();
+
+		if (data instanceof List<?>) {
+			for (Object value : (List<Object>) data) {
+				combo.addItem(String.valueOf(value));
+			}
+		}
+	}
+
+	private void schedule() {
+		Request req = new Request();
+		req.setType(RequestType.SCHEDULE_APPOINTMENT);
+
+		Appointment appointment = new Appointment();
+
+		try {
+
+			if (view.getTxtDate().getText().trim().isEmpty()
+					|| view.getTxtTime().getText().trim().isEmpty()) {
+
+				view.showMessage("Date and time are required.");
+				logger.warn("Appointment rejected because the date or time was empty");
+
+				return;
+			}
+
+			String appointmentDateTime = view.getTxtDate().getText().trim()
+					+ " " + view.getTxtTime().getText().trim();
+
+			appointment.setAppointmentDate(
+					new SimpleDateFormat("yyyy-MM-dd HH:mm").parse(appointmentDateTime));
+
+			appointment.setReason(view.getTxtReason().getText().trim());
+
+			appointment.setStatus(AppointmentStatus.SCHEDULED);
+
+			//TODO log4j2
+			logger.info("Appointment created: {}", appointment.toString());
+
+			req.putMap("appointment", appointment);
+			req.putMap("patientId", MainDashboard.getCurrentUser().getPersonId());
+			req.putMap("doctor", String.valueOf(view.getCboDoctor().getSelectedItem()));
+			req.putMap("department", String.valueOf(view.getCboDepartment().getSelectedItem()));
+
+			Response res = send(req);
+
+			view.showMessage(res == null ? "No response from server." : res.getMessage());
+
+			if (res == null) {
+				logger.error("No response received from server while scheduling appointment");
+			} else {
+				logger.info("Server appointment response: {}", res.getMessage());
+			}
+
+		} catch (Exception e) {
+
+			// TODO
+			logger.error("An error occurred while scheduling appointment", e);
+			view.showMessage("Use the date and time format: yyyy-MM-dd HH:mm");
+		}
+
+		//refresh();
+
+	}
+
+	private void cancel() {
+		int row = view.getTblAppointments().getSelectedRow();
+
+		if (row < 0) {
+			view.showMessage("Select an appointment to cancel.");
+			logger.warn("Appointment cancellation attempted without selecting a record");
+
+			return;
+		}
+
+		Object id = view.getTableModel().getValueAt(row, 0);
+		Request req = new Request(RequestType.CANCEL_APPOINTMENT, "appointmentId", id);
+		Response res = send(req);
+
+		view.showMessage(res == null ? "No response from server." : res.getMessage());
+
+		if (res == null) {
+			logger.error("No response received from server while cancelling appointment");
+		} else {
+			logger.info("Appointment cancellation response: {}", res.getMessage());
+		}
+
+		refresh();
+	}
+
+	@SuppressWarnings("unchecked")
+	private void refresh() {
+		Response res = send(
+				new Request(
+						RequestType.GET_MY_APPOINTMENTS,
+						"patientId",
+						MainDashboard.getCurrentUser().getPersonId()));
+
+		if (res == null || !res.getSuccess()) {
+
+			logger.warn("Appointment records could not be retrieved");
+			return;
+		}
+
+		view.clearTable();
+
+		for (Appointment row : (List<Appointment>) res.getData()) {
+
+			Object[] viewRow = new Object[] {
+					row.getAppontmentId(),
+					"",
+					"",
+					row.getAppointmentDate(),
+					"",
+					row.getReason(),
+					row.getStatus()
+			};
+
+			view.addAppointment(viewRow);
+		}
+
+		logger.info("Appointment records refreshed successfully");
+
+	}
 }
-

@@ -6,10 +6,14 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -17,6 +21,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.table.DefaultTableModel;
 
 public class AppointmentView extends JInternalFrame {
@@ -29,12 +34,16 @@ public class AppointmentView extends JInternalFrame {
 	private JLabel lblDepartment;
 	private JLabel lblDate;
 	private JLabel lblTime;
+	private JLabel lblReason;
+	private JLabel lblStatus;
 
 	// Fields
 	private JComboBox<String> cboDoctor;
 	private JComboBox<String> cboDepartment;
 	private JTextField txtDate;
 	private JTextField txtTime;
+	private JTextField txtReason;
+	private JTextField txtStatus;
 
 	// Buttons
 	private JButton btnSchedule;
@@ -53,6 +62,7 @@ public class AppointmentView extends JInternalFrame {
 
 		initializeComponents();
 		buildGUI();
+		configureKeyboardShortcuts();
 
 		setSize(900, 600);
 		setVisible(true);
@@ -68,12 +78,42 @@ public class AppointmentView extends JInternalFrame {
 		lblDepartment = new JLabel("Department");
 		lblDate = new JLabel("Appointment Date");
 		lblTime = new JLabel("Appointment Time");
+		lblReason = new JLabel("Reason");
+		lblStatus = new JLabel("Status");
 
 		cboDoctor = new JComboBox<>();
 		cboDepartment = new JComboBox<>();
 
 		txtDate = new JTextField(15);
 		txtTime = new JTextField(15);
+		txtReason = new JTextField(15);
+		txtStatus = new JTextField(15);
+		txtStatus.setEditable(false);
+
+		lblDoctor.setDisplayedMnemonic(KeyEvent.VK_D);
+		lblDoctor.setLabelFor(cboDoctor);
+
+		lblDepartment.setDisplayedMnemonic(KeyEvent.VK_P);
+		lblDepartment.setLabelFor(cboDepartment);
+
+		lblDate.setDisplayedMnemonic(KeyEvent.VK_A);
+		lblDate.setLabelFor(txtDate);
+
+		lblTime.setDisplayedMnemonic(KeyEvent.VK_T);
+		lblTime.setLabelFor(txtTime);
+
+		lblReason.setDisplayedMnemonic(KeyEvent.VK_E);
+		lblReason.setLabelFor(txtReason);
+
+		lblStatus.setDisplayedMnemonic(KeyEvent.VK_S);
+		lblStatus.setLabelFor(txtStatus);
+
+		cboDoctor.setToolTipText("Select the doctor for the appointment. Shortcut: Alt+D.");
+		cboDepartment.setToolTipText("Select the hospital department. Shortcut: Alt+P.");
+		txtDate.setToolTipText("Enter the appointment date. Shortcut: Alt+A.");
+		txtTime.setToolTipText("Enter the appointment time. Shortcut: Alt+T.");
+		txtReason.setToolTipText("Enter the reason for the appointment. Shortcut: Alt+E.");
+		txtStatus.setToolTipText("Displays the current appointment status.");
 
 		btnSchedule = new JButton("Schedule");
 		btnUpdate = new JButton("Update");
@@ -81,13 +121,26 @@ public class AppointmentView extends JInternalFrame {
 		btnRefresh = new JButton("Refresh");
 		btnClear = new JButton("Clear");
 
+		btnSchedule.setMnemonic(KeyEvent.VK_S);
+		btnUpdate.setMnemonic(KeyEvent.VK_U);
+		btnCancel.setMnemonic(KeyEvent.VK_C);
+		btnRefresh.setMnemonic(KeyEvent.VK_R);
+		btnClear.setMnemonic(KeyEvent.VK_L);
+
+		btnSchedule.setToolTipText("Schedule the appointment. Shortcut: Alt+S or Ctrl+Enter.");
+		btnUpdate.setToolTipText("Update the selected appointment. Shortcut: Alt+U or Ctrl+U.");
+		btnCancel.setToolTipText("Cancel the selected appointment. Shortcut: Alt+C or Delete.");
+		btnRefresh.setToolTipText("Reload appointments. Shortcut: Alt+R or F5.");
+		btnClear.setToolTipText("Clear the appointment fields. Shortcut: Alt+L or Escape.");
+
 		tableModel = new DefaultTableModel();
 
 		tableModel.setColumnIdentifiers(
-				new Object[] { "Appointment ID", "Doctor", "Department", "Date", "Time", "Status" });
+				new Object[] { "Appointment ID", "Doctor", "Department", "Date", "Time", "Reason", "Status" });
 
 		tblAppointments = new JTable(tableModel);
 		tblAppointments.setRowHeight(25);
+		tblAppointments.setToolTipText("Select an appointment to update or cancel.");
 
 	}
 
@@ -139,6 +192,20 @@ public class AppointmentView extends JInternalFrame {
 		gbc.gridx = 1;
 		formPanel.add(txtTime, gbc);
 
+		gbc.gridx = 0;
+		gbc.gridy = 5;
+		formPanel.add(lblReason, gbc);
+
+		gbc.gridx = 1;
+		formPanel.add(txtReason, gbc);
+
+		gbc.gridx = 0;
+		gbc.gridy = 6;
+		formPanel.add(lblStatus, gbc);
+
+		gbc.gridx = 1;
+		formPanel.add(txtStatus, gbc);
+
 		JPanel buttonPanel = new JPanel(new FlowLayout());
 
 		buttonPanel.add(btnSchedule);
@@ -152,6 +219,75 @@ public class AppointmentView extends JInternalFrame {
 		mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
 		add(mainPanel);
+
+	}
+
+	private void configureKeyboardShortcuts() {
+
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, InputEvent.CTRL_DOWN_MASK), "schedule");
+
+		getRootPane().getActionMap().put("schedule", new AbstractAction() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				btnSchedule.doClick();
+			}
+		});
+
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_U, InputEvent.CTRL_DOWN_MASK), "update");
+
+		getRootPane().getActionMap().put("update", new AbstractAction() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				btnUpdate.doClick();
+			}
+		});
+
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), "cancel");
+
+		getRootPane().getActionMap().put("cancel", new AbstractAction() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				btnCancel.doClick();
+			}
+		});
+
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0), "refresh");
+
+		getRootPane().getActionMap().put("refresh", new AbstractAction() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				btnRefresh.doClick();
+			}
+		});
+
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "clear");
+
+		getRootPane().getActionMap().put("clear", new AbstractAction() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				btnClear.doClick();
+			}
+		});
 
 	}
 
@@ -170,6 +306,8 @@ public class AppointmentView extends JInternalFrame {
 
 		txtDate.setText("");
 		txtTime.setText("");
+		txtReason.setText("");
+		txtStatus.setText("");
 
 	}
 
@@ -191,6 +329,14 @@ public class AppointmentView extends JInternalFrame {
 
 	public JTextField getTxtTime() {
 		return txtTime;
+	}
+
+	public JTextField getTxtReason() {
+		return txtReason;
+	}
+
+	public JTextField getTxtStatus() {
+		return txtStatus;
 	}
 
 	public JTable getTblAppointments() {

@@ -1,58 +1,144 @@
 package com.careplus.client.employee.controller;
 
+import java.util.Date;
 import java.util.List;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.careplus.client.employee.view.StaffChatView;
 import com.careplus.common.client.net.Client;
+import com.careplus.common.client.view.MainDashboard;
+import com.careplus.common.model.ChatMessages;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
 
+/*
+ * Staff Chat Controller
+ * Allows employees to exchange messages with patients
+ */
 public class StaffChatController {
 	private final StaffChatView view;
+	private static final Logger logger = LogManager.getLogger(StaffChatController.class);
 
 	public StaffChatController(StaffChatView view) {
 		this.view = view;
 		view.getBtnSend().addActionListener(e -> sendMessage());
 		view.getBtnRefresh().addActionListener(e -> refresh());
-		view.getBtnClear().addActionListener(e -> view.clearConversation());
+		view.getBtnClear().addActionListener(e -> view.clearMessageField());
 		refresh();
 	}
 
+	/*
+	 * Send Message to Patient
+	 */
 	private void sendMessage() {
 		String message = view.getTxtMessage().getText().trim();
 		String patient = view.getTxtPatient().getText().trim();
-		if (message.isEmpty())
+
+		if (message.isEmpty()) {
+			view.showMessage("Message is required.");
+			logger.warn("Staff chat message rejected because the message was empty");
+
 			return;
+		}
+
 		if (patient.isEmpty()) {
 			view.showMessage("Enter the patient ID to chat with.");
+			logger.warn("Staff chat message rejected because the patient ID was empty");
+
 			return;
 		}
 
 		Request req = new Request();
 		req.setType(RequestType.CHAT_SEND);
-		req.putMap("sender", "Staff");
-		req.putMap("recipient", patient);
-		req.putMap("message", message);
-		Response res = Client.send(req);
-		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
-			view.showMessage(res == null ? "No response from server." : res.getMessage());
+
+		ChatMessages chatMessage = new ChatMessages();
+
+		try {
+
+			chatMessage.setSenderId(
+					String.valueOf(MainDashboard.getCurrentUser().getPersonId()));
+
+			chatMessage.setContent(message);
+
+			chatMessage.setTimeStamp(new Date());
+
+			chatMessage.setIsRead(false);
+
+			//TODO log4j2
+			logger.info(
+					"Staff chat message created for patient ID: {}",
+					patient);
+
+			req.putMap("chatMessage", chatMessage);
+			req.putMap("recipient", patient);
+
+			Response res = Client.send(req);
+
+			if (res == null || !res.getSuccess()) {
+				view.showMessage(
+						res == null
+								? "No response from server."
+								: res.getMessage());
+
+				logger.error("Staff chat message could not be sent");
+				return;
+			}
+
+			logger.info("Staff chat message sent successfully");
+
+			view.clearMessageField();
+
+		} catch (Exception e) {
+
+			// TODO
+			logger.error("An error occurred while sending staff chat message", e);
+			view.showMessage("Unable to send message: " + e.getMessage());
 		}
-		view.clearMessageField();
-		refresh();
+
+		//refresh();
+
 	}
 
+	/*
+	 * View Patient Conversation
+	 */
 	@SuppressWarnings("unchecked")
 	private void refresh() {
 		String patient = view.getTxtPatient().getText().trim();
-		Response res = Client.send(new Request(RequestType.CHAT_POLL, "user", patient.isEmpty() ? "current" : patient));
-		if (res == null || !Boolean.TRUE.equals(res.getSuccess()))
+
+		Response res = Client.send(
+				new Request(
+						RequestType.CHAT_POLL,
+						"user",
+						patient.isEmpty()
+								? MainDashboard.getCurrentUser().getPersonId()
+								: patient));
+
+		if (res == null || !res.getSuccess()) {
+
+			logger.warn("Staff chat messages could not be retrieved");
 			return;
-		view.clearConversation();
-		if (res.getData() instanceof List<?>) {
-			for (Object msg : (List<Object>) res.getData()) {
-				view.appendMessage(String.valueOf(msg));
-			}
 		}
+
+		view.clearConversation();
+
+		for (ChatMessages msg : (List<ChatMessages>) res.getData()) {
+
+			String viewMessage =
+					"Message ID: " + msg.getMessageId()
+					+ "\nSender: " + msg.getSenderId()
+					+ "\nMessage: " + msg.getContent()
+					+ "\nTime: " + msg.getTimeStamp()
+					+ "\nRead: " + msg.getIsRead()
+					+ "\n";
+
+			view.appendMessage(viewMessage);
+		}
+
+		logger.info("Staff chat messages refreshed successfully");
+
 	}
 }

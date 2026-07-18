@@ -6,10 +6,14 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -18,6 +22,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.table.DefaultTableModel;
 
 public class DiagnosisView extends JInternalFrame {
@@ -51,10 +56,11 @@ public class DiagnosisView extends JInternalFrame {
 
 	public DiagnosisView() {
 
-		super("Diagnosis Management", true, true, true, true);
+		super("Medical Record Management", true, true, true, true);
 
 		initializeComponents();
 		buildGUI();
+		configureKeyboardShortcuts();
 
 		setSize(1000, 650);
 		setVisible(true);
@@ -63,14 +69,14 @@ public class DiagnosisView extends JInternalFrame {
 
 	private void initializeComponents() {
 
-		lblTitle = new JLabel("Diagnosis Management");
+		lblTitle = new JLabel("Medical Record Management");
 		lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
 
 		lblPatientId = new JLabel("Patient ID");
 		lblDiagnosis = new JLabel("Diagnosis");
-		lblTreatment = new JLabel("Treatment");
-		lblPrescription = new JLabel("Prescription");
-		lblStatus = new JLabel("Status");
+		lblTreatment = new JLabel("Treatment Note");
+		lblPrescription = new JLabel("Follow-up Date");
+		lblStatus = new JLabel("Created Date");
 
 		txtPatientId = new JTextField(20);
 		txtDiagnosis = new JTextField(20);
@@ -79,24 +85,64 @@ public class DiagnosisView extends JInternalFrame {
 		txtTreatment.setLineWrap(true);
 		txtTreatment.setWrapStyleWord(true);
 
-		txtPrescription = new JTextArea(4, 30);
+		txtPrescription = new JTextArea(1, 30);
 		txtPrescription.setLineWrap(true);
 		txtPrescription.setWrapStyleWord(true);
 
 		cboStatus = new JComboBox<>();
+		cboStatus.setEnabled(false);
+
+		lblPatientId.setDisplayedMnemonic(KeyEvent.VK_P);
+		lblPatientId.setLabelFor(txtPatientId);
+
+		lblDiagnosis.setDisplayedMnemonic(KeyEvent.VK_D);
+		lblDiagnosis.setLabelFor(txtDiagnosis);
+
+		lblTreatment.setDisplayedMnemonic(KeyEvent.VK_T);
+		lblTreatment.setLabelFor(txtTreatment);
+
+		lblPrescription.setDisplayedMnemonic(KeyEvent.VK_F);
+		lblPrescription.setLabelFor(txtPrescription);
+
+		lblStatus.setDisplayedMnemonic(KeyEvent.VK_A);
+		lblStatus.setLabelFor(cboStatus);
+
+		txtPatientId.setToolTipText("Enter the patient's unique ID. Shortcut: Alt+P.");
+		txtDiagnosis.setToolTipText("Enter the patient's diagnosis. Shortcut: Alt+D.");
+		txtTreatment.setToolTipText("Enter the doctor's treatment note. Shortcut: Alt+T.");
+		txtPrescription.setToolTipText("Enter the follow-up date using yyyy-MM-dd. Shortcut: Alt+F.");
+		cboStatus.setToolTipText("Displays the date the medical record was created.");
 
 		btnSave = new JButton("Save");
 		btnUpdate = new JButton("Update");
 		btnRefresh = new JButton("Refresh");
 		btnClear = new JButton("Clear");
 
+		btnSave.setMnemonic(KeyEvent.VK_S);
+		btnUpdate.setMnemonic(KeyEvent.VK_U);
+		btnRefresh.setMnemonic(KeyEvent.VK_R);
+		btnClear.setMnemonic(KeyEvent.VK_C);
+
+		btnSave.setToolTipText("Save the medical record. Shortcut: Alt+S or Ctrl+Enter.");
+		btnUpdate.setToolTipText("Update the selected medical record. Shortcut: Alt+U or Ctrl+U.");
+		btnRefresh.setToolTipText("Reload medical records. Shortcut: Alt+R or F5.");
+		btnClear.setToolTipText("Clear the medical-record fields. Shortcut: Alt+C or Escape.");
+
 		tableModel = new DefaultTableModel();
 
 		tableModel.setColumnIdentifiers(
-				new Object[] { "Record ID", "Patient ID", "Diagnosis", "Treatment", "Prescription", "Status", "Date" });
+				new Object[] {
+						"Record ID",
+						"Patient ID",
+						"Diagnosis",
+						"Treatment Note",
+						"Follow-up Date",
+						"Created Date"
+				});
 
 		tblDiagnosis = new JTable(tableModel);
 		tblDiagnosis.setRowHeight(25);
+		tblDiagnosis.setToolTipText("Select a medical record to view or update.");
 
 	}
 
@@ -168,6 +214,62 @@ public class DiagnosisView extends JInternalFrame {
 		mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
 		add(mainPanel);
+
+	}
+
+	private void configureKeyboardShortcuts() {
+
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, InputEvent.CTRL_DOWN_MASK), "save");
+
+		getRootPane().getActionMap().put("save", new AbstractAction() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				btnSave.doClick();
+			}
+		});
+
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_U, InputEvent.CTRL_DOWN_MASK), "update");
+
+		getRootPane().getActionMap().put("update", new AbstractAction() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				btnUpdate.doClick();
+			}
+		});
+
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0), "refresh");
+
+		getRootPane().getActionMap().put("refresh", new AbstractAction() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				btnRefresh.doClick();
+			}
+		});
+
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "clear");
+
+		getRootPane().getActionMap().put("clear", new AbstractAction() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				btnClear.doClick();
+			}
+		});
 
 	}
 

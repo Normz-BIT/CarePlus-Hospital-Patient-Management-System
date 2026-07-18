@@ -3,10 +3,14 @@ package com.careplus.client.patient.view;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -14,6 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 
 public class ChatView extends JInternalFrame {
 
@@ -21,6 +26,8 @@ public class ChatView extends JInternalFrame {
 
 	// Labels
 	private JLabel lblTitle;
+	private JLabel lblRecipient;
+	private JLabel lblMessage;
 
 	// Components
 	private JComboBox<String> cboRecipient;
@@ -38,6 +45,7 @@ public class ChatView extends JInternalFrame {
 
 		initializeComponents();
 		buildGUI();
+		configureKeyboardShortcuts();
 
 		setSize(850, 600);
 		setVisible(true);
@@ -48,6 +56,9 @@ public class ChatView extends JInternalFrame {
 
 		lblTitle = new JLabel("Patient Support Chat");
 		lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
+
+		lblRecipient = new JLabel("To:");
+		lblMessage = new JLabel("Message:");
 
 		cboRecipient = new JComboBox<>();
 		cboRecipient.addItem("Receptionist");
@@ -61,9 +72,27 @@ public class ChatView extends JInternalFrame {
 
 		txtMessage = new JTextField();
 
+		lblRecipient.setDisplayedMnemonic(KeyEvent.VK_T);
+		lblRecipient.setLabelFor(cboRecipient);
+
+		lblMessage.setDisplayedMnemonic(KeyEvent.VK_M);
+		lblMessage.setLabelFor(txtMessage);
+
+		cboRecipient.setToolTipText("Select the recipient of the message. Shortcut: Alt+T.");
+		txtConversation.setToolTipText("Displays the sender, message content, timestamp and read status.");
+		txtMessage.setToolTipText("Enter the message content. Shortcut: Alt+M.");
+
 		btnSend = new JButton("Send");
 		btnRefresh = new JButton("Refresh");
 		btnClear = new JButton("Clear");
+
+		btnSend.setMnemonic(KeyEvent.VK_S);
+		btnRefresh.setMnemonic(KeyEvent.VK_R);
+		btnClear.setMnemonic(KeyEvent.VK_C);
+
+		btnSend.setToolTipText("Send the message. Shortcut: Alt+S or Ctrl+Enter.");
+		btnRefresh.setToolTipText("Reload the conversation. Shortcut: Alt+R or F5.");
+		btnClear.setToolTipText("Clear the message field. Shortcut: Alt+C or Escape.");
 
 	}
 
@@ -74,13 +103,14 @@ public class ChatView extends JInternalFrame {
 
 		JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		topPanel.add(lblTitle);
-		topPanel.add(new JLabel("   To:"));
+		topPanel.add(lblRecipient);
 		topPanel.add(cboRecipient);
 
 		JScrollPane conversationPane = new JScrollPane(txtConversation);
 
 		JPanel bottomPanel = new JPanel(new BorderLayout(10, 10));
 
+		bottomPanel.add(lblMessage, BorderLayout.WEST);
 		bottomPanel.add(txtMessage, BorderLayout.CENTER);
 
 		JPanel buttonPanel = new JPanel(new FlowLayout());
@@ -96,6 +126,49 @@ public class ChatView extends JInternalFrame {
 		mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 
 		add(mainPanel);
+
+	}
+
+	private void configureKeyboardShortcuts() {
+
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, InputEvent.CTRL_DOWN_MASK), "send");
+
+		getRootPane().getActionMap().put("send", new AbstractAction() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				btnSend.doClick();
+			}
+		});
+
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0), "refresh");
+
+		getRootPane().getActionMap().put("refresh", new AbstractAction() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				btnRefresh.doClick();
+			}
+		});
+
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "clear");
+
+		getRootPane().getActionMap().put("clear", new AbstractAction() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				btnClear.doClick();
+			}
+		});
 
 	}
 
