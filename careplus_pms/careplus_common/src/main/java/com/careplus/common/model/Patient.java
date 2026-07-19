@@ -1,10 +1,14 @@
 package com.careplus.common.model;
 
-import java.util.Date;
+import java.time.LocalDate;
 
+import com.careplus.common.enums.Gender;
 import com.careplus.common.enums.UserRole;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 
@@ -20,18 +24,24 @@ import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "patient")
+@PrimaryKeyJoinColumn(name = "person_id")
 public class Patient extends Person {
 
 	@Transient
 	private static final long serialVersionUID = 1L;
+	
 	@Column(name = "date_of_birth")
-	private Date dateofBrith;
-	@Column(name = "gender")
-	private String gender;
-	@Column(name = "adress")
-	private String address;
-	@Column(name = "medical_history")
-	private String medicalHistory;
+	private LocalDate dateOfBrith;
+	
+    @Enumerated(EnumType.STRING)
+    @Column(name = "gender", nullable = false)
+    private Gender gender;
+	
+    @Column(name = "address", length = 200)
+    private String address;
+
+    @Column(name = "medical_history", columnDefinition = "TEXT")
+    private String medicalHistory;
 
 	public Patient() {
 		super();
@@ -42,20 +52,12 @@ public class Patient extends Person {
 		super(personId, firstName, lastName, email, phone, password, UserRole.PATIENT);
 	}
 
-	public Date getDateofBrith() {
-		return dateofBrith;
+	public LocalDate getdateOfBrith() {
+		return dateOfBrith;
 	}
 
-	public void setDateofBrith(Date dateofBrith) {
-		this.dateofBrith = dateofBrith;
-	}
-
-	public String getGender() {
-		return gender;
-	}
-
-	public void setGender(String gender) {
-		this.gender = gender;
+	public void setdateOfBrith(LocalDate dateOfBrith) {
+		this.dateOfBrith = dateOfBrith;
 	}
 
 	public String getAddress() {

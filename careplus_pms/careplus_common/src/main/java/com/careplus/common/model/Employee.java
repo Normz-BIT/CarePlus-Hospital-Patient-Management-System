@@ -1,18 +1,24 @@
 package com.careplus.common.model;
 
-import java.util.Date;
-
+import java.time.LocalDate;
+import jakarta.persistence.*;
 import com.careplus.common.enums.UserRole;
 
 /*
  * Employee Abstract Class
  * */
+@Entity
+@Table(name = "employee")
+@Inheritance(strategy = InheritanceType.JOINED)
+@PrimaryKeyJoinColumn(name = "person_id")
 public abstract class Employee extends Person {
-
+	@Transient 
 	private static final long serialVersionUID = 1L;
+	
+	@Column(name = "department", length = 80)
 	protected String Department;
-
-	protected Date hireDate;
+	@Column(name = "hireDate")
+	protected LocalDate hireDate;
 
 	
 	protected Employee() {
@@ -33,11 +39,11 @@ public abstract class Employee extends Person {
 		Department = department;
 	}
 
-	public Date getHireDate() {
+	public LocalDate gethireDate() {
 		return hireDate;
 	}
 
-	public void setHireDate(Date hireDate) {
+	public void sethireDate(LocalDate hireDate) {
 		this.hireDate = hireDate;
 	}
 

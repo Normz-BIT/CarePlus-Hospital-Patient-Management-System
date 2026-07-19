@@ -1,7 +1,7 @@
 package com.careplus.common.model;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDate;
 import com.careplus.common.enums.AppointmentStatus;
 
 
@@ -13,7 +13,7 @@ public class Appointment implements Serializable{
 	private static final long serialVersionUID = 1L;
 
 	private int appontmentId;
-	private Date appointmentDate;
+	private LocalDate appointmentDate;
 	private String reason;
 	private AppointmentStatus status;
 	
@@ -22,7 +22,7 @@ public class Appointment implements Serializable{
 		
 	}
 	
-	public Appointment(int appontmentId, Date appointmentDate, String reason, AppointmentStatus status) {
+	public Appointment(int appontmentId, LocalDate appointmentDate, String reason, AppointmentStatus status) {
 		this.appontmentId = appontmentId;
 		this.appointmentDate = appointmentDate;
 		this.reason = reason;
@@ -34,10 +34,10 @@ public class Appointment implements Serializable{
 	public void setAppontmentId(int appontmentId) {
 		this.appontmentId = appontmentId;
 	}
-	public Date getAppointmentDate() {
+	public LocalDate getAppointmentDate() {
 		return appointmentDate;
 	}
-	public void setAppointmentDate(Date appointmentDate) {
+	public void setAppointmentDate(LocalDate appointmentDate) {
 		this.appointmentDate = appointmentDate;
 	}
 	public String getReason() {
