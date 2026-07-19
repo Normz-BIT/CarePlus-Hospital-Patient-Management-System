@@ -1,7 +1,7 @@
 package com.careplus.common.model;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /*
  * Patient has Medical records
@@ -13,15 +13,16 @@ public class MedicalRecord implements Serializable{
 	private int recordId;
 	private String diagnosis;
 	private String treatmentNote;
-	private Date followUpDate;
-	private Date createdDate;
+	private LocalDateTime followUpDate;
+	private LocalDateTime createdDate;
 	
 	public MedicalRecord() {
 		
 		
 	}
 	
-	public MedicalRecord(int recordId, String diagnosis, String treatmentNote, Date followUpDate, Date createdDate) {
+	public MedicalRecord(int recordId, String diagnosis, String treatmentNote, LocalDateTime followUpDate,
+			LocalDateTime createdDate) {
 		this.recordId = recordId;
 		this.diagnosis = diagnosis;
 		this.treatmentNote = treatmentNote;
@@ -46,17 +47,23 @@ public class MedicalRecord implements Serializable{
 	public void setTreatmentNote(String treatmentNote) {
 		this.treatmentNote = treatmentNote;
 	}
-	public Date getFollowUpDate() {
+	public LocalDateTime getFollowUpDate() {
 		return followUpDate;
 	}
-	public void setFollowUpDate(Date followUpDate) {
+	public void setFollowUpDate(LocalDateTime followUpDate) {
 		this.followUpDate = followUpDate;
 	}
-	public Date getCreatedDate() {
+	public LocalDateTime getCreatedDate() {
 		return createdDate;
 	}
-	public void setCreatedDate(Date createdDate) {
+	public void setCreatedDate(LocalDateTime createdDate) {
 		this.createdDate = createdDate;
+	}
+
+	@Override
+	public String toString() {
+		return "MedicalRecord [recordId=" + recordId + ", diagnosis=" + diagnosis + ", treatmentNote=" + treatmentNote
+				+ ", followUpDate=" + followUpDate + ", createdDate=" + createdDate + "]";
 	}
 
 	@Override

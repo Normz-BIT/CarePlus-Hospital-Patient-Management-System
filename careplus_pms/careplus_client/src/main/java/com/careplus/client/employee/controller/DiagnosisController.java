@@ -1,7 +1,7 @@
 package com.careplus.client.employee.controller;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -21,7 +21,6 @@ public class DiagnosisController {
 	public DiagnosisController(DiagnosisView view) {
 		this.view = view;
 		init();
-		loadStatus();
 		refresh();
 	}
 
@@ -30,12 +29,6 @@ public class DiagnosisController {
 		view.getBtnUpdate().addActionListener(e -> save(RequestType.UPDATE_DIAGNOSIS));
 		view.getBtnRefresh().addActionListener(e -> refresh());
 		view.getBtnClear().addActionListener(e -> view.clearFields());
-	}
-
-	private void loadStatus() {
-		view.getCboStatus().removeAllItems();
-		view.getCboStatus().addItem(
-				new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
 	}
 
 	private void save(RequestType type) {
@@ -61,13 +54,13 @@ public class DiagnosisController {
 			medicalRecord.setTreatmentNote(
 					view.getTxtTreatment().getText().trim());
 
-			if (!view.getTxtPrescription().getText().trim().isEmpty()) {
+			if (!view.getTxtFollowUpDate().getText().trim().isEmpty()) {
 				medicalRecord.setFollowUpDate(
-						new SimpleDateFormat("yyyy-MM-dd").parse(
-								view.getTxtPrescription().getText().trim()));
+						LocalDate.parse(view.getTxtFollowUpDate().getText().trim())
+								.atStartOfDay());
 			}
 
-			medicalRecord.setCreatedDate(new Date());
+			medicalRecord.setCreatedDate(LocalDateTime.now());
 
 			if (type == RequestType.UPDATE_DIAGNOSIS) {
 				int row = view.getTblDiagnosis().getSelectedRow();
@@ -85,7 +78,6 @@ public class DiagnosisController {
 										view.getTableModel().getValueAt(row, 0))));
 			}
 
-			//TODO log4j2
 			logger.info("Medical record created: {}", medicalRecord.toString());
 
 			req.putMap("medicalRecord", medicalRecord);
@@ -103,12 +95,11 @@ public class DiagnosisController {
 
 		} catch (Exception e) {
 
-			// TODO
 			logger.error("An error occurred while saving medical record", e);
 			view.showMessage("Use the follow-up date format: yyyy-MM-dd");
 		}
 
-		//refresh();
+		refresh();
 
 	}
 
@@ -120,7 +111,7 @@ public class DiagnosisController {
 						"all",
 						true));
 
-		if (res == null || !res.getSuccess()) {
+		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 
 			logger.warn("Medical records could not be retrieved");
 			return;
@@ -132,7 +123,6 @@ public class DiagnosisController {
 
 			Object[] viewRow = new Object[] {
 					row.getRecordId(),
-					"",
 					row.getDiagnosis(),
 					row.getTreatmentNote(),
 					row.getFollowUpDate(),
@@ -141,8 +131,6 @@ public class DiagnosisController {
 
 			view.addDiagnosis(viewRow);
 		}
-
-		loadStatus();
 
 		logger.info("Medical records refreshed successfully");
 

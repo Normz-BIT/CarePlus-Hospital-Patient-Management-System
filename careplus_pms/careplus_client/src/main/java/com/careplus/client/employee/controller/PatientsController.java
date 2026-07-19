@@ -99,9 +99,8 @@ public class PatientsController {
 
 		} catch (Exception e) {
 
-			// TODO
 			logger.error("An error occurred while scheduling follow-up", e);
-			view.showMessage("Use the date and time format: yyyy-MM-dd HH:mm");
+			view.showMessage("Use the date and time format: yyyy-MM-dd HH:mm:ss");
 		}
 
 		refresh();
@@ -135,7 +134,7 @@ public class PatientsController {
 						"doctorId",
 						MainDashboard.getCurrentUser().getPersonId()));
 
-		if (res == null || !res.getSuccess()) {
+		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 
 			logger.warn("Assigned patients could not be retrieved");
 			return;
@@ -151,7 +150,7 @@ public class PatientsController {
 					row.getLastName(),
 					row.getEmail(),
 					row.getPhone(),
-					row.getDateOfBrith(),
+					row.getDateOfBirth(),
 					row.getGender(),
 					row.getAddress(),
 					row.getMedicalHistory()

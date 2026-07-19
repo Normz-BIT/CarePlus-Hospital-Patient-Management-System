@@ -1,6 +1,6 @@
 package com.careplus.client.employee.controller;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -44,11 +44,7 @@ public class VitalsController {
 		String patientId = view.getTxtPatientId().getText().trim();
 
 		if (patientId.isEmpty()) {
-			patientId = selectedPatientId();
-		}
-
-		if (patientId.isEmpty()) {
-			view.showMessage("Enter or select a patient before recording vitals.");
+			view.showMessage("Enter a patient ID before recording vitals.");
 			logger.warn("Vital signs rejected because no patient was selected");
 
 			return;
@@ -82,9 +78,8 @@ public class VitalsController {
 			vitalSigns.setNursingNotes(
 					view.getTxtNursingNotes().getText().trim());
 
-			vitalSigns.setRecordedAt(new Date());
+			vitalSigns.setRecordedAt(LocalDateTime.now());
 
-			//TODO log4j2
 			logger.info(
 					"Vital signs created for patient ID: {}",
 					patientId);
@@ -107,27 +102,12 @@ public class VitalsController {
 
 		} catch (Exception e) {
 
-			// TODO
 			logger.error("An error occurred while recording vital signs", e);
 			view.showMessage("Temperature, heart rate and respiratory rate must be valid numbers.");
 		}
 
-		//refresh();
+		refresh();
 
-	}
-
-	/** Patient id of the currently selected assigned-case row, or "". */
-	private String selectedPatientId() {
-		int row = view.getTblCases().getSelectedRow();
-
-		if (row < 0) {
-
-			return "";
-		}
-
-		Object value = view.getTableModel().getValueAt(row, 1);
-
-		return value == null ? "" : String.valueOf(value);
 	}
 
 	/*
@@ -141,7 +121,7 @@ public class VitalsController {
 						"nurseId",
 						MainDashboard.getCurrentUser().getPersonId()));
 
-		if (res == null || !res.getSuccess()) {
+		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 
 			logger.warn("Patient vital signs could not be retrieved");
 			return;
@@ -149,30 +129,20 @@ public class VitalsController {
 
 		view.clearTable();
 
-		if (res.getData() instanceof List<?>) {
-			for (Object row : (List<Object>) res.getData()) {
+		for (VitalSigns row : (List<VitalSigns>) res.getData()) {
 
-				if (row instanceof VitalSigns) {
-					VitalSigns vitalSigns = (VitalSigns) row;
+			Object[] viewRow = new Object[] {
+					row.getVitalId(),
+					row.getTemperature(),
+					row.getBloodPressure(),
+					row.getHeartRate(),
+					row.getRespiratoryRate(),
+					row.getObservations(),
+					row.getNursingNotes(),
+					row.getRecordedAt()
+			};
 
-					Object[] viewRow = new Object[] {
-							vitalSigns.getVitalId(),
-							"",
-							vitalSigns.getTemperature(),
-							vitalSigns.getBloodPressure(),
-							vitalSigns.getHeartRate(),
-							vitalSigns.getRespiratoryRate(),
-							vitalSigns.getObservations(),
-							vitalSigns.getNursingNotes(),
-							vitalSigns.getRecordedAt()
-					};
-
-					view.addCase(viewRow);
-
-				} else if (row instanceof Object[]) {
-					view.addCase((Object[]) row);
-				}
-			}
+			view.addCase(viewRow);
 		}
 
 		logger.info("Patient vital signs refreshed successfully");

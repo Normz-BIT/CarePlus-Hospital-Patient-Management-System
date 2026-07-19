@@ -32,24 +32,17 @@ public class EmployeeComplaintView extends JInternalFrame {
 	// Labels
 	private JLabel lblTitle;
 	private JLabel lblComplaintId;
-	private JLabel lblCategory;
 	private JLabel lblStatus;
 	private JLabel lblRemarks;
 	private JLabel lblParentId;
 	private JLabel lblDescription;
-	private JLabel lblDateSubmitted;
-	private JLabel lblResponseDate;
 
 	// Components
 	private JTextField txtComplaintId;
-	private JComboBox<String> cboCategory;
-	private JComboBox<String> cboPriority;
 	private JComboBox<String> cboStatus;
 	private JTextArea txtRemarks;
 	private JTextField txtParentId;
 	private JTextArea txtDescription;
-	private JTextField txtDateSubmitted;
-	private JTextField txtResponseDate;
 
 	// Buttons
 	private JButton btnAssign;
@@ -85,19 +78,14 @@ public class EmployeeComplaintView extends JInternalFrame {
 		lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
 
 		lblComplaintId = new JLabel("Complaint ID");
-		lblCategory = new JLabel("Category");
 		lblStatus = new JLabel("Status");
 		lblRemarks = new JLabel("Response");
 		lblParentId = new JLabel("Parent Complaint ID");
 		lblDescription = new JLabel("Description");
-		lblDateSubmitted = new JLabel("Date Submitted");
-		lblResponseDate = new JLabel("Response Date");
 
 		txtComplaintId = new JTextField(20);
 		txtComplaintId.setEditable(false);
 
-		cboCategory = new JComboBox<>();
-		cboPriority = new JComboBox<>();
 		cboStatus = new JComboBox<>();
 
 		txtRemarks = new JTextArea(4, 30);
@@ -112,17 +100,10 @@ public class EmployeeComplaintView extends JInternalFrame {
 		txtDescription.setLineWrap(true);
 		txtDescription.setWrapStyleWord(true);
 
-		txtDateSubmitted = new JTextField(20);
-		txtDateSubmitted.setEditable(false);
 
-		txtResponseDate = new JTextField(20);
-		txtResponseDate.setEditable(false);
 
 		lblComplaintId.setDisplayedMnemonic(KeyEvent.VK_I);
 		lblComplaintId.setLabelFor(txtComplaintId);
-
-		lblCategory.setDisplayedMnemonic(KeyEvent.VK_G);
-		lblCategory.setLabelFor(cboCategory);
 
 		lblStatus.setDisplayedMnemonic(KeyEvent.VK_S);
 		lblStatus.setLabelFor(cboStatus);
@@ -136,20 +117,11 @@ public class EmployeeComplaintView extends JInternalFrame {
 		lblDescription.setDisplayedMnemonic(KeyEvent.VK_D);
 		lblDescription.setLabelFor(txtDescription);
 
-		lblDateSubmitted.setDisplayedMnemonic(KeyEvent.VK_A);
-		lblDateSubmitted.setLabelFor(txtDateSubmitted);
-
-		lblResponseDate.setDisplayedMnemonic(KeyEvent.VK_E);
-		lblResponseDate.setLabelFor(txtResponseDate);
-
 		txtComplaintId.setToolTipText("Displays the selected complaint ID.");
-		cboCategory.setToolTipText("Displays the complaint category. Shortcut: Alt+G.");
 		cboStatus.setToolTipText("Select the complaint status. Shortcut: Alt+S.");
 		txtRemarks.setToolTipText("Enter the employee response. Shortcut: Alt+O.");
 		txtParentId.setToolTipText("Displays the ID of the original complaint.");
 		txtDescription.setToolTipText("Displays the patient's complaint description.");
-		txtDateSubmitted.setToolTipText("Displays the date the complaint was submitted.");
-		txtResponseDate.setToolTipText("Displays the date the response was submitted.");
 
 		btnAssign = new JButton("Assign");
 		btnResolve = new JButton("Resolve");
@@ -177,8 +149,7 @@ public class EmployeeComplaintView extends JInternalFrame {
 						"Date Submitted",
 						"Response",
 						"Response Date",
-						"Status",
-						"Patient"
+						"Status"
 				});
 
 		tblComplaints = new JTable(tableModel);
@@ -229,13 +200,6 @@ public class EmployeeComplaintView extends JInternalFrame {
 		formPanel.add(txtParentId, gbc);
 
 		gbc.gridx = 0;
-		gbc.gridy = 3;
-		formPanel.add(lblCategory, gbc);
-
-		gbc.gridx = 1;
-		formPanel.add(cboCategory, gbc);
-
-		gbc.gridx = 0;
 		gbc.gridy = 4;
 		formPanel.add(lblStatus, gbc);
 
@@ -252,24 +216,10 @@ public class EmployeeComplaintView extends JInternalFrame {
 
 		gbc.gridx = 0;
 		gbc.gridy = 6;
-		formPanel.add(lblDateSubmitted, gbc);
-
-		gbc.gridx = 1;
-		formPanel.add(txtDateSubmitted, gbc);
-
-		gbc.gridx = 0;
-		gbc.gridy = 7;
 		formPanel.add(lblRemarks, gbc);
 
 		gbc.gridx = 1;
 		formPanel.add(new JScrollPane(txtRemarks), gbc);
-
-		gbc.gridx = 0;
-		gbc.gridy = 8;
-		formPanel.add(lblResponseDate, gbc);
-
-		gbc.gridx = 1;
-		formPanel.add(txtResponseDate, gbc);
 
 		JPanel buttonPanel = new JPanel(new FlowLayout());
 
@@ -382,11 +332,7 @@ public class EmployeeComplaintView extends JInternalFrame {
 		txtRemarks.setText("");
 		txtParentId.setText("");
 		txtDescription.setText("");
-		txtDateSubmitted.setText("");
-		txtResponseDate.setText("");
 
-		cboCategory.removeAllItems();
-		cboPriority.removeAllItems();
 		cboStatus.removeAllItems();
 
 	}
@@ -400,10 +346,6 @@ public class EmployeeComplaintView extends JInternalFrame {
 		lblSummary.setText(text);
 	}
 
-	public JLabel getLblSummary() {
-		return lblSummary;
-	}
-
 	public JComboBox<String> getCboFilter() {
 		return cboFilter;
 	}
@@ -414,14 +356,6 @@ public class EmployeeComplaintView extends JInternalFrame {
 
 	public JTextField getTxtComplaintId() {
 		return txtComplaintId;
-	}
-
-	public JComboBox<String> getCboCategory() {
-		return cboCategory;
-	}
-
-	public JComboBox<String> getCboPriority() {
-		return cboPriority;
 	}
 
 	public JComboBox<String> getCboStatus() {
@@ -438,14 +372,6 @@ public class EmployeeComplaintView extends JInternalFrame {
 
 	public JTextArea getTxtDescription() {
 		return txtDescription;
-	}
-
-	public JTextField getTxtDateSubmitted() {
-		return txtDateSubmitted;
-	}
-
-	public JTextField getTxtResponseDate() {
-		return txtResponseDate;
 	}
 
 	public JTable getTblComplaints() {

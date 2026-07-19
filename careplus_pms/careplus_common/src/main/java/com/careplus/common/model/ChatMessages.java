@@ -1,7 +1,7 @@
 package com.careplus.common.model;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /*
  * Chat Messages for all users
@@ -13,7 +13,7 @@ public class ChatMessages implements Serializable {
 	private int messageId;
 	private String senderId;
 	private String content;
-	private Date timeStamp;
+	private LocalDateTime timeStamp;
 	private Boolean isRead;
 
 	public ChatMessages() {
@@ -44,11 +44,11 @@ public class ChatMessages implements Serializable {
 		this.content = content;
 	}
 
-	public Date getTimeStamp() {
+	public LocalDateTime getTimeStamp() {
 		return timeStamp;
 	}
 
-	public void setTimeStamp(Date timeStamp) {
+	public void setTimeStamp(LocalDateTime timeStamp) {
 		this.timeStamp = timeStamp;
 	}
 
@@ -62,10 +62,16 @@ public class ChatMessages implements Serializable {
 
 
 	@Override
+	public String toString() {
+		return "ChatMessages [messageId=" + messageId + ", senderId=" + senderId + ", content=" + content
+				+ ", timeStamp=" + timeStamp + ", isRead=" + isRead + "]";
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (!(obj instanceof Person)) {
+		if (!(obj instanceof ChatMessages)) {
 			return false;
 		}
 		if (getClass() != obj.getClass())
@@ -73,7 +79,7 @@ public class ChatMessages implements Serializable {
 		ChatMessages other = (ChatMessages) obj;
 		return messageId == other.messageId;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return Integer.hashCode(messageId);

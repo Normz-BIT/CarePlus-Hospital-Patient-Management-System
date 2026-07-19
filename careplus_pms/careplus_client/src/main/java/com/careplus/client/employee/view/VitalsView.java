@@ -140,7 +140,6 @@ public class VitalsView extends JInternalFrame {
 		tableModel.setColumnIdentifiers(
 				new Object[] {
 						"Vital ID",
-						"Patient ID",
 						"Temperature",
 						"Blood Pressure",
 						"Heart Rate",
@@ -305,10 +304,6 @@ public class VitalsView extends JInternalFrame {
 
 	public JTextArea getTxtNursingNotes() {
 		return txtNursingNotes;
-	}
-
-	public JTable getTblCases() {
-		return tblCases;
 	}
 
 	public DefaultTableModel getTableModel() {

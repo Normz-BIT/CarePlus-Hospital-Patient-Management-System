@@ -37,38 +37,29 @@ public class DoctorsController {
                         "all",
                         true));
 
-        if (res == null || !res.getSuccess()) {
+        if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 
             logger.warn("Doctor records could not be retrieved");
             return;
         }
 
         view.clearTable();
-        
-        if (res.getData() instanceof List<?>) {
-            for (Object element : (List<Object>) res.getData()) {
 
-                if (element instanceof Doctor) {
-                    Doctor doctor = (Doctor) element;
+        for (Doctor row : (List<Doctor>) res.getData()) {
 
-                    Object[] viewRow = new Object[] {
-                            doctor.getPersonId(),
-                            doctor.getFirstName(),
-                            doctor.getLastName(),
-                            doctor.getEmail(),
-                            doctor.getPhone(),
-                            doctor.getDepartment(),
-                            doctor.getHireDate(),
-                            doctor.getSpecialization(),
-                            doctor.getLicenseNo()
-                    };
+            Object[] viewRow = new Object[] {
+                    row.getPersonId(),
+                    row.getFirstName(),
+                    row.getLastName(),
+                    row.getEmail(),
+                    row.getPhone(),
+                    row.getDepartment(),
+                    row.getHireDate(),
+                    row.getSpecialization(),
+                    row.getLicenseNo()
+            };
 
-                    view.addDoctor(viewRow);
-
-                } else if (element instanceof Object[]) {
-                    view.addDoctor((Object[]) element);
-                }
-            }
+            view.addDoctor(viewRow);
         }
 
         logger.info("Doctor records refreshed successfully");

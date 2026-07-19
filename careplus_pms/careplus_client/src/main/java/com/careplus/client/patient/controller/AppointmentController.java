@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import javax.swing.JComboBox;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -35,18 +37,14 @@ public class AppointmentController {
 		view.getBtnUpdate().addActionListener(e -> schedule());
 	}
 
-	private Response send(Request request) {
-		return Client.send(request);
-	}
-
 	private void loadLookups() {
-		Response doctors = send(new Request(RequestType.GET_DOCTORS, "role", "doctor"));
+		Response doctors = Client.send(new Request(RequestType.GET_DOCTORS, "role", "doctor"));
 
 		if (doctors != null && Boolean.TRUE.equals(doctors.getSuccess())) {
 			fillCombo(view.getCboDoctor(), doctors.getData());
 		}
 
-		Response departments = send(new Request(RequestType.GET_DEPARTMENTS, "type", "appointment"));
+		Response departments = Client.send(new Request(RequestType.GET_DEPARTMENTS, "type", "appointment"));
 
 		if (departments != null && Boolean.TRUE.equals(departments.getSuccess())) {
 			fillCombo(view.getCboDepartment(), departments.getData());
@@ -54,7 +52,7 @@ public class AppointmentController {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void fillCombo(javax.swing.JComboBox<String> combo, Object data) {
+	private void fillCombo(JComboBox<String> combo, Object data) {
 		combo.removeAllItems();
 
 		if (data instanceof List<?>) {
@@ -93,7 +91,6 @@ public class AppointmentController {
 
 			appointment.setStatus(AppointmentStatus.SCHEDULED);
 
-			//TODO log4j2
 			logger.info("Appointment created: {}", appointment.toString());
 
 			req.putMap("appointment", appointment);
@@ -101,7 +98,7 @@ public class AppointmentController {
 			req.putMap("doctor", String.valueOf(view.getCboDoctor().getSelectedItem()));
 			req.putMap("department", String.valueOf(view.getCboDepartment().getSelectedItem()));
 
-			Response res = send(req);
+			Response res = Client.send(req);
 
 			view.showMessage(res == null ? "No response from server." : res.getMessage());
 
@@ -113,12 +110,11 @@ public class AppointmentController {
 
 		} catch (Exception e) {
 
-			// TODO
 			logger.error("An error occurred while scheduling appointment", e);
-			view.showMessage("Use the date and time format: yyyy-MM-dd HH:mm");
+			view.showMessage("Use the date and time format: yyyy-MM-dd HH:mm:ss");
 		}
 
-		//refresh();
+		refresh();
 
 	}
 
@@ -134,7 +130,7 @@ public class AppointmentController {
 
 		Object id = view.getTableModel().getValueAt(row, 0);
 		Request req = new Request(RequestType.CANCEL_APPOINTMENT, "appointmentId", id);
-		Response res = send(req);
+		Response res = Client.send(req);
 
 		view.showMessage(res == null ? "No response from server." : res.getMessage());
 
@@ -149,13 +145,13 @@ public class AppointmentController {
 
 	@SuppressWarnings("unchecked")
 	private void refresh() {
-		Response res = send(
+		Response res = Client.send(
 				new Request(
 						RequestType.GET_MY_APPOINTMENTS,
 						"patientId",
 						MainDashboard.getCurrentUser().getPersonId()));
 
-		if (res == null || !res.getSuccess()) {
+		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 
 			logger.warn("Appointment records could not be retrieved");
 			return;
@@ -166,11 +162,8 @@ public class AppointmentController {
 		for (Appointment row : (List<Appointment>) res.getData()) {
 
 			Object[] viewRow = new Object[] {
-					row.getAppontmentId(),
-					"",
-					"",
+					row.getAppointmentId(),
 					row.getAppointmentDate(),
-					"",
 					row.getReason(),
 					row.getStatus()
 			};

@@ -122,10 +122,6 @@ public class DoctorsView extends JInternalFrame {
 		JOptionPane.showMessageDialog(this, message);
 	}
 
-	public JTable getTblDoctors() {
-		return tblDoctors;
-	}
-
 	public DefaultTableModel getTableModel() {
 		return tableModel;
 	}

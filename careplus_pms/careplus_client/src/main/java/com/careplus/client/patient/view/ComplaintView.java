@@ -32,21 +32,13 @@ public class ComplaintView extends JInternalFrame {
 	// Labels
 	private JLabel lblTitle;
 	private JLabel lblCategory;
-	private JLabel lblPriority;
 	private JLabel lblDescription;
 	private JLabel lblParentId;
-	private JLabel lblDateSubmitted;
-	private JLabel lblResponse;
-	private JLabel lblResponseDate;
 
 	// Components
 	private JComboBox<String> cboCategory;
-	private JComboBox<String> cboPriority;
 	private JTextArea txtDescription;
 	private JTextField txtParentId;
-	private JTextField txtDateSubmitted;
-	private JTextArea txtResponse;
-	private JTextField txtResponseDate;
 
 	// Buttons
 	private JButton btnSubmit;
@@ -78,47 +70,19 @@ public class ComplaintView extends JInternalFrame {
 		lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
 
 		lblCategory = new JLabel("Category");
-		lblPriority = new JLabel("Status");
 		lblDescription = new JLabel("Description");
 		lblParentId = new JLabel("Parent Complaint ID");
-		lblDateSubmitted = new JLabel("Date Submitted");
-		lblResponse = new JLabel("Response");
-		lblResponseDate = new JLabel("Response Date");
 
 		cboCategory = new JComboBox<>();
-		cboPriority = new JComboBox<>();
-
-		cboCategory.addItem("GENERAL_HEALTH");
-		cboCategory.addItem("MEDICATION_CONCERN");
-		cboCategory.addItem("APPOINTMENT_ISSUE");
-
-		cboPriority.addItem("SUBMITTED");
-		cboPriority.addItem("ASSIGNED");
-		cboPriority.addItem("IN_PROGRESS");
-		cboPriority.addItem("RESOLVED");
-		cboPriority.addItem("REOPENED");
 
 		txtDescription = new JTextArea(5, 30);
 		txtDescription.setLineWrap(true);
 		txtDescription.setWrapStyleWord(true);
 
 		txtParentId = new JTextField(15);
-		txtDateSubmitted = new JTextField(15);
-		txtResponse = new JTextArea(3, 30);
-		txtResponseDate = new JTextField(15);
-
-		txtDateSubmitted.setEditable(false);
-		txtResponse.setEditable(false);
-		txtResponse.setLineWrap(true);
-		txtResponse.setWrapStyleWord(true);
-		txtResponseDate.setEditable(false);
-		cboPriority.setEnabled(false);
 
 		lblCategory.setDisplayedMnemonic(KeyEvent.VK_G);
 		lblCategory.setLabelFor(cboCategory);
-
-		lblPriority.setDisplayedMnemonic(KeyEvent.VK_S);
-		lblPriority.setLabelFor(cboPriority);
 
 		lblDescription.setDisplayedMnemonic(KeyEvent.VK_D);
 		lblDescription.setLabelFor(txtDescription);
@@ -126,22 +90,9 @@ public class ComplaintView extends JInternalFrame {
 		lblParentId.setDisplayedMnemonic(KeyEvent.VK_P);
 		lblParentId.setLabelFor(txtParentId);
 
-		lblDateSubmitted.setDisplayedMnemonic(KeyEvent.VK_A);
-		lblDateSubmitted.setLabelFor(txtDateSubmitted);
-
-		lblResponse.setDisplayedMnemonic(KeyEvent.VK_O);
-		lblResponse.setLabelFor(txtResponse);
-
-		lblResponseDate.setDisplayedMnemonic(KeyEvent.VK_E);
-		lblResponseDate.setLabelFor(txtResponseDate);
-
 		cboCategory.setToolTipText("Select the complaint category. Shortcut: Alt+G.");
-		cboPriority.setToolTipText("Displays the current complaint status.");
 		txtDescription.setToolTipText("Enter the complaint description. Shortcut: Alt+D.");
 		txtParentId.setToolTipText("Enter the original complaint ID when submitting a follow-up. Shortcut: Alt+P.");
-		txtDateSubmitted.setToolTipText("Displays the date the complaint was submitted.");
-		txtResponse.setToolTipText("Displays the response provided by hospital staff.");
-		txtResponseDate.setToolTipText("Displays the date the response was submitted.");
 
 		btnSubmit = new JButton("Submit");
 		btnUpdate = new JButton("Follow Up");
@@ -208,46 +159,18 @@ public class ComplaintView extends JInternalFrame {
 
 		gbc.gridx = 0;
 		gbc.gridy = 2;
-		formPanel.add(lblPriority, gbc);
-
-		gbc.gridx = 1;
-		formPanel.add(cboPriority, gbc);
-
-		gbc.gridx = 0;
-		gbc.gridy = 3;
 		formPanel.add(lblParentId, gbc);
 
 		gbc.gridx = 1;
 		formPanel.add(txtParentId, gbc);
 
 		gbc.gridx = 0;
-		gbc.gridy = 4;
-		formPanel.add(lblDateSubmitted, gbc);
-
-		gbc.gridx = 1;
-		formPanel.add(txtDateSubmitted, gbc);
-
-		gbc.gridx = 0;
-		gbc.gridy = 5;
+		gbc.gridy = 3;
 		gbc.anchor = GridBagConstraints.NORTHWEST;
 		formPanel.add(lblDescription, gbc);
 
 		gbc.gridx = 1;
 		formPanel.add(new JScrollPane(txtDescription), gbc);
-
-		gbc.gridx = 0;
-		gbc.gridy = 6;
-		formPanel.add(lblResponse, gbc);
-
-		gbc.gridx = 1;
-		formPanel.add(new JScrollPane(txtResponse), gbc);
-
-		gbc.gridx = 0;
-		gbc.gridy = 7;
-		formPanel.add(lblResponseDate, gbc);
-
-		gbc.gridx = 1;
-		formPanel.add(txtResponseDate, gbc);
 
 		JPanel buttonPanel = new JPanel(new FlowLayout());
 
@@ -348,13 +271,12 @@ public class ComplaintView extends JInternalFrame {
 
 	public void clearFields() {
 
-		cboCategory.setSelectedIndex(0);
-		cboPriority.setSelectedIndex(0);
+		if (cboCategory.getItemCount() > 0) {
+			cboCategory.setSelectedIndex(0);
+		}
+
 		txtDescription.setText("");
 		txtParentId.setText("");
-		txtDateSubmitted.setText("");
-		txtResponse.setText("");
-		txtResponseDate.setText("");
 
 	}
 
@@ -370,28 +292,12 @@ public class ComplaintView extends JInternalFrame {
 		return cboCategory;
 	}
 
-	public JComboBox<String> getCboPriority() {
-		return cboPriority;
-	}
-
 	public JTextArea getTxtDescription() {
 		return txtDescription;
 	}
 
 	public JTextField getTxtParentId() {
 		return txtParentId;
-	}
-
-	public JTextField getTxtDateSubmitted() {
-		return txtDateSubmitted;
-	}
-
-	public JTextArea getTxtResponse() {
-		return txtResponse;
-	}
-
-	public JTextField getTxtResponseDate() {
-		return txtResponseDate;
 	}
 
 	public JTable getTblComplaints() {

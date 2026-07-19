@@ -202,12 +202,6 @@ public class ChatView extends JInternalFrame {
 
 	}
 
-	public JTextArea getTxtConversation() {
-
-		return txtConversation;
-
-	}
-
 	public JTextField getTxtMessage() {
 
 		return txtMessage;

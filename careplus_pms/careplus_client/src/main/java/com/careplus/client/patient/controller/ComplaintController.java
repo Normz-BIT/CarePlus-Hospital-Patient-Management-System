@@ -1,6 +1,6 @@
 package com.careplus.client.patient.controller;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -23,6 +23,7 @@ public class ComplaintController {
 	public ComplaintController(ComplaintView view) {
 		this.view = view;
 		init();
+		loadCategories();
 		refresh();
 	}
 
@@ -34,8 +35,14 @@ public class ComplaintController {
 		view.getBtnClear().addActionListener(e -> view.clearFields());
 	}
 
-	private Response send(Request request) {
-		return Client.send(request);
+	/*
+	 * Load the complaint categories straight from the enum
+	 */
+	private void loadCategories() {
+		view.getCboCategory().removeAllItems();
+
+		for (ComplaintCategory category : ComplaintCategory.values())
+			view.getCboCategory().addItem(category.name());
 	}
 
 	private void submit() {
@@ -63,20 +70,19 @@ public class ComplaintController {
 
 			complaint.setStatus(ComplaintStatus.SUBMITTED);
 
-			complaint.setDateSubmitteDate(new Date());
+			complaint.setDateSubmitted(LocalDateTime.now());
 
 			if (!view.getTxtParentId().getText().trim().isEmpty()) {
 				complaint.setComplaintParentId(
 						Integer.parseInt(view.getTxtParentId().getText().trim()));
 			}
 
-			//TODO log4j2
 			logger.info("Complaint created: {}", complaint.toString());
 
 			req.putMap("complaint", complaint);
 			req.putMap("patientId", MainDashboard.getCurrentUser().getPersonId());
 
-			Response res = send(req);
+			Response res = Client.send(req);
 
 			view.showMessage(res == null ? "No response from server." : res.getMessage());
 
@@ -88,12 +94,11 @@ public class ComplaintController {
 
 		} catch (Exception e) {
 
-			// TODO
 			logger.error("An error occurred while submitting complaint", e);
 			view.showMessage("Unable to submit complaint: " + e.getMessage());
 		}
 
-		//refresh();
+		refresh();
 
 	}
 
@@ -112,7 +117,7 @@ public class ComplaintController {
 				"complaintId",
 				view.getTableModel().getValueAt(row, 0));
 
-		Response res = send(req);
+		Response res = Client.send(req);
 
 		view.showMessage(res == null ? "No response from server." : res.getMessage());
 
@@ -127,13 +132,13 @@ public class ComplaintController {
 
 	@SuppressWarnings("unchecked")
 	private void refresh() {
-		Response res = send(
+		Response res = Client.send(
 				new Request(
 						RequestType.GET_MY_COMPLAINTS,
 						"patientId",
 						MainDashboard.getCurrentUser().getPersonId()));
 
-		if (res == null || !res.getSuccess()) {
+		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 
 			logger.warn("Complaint records could not be retrieved");
 			return;
@@ -148,7 +153,7 @@ public class ComplaintController {
 					row.getComplaintParentId(),
 					row.getCategory(),
 					row.getDescription(),
-					row.getDateSubmitteDate(),
+					row.getDateSubmitted(),
 					row.getResponse(),
 					row.getResponseDate(),
 					row.getStatus()

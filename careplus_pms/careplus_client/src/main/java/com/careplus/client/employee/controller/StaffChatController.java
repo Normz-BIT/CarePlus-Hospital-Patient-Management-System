@@ -1,6 +1,6 @@
 package com.careplus.client.employee.controller;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -63,11 +63,10 @@ public class StaffChatController {
 
 			chatMessage.setContent(message);
 
-			chatMessage.setTimeStamp(new Date());
+			chatMessage.setTimeStamp(LocalDateTime.now());
 
 			chatMessage.setIsRead(false);
 
-			//TODO log4j2
 			logger.info(
 					"Staff chat message created for patient ID: {}",
 					patient);
@@ -77,7 +76,7 @@ public class StaffChatController {
 
 			Response res = Client.send(req);
 
-			if (res == null || !res.getSuccess()) {
+			if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 				view.showMessage(
 						res == null
 								? "No response from server."
@@ -93,12 +92,11 @@ public class StaffChatController {
 
 		} catch (Exception e) {
 
-			// TODO
 			logger.error("An error occurred while sending staff chat message", e);
 			view.showMessage("Unable to send message: " + e.getMessage());
 		}
 
-		//refresh();
+		refresh();
 
 	}
 
@@ -117,7 +115,7 @@ public class StaffChatController {
 								? MainDashboard.getCurrentUser().getPersonId()
 								: patient));
 
-		if (res == null || !res.getSuccess()) {
+		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 
 			logger.warn("Staff chat messages could not be retrieved");
 			return;

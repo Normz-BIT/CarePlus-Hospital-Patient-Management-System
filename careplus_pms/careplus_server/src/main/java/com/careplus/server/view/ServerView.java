@@ -59,9 +59,4 @@ public class ServerView extends JFrame {
 		return txtConsole;
 	}
 	
-public static void main(String[] args) {
-	
-	new ServerView();
-}
-
 }

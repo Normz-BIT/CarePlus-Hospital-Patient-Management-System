@@ -31,7 +31,7 @@ public class Patient extends Person {
 	private static final long serialVersionUID = 1L;
 	
 	@Column(name = "date_of_birth")
-	private LocalDate dateOfBrith;
+	private LocalDate dateOfBirth;
 	
     @Enumerated(EnumType.STRING)
     @Column(name = "gender", nullable = false)
@@ -54,12 +54,12 @@ public class Patient extends Person {
 
 
 
-	public LocalDate getDateOfBrith() {
-		return dateOfBrith;
+	public LocalDate getDateOfBirth() {
+		return dateOfBirth;
 	}
 
-	public void setDateOfBrith(LocalDate dateOfBrith) {
-		this.dateOfBrith = dateOfBrith;
+	public void setDateOfBirth(LocalDate dateOfBirth) {
+		this.dateOfBirth = dateOfBirth;
 	}
 
 	public Gender getGender() {

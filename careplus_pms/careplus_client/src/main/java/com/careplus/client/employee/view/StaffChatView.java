@@ -186,10 +186,6 @@ public class StaffChatView extends JInternalFrame {
 		return txtPatient;
 	}
 
-	public JTextArea getTxtConversation() {
-		return txtConversation;
-	}
-
 	public JTextField getTxtMessage() {
 		return txtMessage;
 	}

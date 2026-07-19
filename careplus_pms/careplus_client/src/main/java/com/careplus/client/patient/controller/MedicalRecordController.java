@@ -39,7 +39,7 @@ public class MedicalRecordController {
 		view.getTxtTreatment().setText(
 				String.valueOf(view.getTableModel().getValueAt(row, 2)));
 
-		view.getTxtPrescription().setText(
+		view.getTxtFollowUpDate().setText(
 				String.valueOf(view.getTableModel().getValueAt(row, 3)));
 
 		view.getTxtCreatedDate().setText(
@@ -57,7 +57,7 @@ public class MedicalRecordController {
 						"patientId",
 						MainDashboard.getCurrentUser().getPersonId()));
 
-		if (res == null || !res.getSuccess()) {
+		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 
 			logger.warn("Medical records could not be retrieved");
 			return;

@@ -16,7 +16,7 @@ public abstract class Employee extends Person {
 	private static final long serialVersionUID = 1L;
 	
 	@Column(name = "department", length = 80)
-	protected String Department;
+	protected String department;
 	@Column(name = "hireDate")
 	protected LocalDate hireDate;
 
@@ -32,11 +32,11 @@ public abstract class Employee extends Person {
 	}
 
 	public String getDepartment() {
-		return Department;
+		return department;
 	}
 
 	public void setDepartment(String department) {
-		Department = department;
+		this.department = department;
 	}
 
 	public LocalDate getHireDate() {

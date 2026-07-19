@@ -6,9 +6,13 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -17,6 +21,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.table.DefaultTableModel;
 
 public class PaymentView extends JInternalFrame {
@@ -26,11 +31,11 @@ public class PaymentView extends JInternalFrame {
 	// Labels
 	private JLabel lblTitle;
 	private JLabel lblAmount;
-	private JLabel lblDiscrip;
+	private JLabel lblDescription;
 
 	// Fields
 	private JTextField txtAmount;
-	private JTextArea txtDiscrip;
+	private JTextArea txtDescription;
 
 	// Buttons
 	private JButton btnPay;
@@ -47,6 +52,7 @@ public class PaymentView extends JInternalFrame {
 
 		initializeComponents();
 		buildGUI();
+		configureKeyboardShortcuts();
 
 		setSize(900, 600);
 		setVisible(true);
@@ -59,20 +65,37 @@ public class PaymentView extends JInternalFrame {
 		lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
 
 		lblAmount = new JLabel("Amount");
-		lblDiscrip = new JLabel("Discription");
+		lblDescription = new JLabel("Description");
 
 		txtAmount = new JTextField(20);
-		txtDiscrip = new JTextArea(3,20);
-		txtDiscrip.setLineWrap(true);
-		txtDiscrip.setWrapStyleWord(true);
+		txtDescription = new JTextArea(3,20);
+		txtDescription.setLineWrap(true);
+		txtDescription.setWrapStyleWord(true);
+
+		lblAmount.setDisplayedMnemonic(KeyEvent.VK_A);
+		lblAmount.setLabelFor(txtAmount);
+
+		lblDescription.setDisplayedMnemonic(KeyEvent.VK_D);
+		lblDescription.setLabelFor(txtDescription);
+
+		txtAmount.setToolTipText("Enter the amount to pay. Shortcut: Alt+A.");
+		txtDescription.setToolTipText("Enter what the payment is for. Shortcut: Alt+D.");
 
 		btnPay = new JButton("Make Payment");
 		btnRefresh = new JButton("Refresh");
 		btnClear = new JButton("Clear");
 
+		btnPay.setMnemonic(KeyEvent.VK_P);
+		btnRefresh.setMnemonic(KeyEvent.VK_R);
+		btnClear.setMnemonic(KeyEvent.VK_C);
+
+		btnPay.setToolTipText("Submit the payment. Shortcut: Alt+P or Ctrl+Enter.");
+		btnRefresh.setToolTipText("Reload payment records. Shortcut: Alt+R or F5.");
+		btnClear.setToolTipText("Clear the payment fields. Shortcut: Alt+C or Escape.");
+
 		tableModel = new DefaultTableModel();
 
-		tableModel.setColumnIdentifiers(new Object[] { "Payment ID", "Amount Paid", "Outstanding Balance", "Discription", "Date" });
+		tableModel.setColumnIdentifiers(new Object[] { "Payment ID", "Amount Paid", "Outstanding Balance", "Description", "Date" });
 
 		tblPayments = new JTable(tableModel);
 		tblPayments.setRowHeight(25);
@@ -109,13 +132,13 @@ public class PaymentView extends JInternalFrame {
 		gbc.gridx = 0;
 		gbc.gridy = 2;
 		
-		formPanel.add(lblDiscrip, gbc);
+		formPanel.add(lblDescription, gbc);
 
 		gbc.gridx = 1;
 		gbc.gridheight = 3;
 		gbc.fill = GridBagConstraints.BOTH;
 		gbc.weighty = 1.0;		
-		formPanel.add(txtDiscrip, gbc);
+		formPanel.add(txtDescription, gbc);
 		
 		JPanel buttonPanel = new JPanel(new FlowLayout());
 		buttonPanel.add(btnPay);
@@ -130,6 +153,49 @@ public class PaymentView extends JInternalFrame {
 
 	}
 
+	private void configureKeyboardShortcuts() {
+
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, InputEvent.CTRL_DOWN_MASK), "pay");
+
+		getRootPane().getActionMap().put("pay", new AbstractAction() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				btnPay.doClick();
+			}
+		});
+
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0), "refresh");
+
+		getRootPane().getActionMap().put("refresh", new AbstractAction() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				btnRefresh.doClick();
+			}
+		});
+
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "clear");
+
+		getRootPane().getActionMap().put("clear", new AbstractAction() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				btnClear.doClick();
+			}
+		});
+
+	}
+
 	public void clearTable() {
 		tableModel.setRowCount(0);
 	}
@@ -141,7 +207,7 @@ public class PaymentView extends JInternalFrame {
 	public void clearFields() {
 
 		txtAmount.setText("");
-		txtDiscrip.setText("");
+		txtDescription.setText("");
 
 	}
 
@@ -154,12 +220,8 @@ public class PaymentView extends JInternalFrame {
 	}
 
 
-	public JTextArea getTxtDiscription() {
-		return txtDiscrip;
-	}
-
-	public JTable getTblPayments() {
-		return tblPayments;
+	public JTextArea getTxtDescription() {
+		return txtDescription;
 	}
 
 	public DefaultTableModel getTableModel() {

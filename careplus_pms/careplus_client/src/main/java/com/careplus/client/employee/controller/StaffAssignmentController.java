@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.careplus.client.employee.view.StaffAssignmentView;
 import com.careplus.common.client.net.Client;
+import com.careplus.common.enums.ComplaintStatus;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
@@ -15,8 +16,16 @@ import com.careplus.common.net.Response;
  * Staff Assignment Controller
  * Assigns complaints to employees
  * Updates and views staff assignments
+ *
+ * Note: there is no StaffAssignment model in careplus_common and the server does
+ * not implement ASSIGN_STAFF / GET_STAFF_ASSIGNMENTS yet, so this controller
+ * works with raw Object[] rows rather than a typed model.
  */
 public class StaffAssignmentController {
+
+	// Departments are a free-text column on Employee, not an enum.
+	private static final String[] DEPARTMENTS = { "Medical", "Billing", "Reception", "Administration" };
+
 	private final StaffAssignmentView view;
 	private static final Logger logger = LogManager.getLogger(StaffAssignmentController.class);
 
@@ -41,15 +50,15 @@ public class StaffAssignmentController {
 	 * Load Department and Complaint Status
 	 */
 	private void loadCombos() {
-		add(view.getCboDepartment(), "Medical", "Billing", "Reception", "Administration");
-		add(view.getCboPriority(), "SUBMITTED", "ASSIGNED", "IN_PROGRESS", "RESOLVED", "REOPENED");
-	}
+		view.getCboDepartment().removeAllItems();
 
-	private void add(javax.swing.JComboBox<String> box, String... items) {
-		box.removeAllItems();
+		for (String department : DEPARTMENTS)
+			view.getCboDepartment().addItem(department);
 
-		for (String item : items)
-			box.addItem(item);
+		view.getCboStatus().removeAllItems();
+
+		for (ComplaintStatus status : ComplaintStatus.values())
+			view.getCboStatus().addItem(status.name());
 	}
 
 	/*
@@ -84,13 +93,12 @@ public class StaffAssignmentController {
 
 			req.putMap(
 					"status",
-					String.valueOf(view.getCboPriority().getSelectedItem()));
+					String.valueOf(view.getCboStatus().getSelectedItem()));
 
 			req.putMap(
 					"notes",
 					view.getTxtNotes().getText().trim());
 
-			//TODO log4j2
 			logger.info(
 					"Assigning complaint ID: {} to employee ID: {}",
 					view.getTxtComplaintId().getText().trim(),
@@ -108,12 +116,11 @@ public class StaffAssignmentController {
 
 		} catch (Exception e) {
 
-			// TODO
 			logger.error("An error occurred while assigning staff", e);
 			view.showMessage("Complaint ID and employee ID must be valid numbers.");
 		}
 
-		//refresh();
+		refresh();
 
 	}
 
@@ -128,7 +135,7 @@ public class StaffAssignmentController {
 						"all",
 						true));
 
-		if (res == null || !res.getSuccess()) {
+		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 
 			logger.warn("Staff assignments could not be retrieved");
 			return;

@@ -46,14 +46,13 @@ public class PaymentController {
 				return;
 			}
 			
-			payment.setDescription(view.getTxtDiscription().getText().trim());
+			payment.setDescription(view.getTxtDescription().getText().trim());
 
 			// simulate outstanding balance
 			payment.setOutstandingBalance(new Random().nextInt(500, 1001));
 
 			payment.setPaymentDate(LocalDateTime.now());
 
-			//TODO log4j2
 			logger.info("Payment created: {}", payment.toString());
 
 			req.putMap("payment", payment);
@@ -70,12 +69,11 @@ public class PaymentController {
 
 		} catch (Exception e) {
 
-			// TODO
 			logger.error("An error occurred while making payment", e);
 			view.showMessage("Unable to complete payment: " + e.getMessage());
 		}
 
-		//refresh();
+		refresh();
 
 	}
 
@@ -84,7 +82,7 @@ public class PaymentController {
 		Response res = Client
 				.send(new Request(RequestType.GET_MY_PAYMENTS, "patientId", MainDashboard.getCurrentUser().getPersonId()));
 
-		if (res == null || !res.getSuccess()) {
+		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 
 			logger.warn("Payment records could not be retrieved");
 			return;

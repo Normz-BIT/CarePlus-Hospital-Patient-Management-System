@@ -1,11 +1,13 @@
 package com.careplus.client.employee.controller;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+
+import javax.swing.JComboBox;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,15 +47,14 @@ public class EmployeeComplaintController {
 	}
 
 	private void loadCombos() {
-		add(view.getCboCategory(), "GENERAL_HEALTH", "MEDICATION_CONCERN", "APPOINTMENT_ISSUE");
-		add(view.getCboPriority(), "Low", "Medium", "High");
-		add(view.getCboStatus(), "SUBMITTED", "ASSIGNED", "IN_PROGRESS", "RESOLVED", "REOPENED");
+		fill(view.getCboStatus(), ComplaintStatus.values());
 	}
 
-	private void add(javax.swing.JComboBox<String> box, String... items) {
+	private void fill(JComboBox<String> box, Enum<?>[] values) {
 		box.removeAllItems();
-		for (String item : items)
-			box.addItem(item);
+
+		for (Enum<?> value : values)
+			box.addItem(value.name());
 	}
 
 	private void assign() {
@@ -96,13 +97,12 @@ public class EmployeeComplaintController {
 			complaint.setResponse(
 					view.getTxtRemarks().getText().trim());
 
-			complaint.setResponseDate(new Date());
+			complaint.setResponseDate(LocalDateTime.now());
 
 			complaint.setStatus(
 					ComplaintStatus.valueOf(
 							String.valueOf(view.getCboStatus().getSelectedItem())));
 
-			//TODO log4j2
 			logger.info("Complaint response created: {}", complaint.toString());
 
 			req.putMap("complaint", complaint);
@@ -112,7 +112,6 @@ public class EmployeeComplaintController {
 
 		} catch (Exception e) {
 
-			// TODO
 			logger.error("An error occurred while responding to complaint", e);
 			view.showMessage("Unable to respond to complaint: " + e.getMessage());
 		}
@@ -136,7 +135,7 @@ public class EmployeeComplaintController {
 	private void refresh() {
 		Response res = Client.send(new Request(RequestType.GET_ALL_COMPLAINTS, "all", true));
 
-		if (res == null || !res.getSuccess()) {
+		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 
 			logger.warn("Complaint records could not be retrieved");
 			return;
@@ -144,30 +143,20 @@ public class EmployeeComplaintController {
 
 		allComplaints.clear();
 
-		if (res.getData() instanceof List<?>) {
-			for (Object row : (List<Object>) res.getData()) {
+		for (Complaint row : (List<Complaint>) res.getData()) {
 
-				if (row instanceof Complaint) {
-					Complaint complaint = (Complaint) row;
+			Object[] viewRow = new Object[] {
+					row.getComplaintId(),
+					row.getComplaintParentId(),
+					row.getCategory(),
+					row.getDescription(),
+					row.getDateSubmitted(),
+					row.getResponse(),
+					row.getResponseDate(),
+					row.getStatus()
+			};
 
-					Object[] viewRow = new Object[] {
-							complaint.getComplaintId(),
-							complaint.getComplaintParentId(),
-							complaint.getCategory(),
-							complaint.getDescription(),
-							complaint.getDateSubmitteDate(),
-							complaint.getResponse(),
-							complaint.getResponseDate(),
-							complaint.getStatus(),
-							""
-					};
-
-					allComplaints.add(viewRow);
-
-				} else if (row instanceof Object[]) {
-					allComplaints.add((Object[]) row);
-				}
-			}
+			allComplaints.add(viewRow);
 		}
 
 		populateFilter();

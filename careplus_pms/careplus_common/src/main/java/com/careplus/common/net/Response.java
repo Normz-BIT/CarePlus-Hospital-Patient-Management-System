@@ -10,18 +10,18 @@ public class Response implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private Boolean success;
-	private String Message;
+	private String message;
 	private Object data;
 
 	public Response() {
 		success = null;
-		Message = null;
+		message = null;
 		data = null;
 	}
 
 	public Response(Boolean success, String message, Object data) {
 		this.success = success;
-		Message = message;
+		this.message = message;
 		this.data = data;
 	}
 
@@ -34,11 +34,11 @@ public class Response implements Serializable {
 	}
 
 	public String getMessage() {
-		return Message;
+		return message;
 	}
 
 	public void setMessage(String message) {
-		Message = message;
+		this.message = message;
 	}
 
 	public Object getData() {
@@ -51,7 +51,7 @@ public class Response implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Response [success=" + success + ", Message=" + Message + "\n, data=" + data + "]";
+		return "Response [success=" + success + ", message=" + message + "\n, data=" + data + "]";
 	}
 	
 	

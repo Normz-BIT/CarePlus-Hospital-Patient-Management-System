@@ -1,7 +1,7 @@
 package com.careplus.common.model;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import com.careplus.common.enums.ComplaintCategory;
 import com.careplus.common.enums.ComplaintStatus;
@@ -18,9 +18,9 @@ public class Complaint implements Serializable {
 	private int complaintParentId;
 
 	private String description;
-	private Date dateSubmitteDate;
-	private String Response;
-	private Date responseDate;
+	private LocalDateTime dateSubmitted;
+	private String response;
+	private LocalDateTime responseDate;
 	private ComplaintStatus status;
 	private ComplaintCategory category;
 
@@ -28,13 +28,13 @@ public class Complaint implements Serializable {
 
 	}
 
-	public Complaint(int complaintId, String description, Date dateSubmitteDate, String response, Date responseDate,
-			ComplaintStatus status, ComplaintCategory category) {
+	public Complaint(int complaintId, String description, LocalDateTime dateSubmitted, String response,
+			LocalDateTime responseDate, ComplaintStatus status, ComplaintCategory category) {
 
 		this.complaintId = complaintId;
 		this.description = description;
-		this.dateSubmitteDate = dateSubmitteDate;
-		Response = response;
+		this.dateSubmitted = dateSubmitted;
+		this.response = response;
 		this.responseDate = responseDate;
 		this.status = status;
 		this.category = category;
@@ -64,27 +64,27 @@ public class Complaint implements Serializable {
 		this.description = description;
 	}
 
-	public Date getDateSubmitteDate() {
-		return dateSubmitteDate;
+	public LocalDateTime getDateSubmitted() {
+		return dateSubmitted;
 	}
 
-	public void setDateSubmitteDate(Date dateSubmitteDate) {
-		this.dateSubmitteDate = dateSubmitteDate;
+	public void setDateSubmitted(LocalDateTime dateSubmitted) {
+		this.dateSubmitted = dateSubmitted;
 	}
 
 	public String getResponse() {
-		return Response;
+		return response;
 	}
 
 	public void setResponse(String response) {
-		Response = response;
+		this.response = response;
 	}
 
-	public Date getResponseDate() {
+	public LocalDateTime getResponseDate() {
 		return responseDate;
 	}
 
-	public void setResponseDate(Date responseDate) {
+	public void setResponseDate(LocalDateTime responseDate) {
 		this.responseDate = responseDate;
 	}
 
@@ -102,6 +102,13 @@ public class Complaint implements Serializable {
 
 	public void setCategory(ComplaintCategory category) {
 		this.category = category;
+	}
+
+	@Override
+	public String toString() {
+		return "Complaint [complaintId=" + complaintId + ", complaintParentId=" + complaintParentId + ", description="
+				+ description + ", dateSubmitted=" + dateSubmitted + ", response=" + response + ", responseDate="
+				+ responseDate + ", status=" + status + ", category=" + category + "]";
 	}
 
 	@Override

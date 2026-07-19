@@ -1,7 +1,7 @@
 package com.careplus.common.model;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /*
  * Patient has Vital Records
@@ -18,15 +18,14 @@ public class VitalSigns implements Serializable {
 	private int respiratoryRate;
 	private String observations;
 	private String nursingNotes;
-	private Date recordedAt;
+	private LocalDateTime recordedAt;
 
 	public VitalSigns() {
 
 	}
 
 	public VitalSigns(int vitalId, double temperature, String bloodPressure, int heartRate, int respiratoryRate,
-			String observations, String nursingNotes, Date recordedAt) {
-		super();
+			String observations, String nursingNotes, LocalDateTime recordedAt) {
 		this.vitalId = vitalId;
 		this.temperature = temperature;
 		this.bloodPressure = bloodPressure;
@@ -93,12 +92,19 @@ public class VitalSigns implements Serializable {
 		this.nursingNotes = nursingNotes;
 	}
 
-	public Date getRecordedAt() {
+	public LocalDateTime getRecordedAt() {
 		return recordedAt;
 	}
 
-	public void setRecordedAt(Date recordedAt) {
+	public void setRecordedAt(LocalDateTime recordedAt) {
 		this.recordedAt = recordedAt;
+	}
+
+	@Override
+	public String toString() {
+		return "VitalSigns [vitalId=" + vitalId + ", temperature=" + temperature + ", bloodPressure=" + bloodPressure
+				+ ", heartRate=" + heartRate + ", respiratoryRate=" + respiratoryRate + ", observations=" + observations
+				+ ", nursingNotes=" + nursingNotes + ", recordedAt=" + recordedAt + "]";
 	}
 
 	@Override

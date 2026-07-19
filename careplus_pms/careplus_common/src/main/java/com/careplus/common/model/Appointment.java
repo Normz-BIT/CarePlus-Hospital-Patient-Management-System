@@ -13,7 +13,7 @@ import com.careplus.common.enums.AppointmentStatus;
 public class Appointment implements Serializable{
 	private static final long serialVersionUID = 1L;
 
-	private int appontmentId;
+	private int appointmentId;
 	private LocalDateTime appointmentDate;
 	private String reason;
 	private AppointmentStatus status;
@@ -23,17 +23,17 @@ public class Appointment implements Serializable{
 		
 	}
 	
-	public Appointment(int appontmentId, LocalDateTime appointmentDate, String reason, AppointmentStatus status) {
-		this.appontmentId = appontmentId;
+	public Appointment(int appointmentId, LocalDateTime appointmentDate, String reason, AppointmentStatus status) {
+		this.appointmentId = appointmentId;
 		this.appointmentDate = appointmentDate;
 		this.reason = reason;
 		this.status = status;
 	}
-	public int getAppontmentId() {
-		return appontmentId;
+	public int getAppointmentId() {
+		return appointmentId;
 	}
-	public void setAppontmentId(int appontmentId) {
-		this.appontmentId = appontmentId;
+	public void setAppointmentId(int appointmentId) {
+		this.appointmentId = appointmentId;
 	}
 	public LocalDateTime getAppointmentDate() {
 		return appointmentDate;
@@ -55,8 +55,14 @@ public class Appointment implements Serializable{
 	}
 	
 	@Override
+	public String toString() {
+		return "Appointment [appointmentId=" + appointmentId + ", appointmentDate=" + appointmentDate + ", reason="
+				+ reason + ", status=" + status + "]";
+	}
+
+	@Override
 	public int hashCode() {
-		return Integer.hashCode(appontmentId);
+		return Integer.hashCode(appointmentId);
 	}
 
 	@Override
@@ -71,7 +77,7 @@ public class Appointment implements Serializable{
 			return false;
 		}
 		Appointment other = (Appointment) obj;
-		return appontmentId == other.appontmentId;
+		return appointmentId == other.appointmentId;
 	}
 	
 	

@@ -35,7 +35,6 @@ public class AppointmentView extends JInternalFrame {
 	private JLabel lblDate;
 	private JLabel lblTime;
 	private JLabel lblReason;
-	private JLabel lblStatus;
 
 	// Fields
 	private JComboBox<String> cboDoctor;
@@ -43,7 +42,6 @@ public class AppointmentView extends JInternalFrame {
 	private JTextField txtDate;
 	private JTextField txtTime;
 	private JTextField txtReason;
-	private JTextField txtStatus;
 
 	// Buttons
 	private JButton btnSchedule;
@@ -79,7 +77,6 @@ public class AppointmentView extends JInternalFrame {
 		lblDate = new JLabel("Appointment Date");
 		lblTime = new JLabel("Appointment Time");
 		lblReason = new JLabel("Reason");
-		lblStatus = new JLabel("Status");
 
 		cboDoctor = new JComboBox<>();
 		cboDepartment = new JComboBox<>();
@@ -87,8 +84,6 @@ public class AppointmentView extends JInternalFrame {
 		txtDate = new JTextField(15);
 		txtTime = new JTextField(15);
 		txtReason = new JTextField(15);
-		txtStatus = new JTextField(15);
-		txtStatus.setEditable(false);
 
 		lblDoctor.setDisplayedMnemonic(KeyEvent.VK_D);
 		lblDoctor.setLabelFor(cboDoctor);
@@ -105,15 +100,11 @@ public class AppointmentView extends JInternalFrame {
 		lblReason.setDisplayedMnemonic(KeyEvent.VK_E);
 		lblReason.setLabelFor(txtReason);
 
-		lblStatus.setDisplayedMnemonic(KeyEvent.VK_S);
-		lblStatus.setLabelFor(txtStatus);
-
 		cboDoctor.setToolTipText("Select the doctor for the appointment. Shortcut: Alt+D.");
 		cboDepartment.setToolTipText("Select the hospital department. Shortcut: Alt+P.");
 		txtDate.setToolTipText("Enter the appointment date. Shortcut: Alt+A.");
 		txtTime.setToolTipText("Enter the appointment time. Shortcut: Alt+T.");
 		txtReason.setToolTipText("Enter the reason for the appointment. Shortcut: Alt+E.");
-		txtStatus.setToolTipText("Displays the current appointment status.");
 
 		btnSchedule = new JButton("Schedule");
 		btnUpdate = new JButton("Update");
@@ -136,7 +127,7 @@ public class AppointmentView extends JInternalFrame {
 		tableModel = new DefaultTableModel();
 
 		tableModel.setColumnIdentifiers(
-				new Object[] { "Appointment ID", "Doctor", "Department", "Date", "Time", "Reason", "Status" });
+				new Object[] { "Appointment ID", "Date", "Reason", "Status" });
 
 		tblAppointments = new JTable(tableModel);
 		tblAppointments.setRowHeight(25);
@@ -198,13 +189,6 @@ public class AppointmentView extends JInternalFrame {
 
 		gbc.gridx = 1;
 		formPanel.add(txtReason, gbc);
-
-		gbc.gridx = 0;
-		gbc.gridy = 6;
-		formPanel.add(lblStatus, gbc);
-
-		gbc.gridx = 1;
-		formPanel.add(txtStatus, gbc);
 
 		JPanel buttonPanel = new JPanel(new FlowLayout());
 
@@ -307,7 +291,6 @@ public class AppointmentView extends JInternalFrame {
 		txtDate.setText("");
 		txtTime.setText("");
 		txtReason.setText("");
-		txtStatus.setText("");
 
 	}
 
@@ -333,10 +316,6 @@ public class AppointmentView extends JInternalFrame {
 
 	public JTextField getTxtReason() {
 		return txtReason;
-	}
-
-	public JTextField getTxtStatus() {
-		return txtStatus;
 	}
 
 	public JTable getTblAppointments() {

@@ -31,13 +31,13 @@ public class MedicalRecordView extends JInternalFrame {
 	private JLabel lblTitle;
 	private JLabel lblDiagnosis;
 	private JLabel lblTreatment;
-	private JLabel lblPrescription;
+	private JLabel lblFollowUpDate;
 	private JLabel lblCreatedDate;
 
 	// Fields
 	private JTextField txtDiagnosis;
 	private JTextArea txtTreatment;
-	private JTextArea txtPrescription;
+	private JTextField txtFollowUpDate;
 	private JTextField txtCreatedDate;
 
 	// Buttons
@@ -68,7 +68,7 @@ public class MedicalRecordView extends JInternalFrame {
 
 		lblDiagnosis = new JLabel("Diagnosis");
 		lblTreatment = new JLabel("Treatment Note");
-		lblPrescription = new JLabel("Follow-up Date");
+		lblFollowUpDate = new JLabel("Follow-up Date");
 		lblCreatedDate = new JLabel("Created Date");
 
 		txtDiagnosis = new JTextField(30);
@@ -79,10 +79,8 @@ public class MedicalRecordView extends JInternalFrame {
 		txtTreatment.setLineWrap(true);
 		txtTreatment.setWrapStyleWord(true);
 
-		txtPrescription = new JTextArea(1, 30);
-		txtPrescription.setEditable(false);
-		txtPrescription.setLineWrap(true);
-		txtPrescription.setWrapStyleWord(true);
+		txtFollowUpDate = new JTextField(20);
+		txtFollowUpDate.setEditable(false);
 
 		txtCreatedDate = new JTextField(30);
 		txtCreatedDate.setEditable(false);
@@ -93,15 +91,15 @@ public class MedicalRecordView extends JInternalFrame {
 		lblTreatment.setDisplayedMnemonic(KeyEvent.VK_T);
 		lblTreatment.setLabelFor(txtTreatment);
 
-		lblPrescription.setDisplayedMnemonic(KeyEvent.VK_F);
-		lblPrescription.setLabelFor(txtPrescription);
+		lblFollowUpDate.setDisplayedMnemonic(KeyEvent.VK_F);
+		lblFollowUpDate.setLabelFor(txtFollowUpDate);
 
 		lblCreatedDate.setDisplayedMnemonic(KeyEvent.VK_A);
 		lblCreatedDate.setLabelFor(txtCreatedDate);
 
 		txtDiagnosis.setToolTipText("Displays the medical diagnosis. Shortcut: Alt+D.");
 		txtTreatment.setToolTipText("Displays the doctor's treatment note. Shortcut: Alt+T.");
-		txtPrescription.setToolTipText("Displays the scheduled follow-up date. Shortcut: Alt+F.");
+		txtFollowUpDate.setToolTipText("Displays the scheduled follow-up date. Shortcut: Alt+F.");
 		txtCreatedDate.setToolTipText("Displays the date the medical record was created.");
 
 		btnRefresh = new JButton("Refresh");
@@ -161,10 +159,10 @@ public class MedicalRecordView extends JInternalFrame {
 
 		gbc.gridx = 0;
 		gbc.gridy = 3;
-		formPanel.add(lblPrescription, gbc);
+		formPanel.add(lblFollowUpDate, gbc);
 
 		gbc.gridx = 1;
-		formPanel.add(new JScrollPane(txtPrescription), gbc);
+		formPanel.add(txtFollowUpDate, gbc);
 
 		gbc.gridx = 0;
 		gbc.gridy = 4;
@@ -228,7 +226,7 @@ public class MedicalRecordView extends JInternalFrame {
 
 		txtDiagnosis.setText("");
 		txtTreatment.setText("");
-		txtPrescription.setText("");
+		txtFollowUpDate.setText("");
 		txtCreatedDate.setText("");
 
 	}
@@ -245,8 +243,8 @@ public class MedicalRecordView extends JInternalFrame {
 		return txtTreatment;
 	}
 
-	public JTextArea getTxtPrescription() {
-		return txtPrescription;
+	public JTextField getTxtFollowUpDate() {
+		return txtFollowUpDate;
 	}
 
 	public JTextField getTxtCreatedDate() {
