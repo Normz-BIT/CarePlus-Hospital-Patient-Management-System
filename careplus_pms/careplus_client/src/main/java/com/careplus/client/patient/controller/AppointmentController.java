@@ -1,6 +1,7 @@
 package com.careplus.client.patient.controller;
 
-import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -83,8 +84,10 @@ public class AppointmentController {
 			String appointmentDateTime = view.getTxtDate().getText().trim()
 					+ " " + view.getTxtTime().getText().trim();
 
-			appointment.setAppointmentDate(
-					new SimpleDateFormat("yyyy-MM-dd HH:mm").parse(appointmentDateTime));
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+			LocalDateTime localDateTime = LocalDateTime.parse(appointmentDateTime, formatter);
+			
+			appointment.setAppointmentDate(localDateTime);
 
 			appointment.setReason(view.getTxtReason().getText().trim());
 

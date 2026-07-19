@@ -1,6 +1,8 @@
 package com.careplus.client.employee.controller;
 
-import java.text.SimpleDateFormat;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -66,9 +68,10 @@ public class PatientsController {
 
 			String appointmentDateTime = view.getTxtDate().getText().trim()
 					+ " " + view.getTxtTime().getText().trim();
-
-			appointment.setAppointmentDate(
-					new SimpleDateFormat("yyyy-MM-dd HH:mm").parse(appointmentDateTime));
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+			LocalDateTime localDateTime = LocalDateTime.parse(appointmentDateTime, formatter);
+			
+			appointment.setAppointmentDate(localDateTime);
 
 			appointment.setReason(view.getTxtReason().getText().trim());
 
@@ -102,7 +105,7 @@ public class PatientsController {
 			view.showMessage("Use the date and time format: yyyy-MM-dd HH:mm");
 		}
 
-		//refresh();
+		refresh();
 
 	}
 
@@ -149,7 +152,7 @@ public class PatientsController {
 					row.getLastName(),
 					row.getEmail(),
 					row.getPhone(),
-					row.getDateofBrith(),
+					row.getDateOfBrith(),
 					row.getGender(),
 					row.getAddress(),
 					row.getMedicalHistory()

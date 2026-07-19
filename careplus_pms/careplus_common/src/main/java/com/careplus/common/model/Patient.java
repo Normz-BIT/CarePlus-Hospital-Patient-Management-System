@@ -52,12 +52,22 @@ public class Patient extends Person {
 		super(personId, firstName, lastName, email, phone, password, UserRole.PATIENT);
 	}
 
-	public LocalDate getdateOfBrith() {
+
+
+	public LocalDate getDateOfBrith() {
 		return dateOfBrith;
 	}
 
-	public void setdateOfBrith(LocalDate dateOfBrith) {
+	public void setDateOfBrith(LocalDate dateOfBrith) {
 		this.dateOfBrith = dateOfBrith;
+	}
+
+	public Gender getGender() {
+		return gender;
+	}
+
+	public void setGender(Gender gender) {
+		this.gender = gender;
 	}
 
 	public String getAddress() {

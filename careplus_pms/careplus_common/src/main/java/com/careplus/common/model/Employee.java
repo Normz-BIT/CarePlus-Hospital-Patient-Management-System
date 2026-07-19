@@ -39,12 +39,14 @@ public abstract class Employee extends Person {
 		Department = department;
 	}
 
-	public LocalDate gethireDate() {
+	public LocalDate getHireDate() {
 		return hireDate;
 	}
 
-	public void sethireDate(LocalDate hireDate) {
+	public void setHireDate(LocalDate hireDate) {
 		this.hireDate = hireDate;
 	}
+
+
 
 }
