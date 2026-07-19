@@ -60,6 +60,8 @@ public class AuthService extends BaseService {
 				 * stdout on every successful login, writing credentials into the server
 				 * console and any captured log. It should be removed rather than migrated to
 				 * log4j2.
+				 *
+				 * TODO: Delete this line. It is a security issue and serves no diagnostic purpose.
 				 */
 				System.out.println(person.getPassword() + password);
 

@@ -15,6 +15,9 @@ import com.careplus.common.enums.UserRole;
  * database has no concrete type Hibernate can instantiate, so the Person lookup
  * in AuthService cannot return a doctor. Adding the annotations here, and on
  * Nurse and Receptionist, is what makes staff login work.
+ *
+ * TODO: Add @Entity, @Table("doctor"), and @PrimaryKeyJoinColumn("doctor_id") to this class
+ * and mark specialization and licenseNo with @Column. Staff login is currently broken.
  */
 public class Doctor extends Employee {
 	private static final long serialVersionUID = 1L;

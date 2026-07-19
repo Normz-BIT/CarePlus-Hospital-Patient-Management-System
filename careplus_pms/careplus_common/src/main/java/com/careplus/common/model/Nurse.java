@@ -10,6 +10,9 @@ import com.careplus.common.enums.UserRole;
  * UNMAPPED: carries no @Entity or @Column annotations, so Hibernate cannot
  * resolve a staff row to a Nurse. See the fuller explanation on Doctor, which has
  * the same gap.
+ *
+ * TODO: Add @Entity, @Table("nurse"), and @PrimaryKeyJoinColumn("nurse_id") to this class,
+ * and mark ward with @Column. Staff login is currently broken.
  */
 public class Nurse extends Employee {
 

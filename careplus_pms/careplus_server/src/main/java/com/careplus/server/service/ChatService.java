@@ -49,6 +49,9 @@ public class ChatService {
 	 * chat is effectively ungated rather than closed. Once implemented, send() and
 	 * poll() should both consult this, and the check belongs here on the server
 	 * rather than in the client, since a client's clock can be wrong or altered.
+	 *
+	 * TODO: Replace the false return with LocalTime.now() comparison against 08:00
+	 * and 19:00. Call this from send() and poll() to reject traffic outside hours.
 	 */
 	public boolean isWithinHours() {
 		return false;

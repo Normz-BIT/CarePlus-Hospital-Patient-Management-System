@@ -13,6 +13,9 @@ import com.careplus.common.enums.UserRole;
  * UNMAPPED: carries no @Entity or @Column annotations, so Hibernate cannot
  * resolve a staff row to a Receptionist. See the fuller explanation on Doctor,
  * which has the same gap.
+ *
+ * TODO: Add @Entity, @Table("receptionist"), and @PrimaryKeyJoinColumn("receptionist_id")
+ * to this class, and mark deskNo with @Column. Staff login is currently broken.
  */
 public class Receptionist extends Employee {
 	private static final long serialVersionUID = 1L;

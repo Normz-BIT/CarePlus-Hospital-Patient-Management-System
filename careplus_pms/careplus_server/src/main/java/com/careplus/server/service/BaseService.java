@@ -53,6 +53,9 @@ public abstract class BaseService {
 			 * leaks the session along with its database connection, since no finally block
 			 * covers it. Moving the close into its own finally would make cleanup
 			 * unconditional.
+			 *
+			 * TODO: Wrap session.close() in its own finally block so it runs whether or not
+			 * commit() throws, preventing session and connection leaks on commit failures.
 			 */
 			session.close();
 		} catch (Exception e) {

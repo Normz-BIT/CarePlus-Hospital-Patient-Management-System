@@ -136,6 +136,16 @@ public class ClientHandler extends Thread {
 					break;
 
 				default:
+					/*
+					 * TODO: Wire up the 23 unrouted RequestType values: MAKE_APPOINTMENT,
+					 * CANCEL_APPOINTMENT, GET_MY_APPOINTMENTS, SCHEDULE_FOLLOW_UP,
+					 * GET_DIAGNOSIS, CREATE_DIAGNOSIS, UPDATE_DIAGNOSIS, GET_MY_MEDICAL_RECORD,
+					 * GET_COMPLAINTS, CREATE_COMPLAINT, RESPOND_TO_COMPLAINT, ASSIGN_COMPLAINT,
+					 * GET_VITALS, RECORD_VITALS, CHAT_SEND, CHAT_POLL, GET_STAFF_ASSIGNMENTS,
+					 * CREATE_STAFF_ASSIGNMENT, UPDATE_STAFF_ASSIGNMENT, SHIFT_HANDOVER_GET,
+					 * SHIFT_HANDOVER_SEND, GET_ALL_PATIENTS, GET_ALL_DOCTORS. Most correspond to
+					 * unimplemented service stubs that need to be finished.
+					 */
 					break;
 
 				}
@@ -147,6 +157,9 @@ public class ClientHandler extends Thread {
 				 * the ObjectOutputStream buffer instead of reaching the client that is already
 				 * blocked reading it. Any apparent hang on a request should be investigated
 				 * here first.
+				 *
+				 * TODO: Add out.flush() after writeObject() and before the next read() loop,
+				 * to guarantee the Response leaves the buffer before the client times out.
 				 *
 				 * There is also no reset(). ObjectOutputStream caches objects by identity, so
 				 * if a service ever returns the same instance twice with mutated contents, the
