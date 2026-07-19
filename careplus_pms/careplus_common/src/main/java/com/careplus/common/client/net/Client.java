@@ -23,7 +23,7 @@ public class Client {
 	private static ObjectInputStream inputStream;
 	private static ObjectOutputStream outputStream;
 
-	private static Response response;
+
 
 	/*
 	 * Server location is compiled in rather than read from config, so pointing the
@@ -84,24 +84,10 @@ public class Client {
 	 * window rather than just the one screen. Moving these calls onto a SwingWorker
 	 * would confine the stall to the affected view.
 	 *
-	 * TODO: Wrap each network call (login, payment, appointment, etc.) in a
-	 * SwingWorker to move blocking I/O off the EDT. Use invokeLater to marshal the
-	 * response back to the controller for model and view updates. This is a major UX
-	 * improvement worth doing early in the project.
-	 *
-	 * Not thread safe: the write and the matching read are two separate operations
-	 * on shared static streams with no lock between them. Two threads calling this
-	 * at once can interleave and each receive the other's Response. This is only
-	 * safe today because every caller is on the EDT and therefore serialized by
-	 * accident rather than by design. Introducing background threads here without
-	 * adding synchronization would corrupt the protocol.
-	 *
-	 * TODO: Add synchronized block around writeObject+readObject once SwingWorker
-	 * moves the calls off the EDT, to prevent response interleaving.
 	 */
 	public static Response send(Request request) {
 
-		response = null;
+		Response response = new Response();
 
 		/*
 		 * Reconnects transparently if the socket was dropped, so callers never handle
