@@ -33,7 +33,6 @@ public class EmployeeComplaintView extends JInternalFrame {
 	private JLabel lblTitle;
 	private JLabel lblComplaintId;
 	private JLabel lblCategory;
-	private JLabel lblPriority;
 	private JLabel lblStatus;
 	private JLabel lblRemarks;
 	private JLabel lblParentId;
@@ -87,7 +86,6 @@ public class EmployeeComplaintView extends JInternalFrame {
 
 		lblComplaintId = new JLabel("Complaint ID");
 		lblCategory = new JLabel("Category");
-		lblPriority = new JLabel("Priority");
 		lblStatus = new JLabel("Status");
 		lblRemarks = new JLabel("Response");
 		lblParentId = new JLabel("Parent Complaint ID");
@@ -220,7 +218,7 @@ public class EmployeeComplaintView extends JInternalFrame {
 		gbc.gridy = 1;
 		formPanel.add(lblComplaintId, gbc);
 
-		gbc.gridx.gridx = 1;
+		gbc.gridx = 1;
 		formPanel.add(txtComplaintId, gbc);
 
 		gbc.gridx = 0;
