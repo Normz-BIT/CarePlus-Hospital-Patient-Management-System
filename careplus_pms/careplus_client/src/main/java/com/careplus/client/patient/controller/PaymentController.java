@@ -21,13 +21,10 @@ public class PaymentController {
 
 	public PaymentController(PaymentView view) {
 		this.view = view;
-		view.getBtnPay().addActionListener(e -> pay());
-		view.getBtnRefresh().addActionListener(e -> refresh());
-		view.getBtnClear().addActionListener(e -> view.clearFields());
 		refresh();
 	}
 
-	private void pay() {
+	public void pay() {
 		Request req = new Request();
 		req.setType(RequestType.MAKE_PAYMENT);
 
@@ -78,7 +75,7 @@ public class PaymentController {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void refresh() {
+	public void refresh() {
 		Response res = Client
 				.send(new Request(RequestType.GET_MY_PAYMENTS, "patientId", MainDashboard.getCurrentUser().getPersonId()));
 

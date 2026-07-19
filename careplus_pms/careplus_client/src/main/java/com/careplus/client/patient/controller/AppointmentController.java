@@ -24,18 +24,10 @@ public class AppointmentController {
 
 	public AppointmentController(AppointmentView view) {
 		this.view = view;
-		init();
 		loadLookups();
 		refresh();
 	}
 
-	private void init() {
-		view.getBtnSchedule().addActionListener(e -> schedule());
-		view.getBtnRefresh().addActionListener(e -> refresh());
-		view.getBtnClear().addActionListener(e -> view.clearFields());
-		view.getBtnCancel().addActionListener(e -> cancel());
-		view.getBtnUpdate().addActionListener(e -> schedule());
-	}
 
 	private void loadLookups() {
 		Response doctors = Client.send(new Request(RequestType.GET_DOCTORS, "role", "doctor"));
@@ -62,7 +54,7 @@ public class AppointmentController {
 		}
 	}
 
-	private void schedule() {
+	public void schedule() {
 		Request req = new Request();
 		req.setType(RequestType.SCHEDULE_APPOINTMENT);
 
@@ -118,7 +110,7 @@ public class AppointmentController {
 
 	}
 
-	private void cancel() {
+	public void cancel() {
 		int row = view.getTblAppointments().getSelectedRow();
 
 		if (row < 0) {
@@ -144,7 +136,7 @@ public class AppointmentController {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void refresh() {
+	public void refresh() {
 		Response res = Client.send(
 				new Request(
 						RequestType.GET_MY_APPOINTMENTS,

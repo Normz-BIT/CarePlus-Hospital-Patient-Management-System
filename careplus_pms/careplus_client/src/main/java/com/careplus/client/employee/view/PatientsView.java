@@ -23,6 +23,7 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.table.DefaultTableModel;
 
+import com.careplus.client.employee.controller.PatientsController;
 /**
  * Doctor's assigned-patients directory: lists patient id, name, contact,
  * complaint and history, and lets the doctor schedule a follow-up.
@@ -227,6 +228,17 @@ public class PatientsView extends JInternalFrame {
 		tableModel.addRow(row);
 	}
 
+	/*
+	 * Attaches this view's controls to the controller that handles them.
+	 */
+	public void registerActionListener(PatientsController controller) {
+
+		btnFollowUp.addActionListener(e -> controller.scheduleFollowUp());
+		btnRefresh.addActionListener(e -> controller.refresh());
+		btnClear.addActionListener(e -> clearFields());
+
+	}
+
 	public void clearFields() {
 		txtPatientId.setText("");
 		txtDate.setText("");
@@ -260,17 +272,5 @@ public class PatientsView extends JInternalFrame {
 
 	public DefaultTableModel getTableModel() {
 		return tableModel;
-	}
-
-	public JButton getBtnFollowUp() {
-		return btnFollowUp;
-	}
-
-	public JButton getBtnRefresh() {
-		return btnRefresh;
-	}
-
-	public JButton getBtnClear() {
-		return btnClear;
 	}
 }

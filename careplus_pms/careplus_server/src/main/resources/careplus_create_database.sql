@@ -60,7 +60,7 @@ CREATE TABLE doctor (
 -- Nurse
 CREATE TABLE nurse (
     person_id VARCHAR(10) NOT NULL,
-    ward      ENUM('PEDIATRIC', 'NEONATAL', 'ONCOLOGY', 'EMERGENCY') NOT NULL,
+    ward      ENUM('GENERAL', 'PEDIATRIC', 'NEONATAL', 'ONCOLOGY', 'EMERGENCY') NOT NULL,
     CONSTRAINT pk_nurse PRIMARY KEY (person_id),
     CONSTRAINT fk_nurse_employee FOREIGN KEY (person_id)
         REFERENCES employee (person_id) ON DELETE CASCADE
@@ -83,7 +83,7 @@ CREATE TABLE complaint (
     category          ENUM('GENERAL_HEALTH', 'MEDICATION_CONCERN', 'APPOINTMENT_ISSUE') NOT NULL, 
     description       TEXT         NOT NULL,
     date_submitted    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    status            ENUM('SUBMITTED', 'ASSIGNED', 'IN_PROGRESS', 'RESOLVED') NOT NULL DEFAULT 'SUBMITTED',
+    status            ENUM('SUBMITTED', 'ASSIGNED', 'IN_PROGRESS', 'RESOLVED', 'REOPENED') NOT NULL DEFAULT 'SUBMITTED',
     response          TEXT,
     response_date     DATETIME,
     responded_by      VARCHAR(10),                  
@@ -220,12 +220,12 @@ INSERT INTO employee (person_id, department, hire_date) VALUES
  ('STF0005', 'Front Desk',        '2022-05-05');
 
 INSERT INTO doctor (person_id, specialization, license_no) VALUES
- ('STF0001', 'General Practice', 'MD-JM-1001'),
- ('STF0002', 'Cardiology',       'MD-JM-1002');
+ ('STF0001', 'GENERAL',    'MD-JM-1001'),
+ ('STF0002', 'CARDIOLOGY', 'MD-JM-1002');
 
 INSERT INTO nurse (person_id, ward) VALUES
- ('STF0003', 'General Ward'),
- ('STF0004', 'Emergency Ward');
+ ('STF0003', 'GENERAL'),
+ ('STF0004', 'EMERGENCY');
 
 INSERT INTO receptionist (person_id, desk_no) VALUES
  ('STF0005', 'D-01');

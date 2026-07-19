@@ -36,55 +36,67 @@ public class ClientApp {
 				// Patient features
 				new DashboardFeature("Patient", "Appointments", Set.of(UserRole.PATIENT), () -> {
 					AppointmentView view = new AppointmentView();
-					new AppointmentController(view);
+					AppointmentController controller = new AppointmentController(view);
+					view.registerActionListener(controller);
 					return view;
 				}), new DashboardFeature("Patient", "Complaints", Set.of(UserRole.PATIENT), () -> {
 					ComplaintView view = new ComplaintView();
-					new ComplaintController(view);
+					ComplaintController controller = new ComplaintController(view);
+					view.registerActionListener(controller);
 					return view;
 				}), new DashboardFeature("Patient", "Medical Records", Set.of(UserRole.PATIENT), () -> {
 					MedicalRecordView view = new MedicalRecordView();
-					new MedicalRecordController(view);
+					MedicalRecordController controller = new MedicalRecordController(view);
+					view.registerActionListener(controller);
 					return view;
 				}), new DashboardFeature("Patient", "Payments", Set.of(UserRole.PATIENT), () -> {
 					PaymentView view = new PaymentView();
-					new PaymentController(view);
+					PaymentController controller = new PaymentController(view);
+					view.registerActionListener(controller);
 					return view;
 				}), new DashboardFeature("Patient", "Chat", Set.of(UserRole.PATIENT), () -> {
 					ChatView view = new ChatView();
-					new ChatController(view);
+					ChatController controller = new ChatController(view);
+					view.registerActionListener(controller);
 					return view;
 				}),
 
 				// Employee features
 				new DashboardFeature("Employee", "Diagnosis", Set.of(UserRole.DOCTOR), () -> {
 					DiagnosisView view = new DiagnosisView();
-					new DiagnosisController(view);
+					DiagnosisController controller = new DiagnosisController(view);
+					view.registerActionListener(controller);
 					return view;
 				}), new DashboardFeature("Employee", "Complaint Manager", Set.of(UserRole.RECEPTIONIST), () -> {
 					EmployeeComplaintView view = new EmployeeComplaintView();
-					new EmployeeComplaintController(view);
+					EmployeeComplaintController controller = new EmployeeComplaintController(view);
+					view.registerActionListener(controller);
 					return view;
 				}), new DashboardFeature("Employee", "Staff Assignment", Set.of(UserRole.RECEPTIONIST), () -> {
 					StaffAssignmentView view = new StaffAssignmentView();
-					new StaffAssignmentController(view);
+					StaffAssignmentController controller = new StaffAssignmentController(view);
+					view.registerActionListener(controller);
 					return view;
 				}), new DashboardFeature("Employee", "My Patients", Set.of(UserRole.DOCTOR), () -> {
 					PatientsView view = new PatientsView();
-					new PatientsController(view);
+					PatientsController controller = new PatientsController(view);
+					view.registerActionListener(controller);
 					return view;
 				}), new DashboardFeature("Employee", "Doctors", Set.of(UserRole.DOCTOR, UserRole.RECEPTIONIST), () -> {
 					DoctorsView view = new DoctorsView();
-					new DoctorsController(view);
+					DoctorsController controller = new DoctorsController(view);
+					view.registerActionListener(controller);
 					return view;
 				}), new DashboardFeature("Employee", "Nurse Station", Set.of(UserRole.NURSE), () -> {
 					VitalsView view = new VitalsView();
-					new VitalsController(view);
+					VitalsController controller = new VitalsController(view);
+					view.registerActionListener(controller);
 					return view;
 				}), new DashboardFeature("Employee", "Staff Chat",
 						Set.of(UserRole.DOCTOR, UserRole.NURSE, UserRole.RECEPTIONIST), () -> {
 							StaffChatView view = new StaffChatView();
-							new StaffChatController(view);
+							StaffChatController controller = new StaffChatController(view);
+							view.registerActionListener(controller);
 							return view;
 						}));
 
@@ -104,13 +116,14 @@ public class ClientApp {
 				//get list of controllers and views and who can access them
 				List<DashboardFeature> features = assignFeatures();
 
-				//initialise client connection
-				new Client();
-
 				Login login = new Login();
-				new LoginController(login, features);
+				LoginController loginController = new LoginController(login, features);
+				login.registerActionListener(loginController);
 				login.setVisible(true);
 
+				//initialise client connection
+				new Client();
+				
 				logger.info("CarePlus login view opened successfully");
 
 			} catch (Exception e) {

@@ -20,15 +20,22 @@ public class DiagnosisController {
 
 	public DiagnosisController(DiagnosisView view) {
 		this.view = view;
-		init();
 		refresh();
 	}
 
-	private void init() {
-		view.getBtnSave().addActionListener(e -> save(RequestType.ADD_DIAGNOSIS));
-		view.getBtnUpdate().addActionListener(e -> save(RequestType.UPDATE_DIAGNOSIS));
-		view.getBtnRefresh().addActionListener(e -> refresh());
-		view.getBtnClear().addActionListener(e -> view.clearFields());
+
+	/*
+	 * Save a new medical record
+	 */
+	public void saveNew() {
+		save(RequestType.ADD_DIAGNOSIS);
+	}
+
+	/*
+	 * Update the selected medical record
+	 */
+	public void saveUpdate() {
+		save(RequestType.UPDATE_DIAGNOSIS);
 	}
 
 	private void save(RequestType type) {
@@ -104,7 +111,7 @@ public class DiagnosisController {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void refresh() {
+	public void refresh() {
 		Response res = Client.send(
 				new Request(
 						RequestType.GET_DIAGNOSIS_RECORDS,

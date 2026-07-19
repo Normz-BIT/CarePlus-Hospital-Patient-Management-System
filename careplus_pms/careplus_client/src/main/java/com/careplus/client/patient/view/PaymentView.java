@@ -24,6 +24,8 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.table.DefaultTableModel;
 
+import com.careplus.client.patient.controller.PaymentController;
+
 public class PaymentView extends JInternalFrame {
 
 	private static final long serialVersionUID = 1L;
@@ -204,6 +206,17 @@ public class PaymentView extends JInternalFrame {
 		tableModel.addRow(row);
 	}
 
+	/*
+	 * Attaches this view's controls to the controller that handles them.
+	 */
+	public void registerActionListener(PaymentController controller) {
+
+		btnPay.addActionListener(e -> controller.pay());
+		btnRefresh.addActionListener(e -> controller.refresh());
+		btnClear.addActionListener(e -> clearFields());
+
+	}
+
 	public void clearFields() {
 
 		txtAmount.setText("");
@@ -226,18 +239,6 @@ public class PaymentView extends JInternalFrame {
 
 	public DefaultTableModel getTableModel() {
 		return tableModel;
-	}
-
-	public JButton getBtnPay() {
-		return btnPay;
-	}
-
-	public JButton getBtnRefresh() {
-		return btnRefresh;
-	}
-
-	public JButton getBtnClear() {
-		return btnClear;
 	}
 
 

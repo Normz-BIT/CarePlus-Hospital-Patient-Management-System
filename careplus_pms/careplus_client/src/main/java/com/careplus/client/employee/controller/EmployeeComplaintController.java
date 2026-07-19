@@ -33,18 +33,10 @@ public class EmployeeComplaintController {
 
 	public EmployeeComplaintController(EmployeeComplaintView view) {
 		this.view = view;
-		init();
 		loadCombos();
 		refresh();
 	}
 
-	private void init() {
-		view.getBtnAssign().addActionListener(e -> assign());
-		view.getBtnResolve().addActionListener(e -> resolve());
-		view.getBtnRefresh().addActionListener(e -> refresh());
-		view.getBtnClear().addActionListener(e -> view.clearFields());
-		view.getBtnSearch().addActionListener(e -> applyFilter());
-	}
 
 	private void loadCombos() {
 		fill(view.getCboStatus(), ComplaintStatus.values());
@@ -57,7 +49,7 @@ public class EmployeeComplaintController {
 			box.addItem(value.name());
 	}
 
-	private void assign() {
+	public void assign() {
 		if (view.getTxtComplaintId().getText().trim().isEmpty()) {
 			view.showMessage("Complaint ID is required.");
 			logger.warn("Complaint assignment attempted without a complaint ID");
@@ -76,7 +68,7 @@ public class EmployeeComplaintController {
 		submit(req);
 	}
 
-	private void resolve() {
+	public void resolve() {
 		if (view.getTxtComplaintId().getText().trim().isEmpty()) {
 			view.showMessage("Complaint ID is required.");
 			logger.warn("Complaint response attempted without a complaint ID");
@@ -132,7 +124,7 @@ public class EmployeeComplaintController {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void refresh() {
+	public void refresh() {
 		Response res = Client.send(new Request(RequestType.GET_ALL_COMPLAINTS, "all", true));
 
 		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
@@ -187,7 +179,7 @@ public class EmployeeComplaintController {
 	 * Renders only the complaints matching the selected category ("All" = every
 	 * row).
 	 */
-	private void applyFilter() {
+	public void applyFilter() {
 		Object selected = view.getCboFilter().getSelectedItem();
 		String filter = selected == null ? "All" : String.valueOf(selected);
 		view.clearTable();

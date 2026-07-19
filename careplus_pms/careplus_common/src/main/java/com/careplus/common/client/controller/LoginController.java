@@ -27,20 +27,12 @@ public class LoginController {
 	public LoginController(Login view, List<DashboardFeature> features) {
 		this.view = view;
 		this.features = features;
-		init();
-	}
-
-	/*
-	 * Initialize Login Events
-	 */
-	private void init() {
-		view.getBtnLogin().addActionListener(e -> login());
 	}
 
 	/*
 	 * Authenticate User
 	 */
-	private void login() {
+	public void login() {
 		
 		String id = view.getTxtId().getText().trim();
 		String password = String.valueOf(view.getTxtPassword().getPassword());

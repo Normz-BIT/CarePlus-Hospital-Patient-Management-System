@@ -25,6 +25,8 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.table.DefaultTableModel;
 
+import com.careplus.client.employee.controller.EmployeeComplaintController;
+
 public class EmployeeComplaintView extends JInternalFrame {
 
 	private static final long serialVersionUID = 1L;
@@ -326,6 +328,19 @@ public class EmployeeComplaintView extends JInternalFrame {
 		tableModel.addRow(row);
 	}
 
+	/*
+	 * Attaches this view's controls to the controller that handles them.
+	 */
+	public void registerActionListener(EmployeeComplaintController controller) {
+
+		btnAssign.addActionListener(e -> controller.assign());
+		btnResolve.addActionListener(e -> controller.resolve());
+		btnRefresh.addActionListener(e -> controller.refresh());
+		btnClear.addActionListener(e -> clearFields());
+		btnSearch.addActionListener(e -> controller.applyFilter());
+
+	}
+
 	public void clearFields() {
 
 		txtComplaintId.setText("");
@@ -348,10 +363,6 @@ public class EmployeeComplaintView extends JInternalFrame {
 
 	public JComboBox<String> getCboFilter() {
 		return cboFilter;
-	}
-
-	public JButton getBtnSearch() {
-		return btnSearch;
 	}
 
 	public JTextField getTxtComplaintId() {
@@ -380,22 +391,6 @@ public class EmployeeComplaintView extends JInternalFrame {
 
 	public DefaultTableModel getTableModel() {
 		return tableModel;
-	}
-
-	public JButton getBtnAssign() {
-		return btnAssign;
-	}
-
-	public JButton getBtnResolve() {
-		return btnResolve;
-	}
-
-	public JButton getBtnRefresh() {
-		return btnRefresh;
-	}
-
-	public JButton getBtnClear() {
-		return btnClear;
 	}
 
 }

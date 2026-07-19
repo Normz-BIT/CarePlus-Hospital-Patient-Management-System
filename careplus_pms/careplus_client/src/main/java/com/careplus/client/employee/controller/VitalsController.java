@@ -24,23 +24,17 @@ public class VitalsController {
 
 	public VitalsController(VitalsView view) {
 		this.view = view;
-		init();
 		refresh();
 	}
 
 	/*
 	 * Initialize Vital Sign Events
 	 */
-	private void init() {
-		view.getBtnRecord().addActionListener(e -> record());
-		view.getBtnRefresh().addActionListener(e -> refresh());
-		view.getBtnClear().addActionListener(e -> view.clearFields());
-	}
 
 	/*
 	 * Record Patient Vital Signs
 	 */
-	private void record() {
+	public void record() {
 		String patientId = view.getTxtPatientId().getText().trim();
 
 		if (patientId.isEmpty()) {
@@ -114,7 +108,7 @@ public class VitalsController {
 	 * View Patient Vital Signs
 	 */
 	@SuppressWarnings("unchecked")
-	private void refresh() {
+	public void refresh() {
 		Response res = Client.send(
 				new Request(
 						RequestType.GET_ASSIGNED_CASES,

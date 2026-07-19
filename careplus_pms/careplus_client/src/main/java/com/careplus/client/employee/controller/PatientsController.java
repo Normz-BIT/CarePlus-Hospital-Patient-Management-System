@@ -29,23 +29,17 @@ public class PatientsController {
 
 	public PatientsController(PatientsView view) {
 		this.view = view;
-		init();
 		refresh();
 	}
 
 	/*
 	 * Initialize Patient Events
 	 */
-	private void init() {
-		view.getBtnFollowUp().addActionListener(e -> scheduleFollowUp());
-		view.getBtnRefresh().addActionListener(e -> refresh());
-		view.getBtnClear().addActionListener(e -> view.clearFields());
-	}
 
 	/*
 	 * Schedule Patient Follow-up
 	 */
-	private void scheduleFollowUp() {
+	public void scheduleFollowUp() {
 		String patientId = view.getTxtPatientId().getText().trim();
 
 		if (patientId.isEmpty()) {
@@ -127,7 +121,7 @@ public class PatientsController {
 	 * View Assigned Patients
 	 */
 	@SuppressWarnings("unchecked")
-	private void refresh() {
+	public void refresh() {
 		Response res = Client.send(
 				new Request(
 						RequestType.GET_ASSIGNED_PATIENTS,

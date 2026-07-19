@@ -24,6 +24,8 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.table.DefaultTableModel;
 
+import com.careplus.client.patient.controller.AppointmentController;
+
 public class AppointmentView extends JInternalFrame {
 
 	private static final long serialVersionUID = 1L;
@@ -283,6 +285,19 @@ public class AppointmentView extends JInternalFrame {
 		tableModel.addRow(row);
 	}
 
+	/*
+	 * Attaches this view's controls to the controller that handles them.
+	 */
+	public void registerActionListener(AppointmentController controller) {
+
+		btnSchedule.addActionListener(e -> controller.schedule());
+		btnUpdate.addActionListener(e -> controller.schedule());
+		btnCancel.addActionListener(e -> controller.cancel());
+		btnRefresh.addActionListener(e -> controller.refresh());
+		btnClear.addActionListener(e -> clearFields());
+
+	}
+
 	public void clearFields() {
 
 		cboDoctor.removeAllItems();
@@ -324,26 +339,6 @@ public class AppointmentView extends JInternalFrame {
 
 	public DefaultTableModel getTableModel() {
 		return tableModel;
-	}
-
-	public JButton getBtnSchedule() {
-		return btnSchedule;
-	}
-
-	public JButton getBtnUpdate() {
-		return btnUpdate;
-	}
-
-	public JButton getBtnCancel() {
-		return btnCancel;
-	}
-
-	public JButton getBtnRefresh() {
-		return btnRefresh;
-	}
-
-	public JButton getBtnClear() {
-		return btnClear;
 	}
 
 }

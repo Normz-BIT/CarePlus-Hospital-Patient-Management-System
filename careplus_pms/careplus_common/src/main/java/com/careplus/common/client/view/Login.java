@@ -1,5 +1,6 @@
 package com.careplus.common.client.view;
 
+import com.careplus.common.client.controller.LoginController;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -166,6 +167,15 @@ public class Login extends JFrame {
     }
 
     /*
+     * Attaches this view's controls to the controller that handles them.
+     */
+    public void registerActionListener(LoginController controller) {
+
+        btnLogin.addActionListener(e -> controller.login());
+
+    }
+
+    /*
      * Configure Keyboard Shortcuts
      */
     private void configureKeyboardShortcuts() {
@@ -206,18 +216,6 @@ public class Login extends JFrame {
 
     public JPasswordField getTxtPassword() {
         return txtPassword;
-    }
-
-    public JButton getBtnLogin() {
-        return btnLogin;
-    }
-
-    public JButton getBtnClear() {
-        return btnClear;
-    }
-
-    public JButton getBtnExit() {
-        return btnExit;
     }
 
     public void showMessage(String message) {

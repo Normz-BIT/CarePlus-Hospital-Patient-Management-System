@@ -20,6 +20,8 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
+import com.careplus.client.patient.controller.ChatController;
+
 public class ChatView extends JInternalFrame {
 
 	private static final long serialVersionUID = 1L;
@@ -184,6 +186,17 @@ public class ChatView extends JInternalFrame {
 
 	}
 
+	/*
+	 * Attaches this view's controls to the controller that handles them.
+	 */
+	public void registerActionListener(ChatController controller) {
+
+		btnSend.addActionListener(e -> controller.sendMessage());
+		btnRefresh.addActionListener(e -> controller.refresh());
+		btnClear.addActionListener(e -> clearMessageField());
+
+	}
+
 	public void clearMessageField() {
 
 		txtMessage.setText("");
@@ -205,24 +218,6 @@ public class ChatView extends JInternalFrame {
 	public JTextField getTxtMessage() {
 
 		return txtMessage;
-
-	}
-
-	public JButton getBtnSend() {
-
-		return btnSend;
-
-	}
-
-	public JButton getBtnRefresh() {
-
-		return btnRefresh;
-
-	}
-
-	public JButton getBtnClear() {
-
-		return btnClear;
 
 	}
 

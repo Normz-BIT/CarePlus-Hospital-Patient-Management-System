@@ -24,16 +24,13 @@ public class StaffChatController {
 
 	public StaffChatController(StaffChatView view) {
 		this.view = view;
-		view.getBtnSend().addActionListener(e -> sendMessage());
-		view.getBtnRefresh().addActionListener(e -> refresh());
-		view.getBtnClear().addActionListener(e -> view.clearMessageField());
 		refresh();
 	}
 
 	/*
 	 * Send Message to Patient
 	 */
-	private void sendMessage() {
+	public void sendMessage() {
 		String message = view.getTxtMessage().getText().trim();
 		String patient = view.getTxtPatient().getText().trim();
 
@@ -104,7 +101,7 @@ public class StaffChatController {
 	 * View Patient Conversation
 	 */
 	@SuppressWarnings("unchecked")
-	private void refresh() {
+	public void refresh() {
 		String patient = view.getTxtPatient().getText().trim();
 
 		Response res = Client.send(

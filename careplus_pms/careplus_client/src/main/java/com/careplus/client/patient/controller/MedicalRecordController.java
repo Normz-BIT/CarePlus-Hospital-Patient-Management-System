@@ -19,13 +19,10 @@ public class MedicalRecordController {
 
 	public MedicalRecordController(MedicalRecordView view) {
 		this.view = view;
-		view.getBtnRefresh().addActionListener(e -> refresh());
-		view.getBtnClear().addActionListener(e -> view.clearFields());
-		view.getTblMedicalRecords().getSelectionModel().addListSelectionListener(e -> displaySelectedRecord());
 		refresh();
 	}
 
-	private void displaySelectedRecord() {
+	public void displaySelectedRecord() {
 		int row = view.getTblMedicalRecords().getSelectedRow();
 
 		if (row < 0) {
@@ -50,7 +47,7 @@ public class MedicalRecordController {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void refresh() {
+	public void refresh() {
 		Response res = Client.send(
 				new Request(
 						RequestType.GET_MEDICAL_RECORDS,

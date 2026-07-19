@@ -19,6 +19,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
+import com.careplus.client.employee.controller.StaffChatController;
 /**
  * Employee side of the live chat staff pick a patient and exchange messages,
  * responding to and updating patients on their requests.
@@ -174,6 +175,17 @@ public class StaffChatView extends JInternalFrame {
 		txtConversation.setText("");
 	}
 
+	/*
+	 * Attaches this view's controls to the controller that handles them.
+	 */
+	public void registerActionListener(StaffChatController controller) {
+
+		btnSend.addActionListener(e -> controller.sendMessage());
+		btnRefresh.addActionListener(e -> controller.refresh());
+		btnClear.addActionListener(e -> clearMessageField());
+
+	}
+
 	public void clearMessageField() {
 		txtMessage.setText("");
 	}
@@ -188,17 +200,5 @@ public class StaffChatView extends JInternalFrame {
 
 	public JTextField getTxtMessage() {
 		return txtMessage;
-	}
-
-	public JButton getBtnSend() {
-		return btnSend;
-	}
-
-	public JButton getBtnRefresh() {
-		return btnRefresh;
-	}
-
-	public JButton getBtnClear() {
-		return btnClear;
 	}
 }

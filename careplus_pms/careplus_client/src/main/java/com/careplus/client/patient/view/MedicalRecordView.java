@@ -23,6 +23,8 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.table.DefaultTableModel;
 
+import com.careplus.client.patient.controller.MedicalRecordController;
+
 public class MedicalRecordView extends JInternalFrame {
 
 	private static final long serialVersionUID = 1L;
@@ -222,6 +224,19 @@ public class MedicalRecordView extends JInternalFrame {
 		tableModel.addRow(row);
 	}
 
+	/*
+	 * Attaches this view's controls to the controller that handles them.
+	 */
+	public void registerActionListener(MedicalRecordController controller) {
+
+		btnRefresh.addActionListener(e -> controller.refresh());
+		btnClear.addActionListener(e -> clearFields());
+
+		tblMedicalRecords.getSelectionModel()
+				.addListSelectionListener(e -> controller.displaySelectedRecord());
+
+	}
+
 	public void clearFields() {
 
 		txtDiagnosis.setText("");
@@ -257,14 +272,6 @@ public class MedicalRecordView extends JInternalFrame {
 
 	public DefaultTableModel getTableModel() {
 		return tableModel;
-	}
-
-	public JButton getBtnRefresh() {
-		return btnRefresh;
-	}
-
-	public JButton getBtnClear() {
-		return btnClear;
 	}
 
 }

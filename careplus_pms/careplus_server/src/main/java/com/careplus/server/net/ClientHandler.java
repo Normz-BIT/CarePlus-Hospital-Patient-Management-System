@@ -49,6 +49,14 @@ public class ClientHandler extends Thread {
 
 	}
 
+	/*
+	 * Closes this client's socket so the blocked read in run() unblocks and the
+	 * thread finishes. Called by Server.stop().
+	 */
+	public void disconnect() {
+		closeConnection();
+	}
+
 	@Override
 	public void run() {
 		try {

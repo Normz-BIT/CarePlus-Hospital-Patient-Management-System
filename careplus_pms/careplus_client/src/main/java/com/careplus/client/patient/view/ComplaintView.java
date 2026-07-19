@@ -25,6 +25,8 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.table.DefaultTableModel;
 
+import com.careplus.client.patient.controller.ComplaintController;
+
 public class ComplaintView extends JInternalFrame {
 
 	private static final long serialVersionUID = 1L;
@@ -269,6 +271,19 @@ public class ComplaintView extends JInternalFrame {
 		tableModel.addRow(row);
 	}
 
+	/*
+	 * Attaches this view's controls to the controller that handles them.
+	 */
+	public void registerActionListener(ComplaintController controller) {
+
+		btnSubmit.addActionListener(e -> controller.submit());
+		btnUpdate.addActionListener(e -> controller.submit());
+		btnDelete.addActionListener(e -> controller.delete());
+		btnRefresh.addActionListener(e -> controller.refresh());
+		btnClear.addActionListener(e -> clearFields());
+
+	}
+
 	public void clearFields() {
 
 		if (cboCategory.getItemCount() > 0) {
@@ -306,26 +321,6 @@ public class ComplaintView extends JInternalFrame {
 
 	public DefaultTableModel getTableModel() {
 		return tableModel;
-	}
-
-	public JButton getBtnSubmit() {
-		return btnSubmit;
-	}
-
-	public JButton getBtnUpdate() {
-		return btnUpdate;
-	}
-
-	public JButton getBtnDelete() {
-		return btnDelete;
-	}
-
-	public JButton getBtnRefresh() {
-		return btnRefresh;
-	}
-
-	public JButton getBtnClear() {
-		return btnClear;
 	}
 
 }

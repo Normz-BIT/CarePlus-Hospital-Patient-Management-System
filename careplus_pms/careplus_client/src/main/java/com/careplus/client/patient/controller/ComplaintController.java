@@ -22,18 +22,10 @@ public class ComplaintController {
 
 	public ComplaintController(ComplaintView view) {
 		this.view = view;
-		init();
 		loadCategories();
 		refresh();
 	}
 
-	private void init() {
-		view.getBtnSubmit().addActionListener(e -> submit());
-		view.getBtnUpdate().addActionListener(e -> submit());
-		view.getBtnDelete().addActionListener(e -> delete());
-		view.getBtnRefresh().addActionListener(e -> refresh());
-		view.getBtnClear().addActionListener(e -> view.clearFields());
-	}
 
 	/*
 	 * Load the complaint categories straight from the enum
@@ -45,7 +37,7 @@ public class ComplaintController {
 			view.getCboCategory().addItem(category.name());
 	}
 
-	private void submit() {
+	public void submit() {
 		String desc = view.getTxtDescription().getText().trim();
 
 		if (desc.isEmpty()) {
@@ -102,7 +94,7 @@ public class ComplaintController {
 
 	}
 
-	private void delete() {
+	public void delete() {
 		int row = view.getTblComplaints().getSelectedRow();
 
 		if (row < 0) {
@@ -131,7 +123,7 @@ public class ComplaintController {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void refresh() {
+	public void refresh() {
 		Response res = Client.send(
 				new Request(
 						RequestType.GET_MY_COMPLAINTS,

@@ -31,7 +31,6 @@ public class StaffAssignmentController {
 
 	public StaffAssignmentController(StaffAssignmentView view) {
 		this.view = view;
-		init();
 		loadCombos();
 		refresh();
 	}
@@ -39,12 +38,6 @@ public class StaffAssignmentController {
 	/*
 	 * Initialize Button Events
 	 */
-	private void init() {
-		view.getBtnAssign().addActionListener(e -> save(RequestType.ASSIGN_STAFF));
-		view.getBtnUpdate().addActionListener(e -> save(RequestType.ASSIGN_STAFF));
-		view.getBtnRefresh().addActionListener(e -> refresh());
-		view.getBtnClear().addActionListener(e -> view.clearFields());
-	}
 
 	/*
 	 * Load Department and Complaint Status
@@ -62,8 +55,12 @@ public class StaffAssignmentController {
 	}
 
 	/*
-	 * Assign or Update Staff Assignment
+	 * Assign or update a staff assignment. Both actions send the same request.
 	 */
+	public void save() {
+		save(RequestType.ASSIGN_STAFF);
+	}
+
 	private void save(RequestType type) {
 		if (view.getTxtComplaintId().getText().trim().isEmpty()
 				|| view.getTxtStaffId().getText().trim().isEmpty()) {
@@ -128,7 +125,7 @@ public class StaffAssignmentController {
 	 * View All Staff Assignments
 	 */
 	@SuppressWarnings("unchecked")
-	private void refresh() {
+	public void refresh() {
 		Response res = Client.send(
 				new Request(
 						RequestType.GET_STAFF_ASSIGNMENTS,

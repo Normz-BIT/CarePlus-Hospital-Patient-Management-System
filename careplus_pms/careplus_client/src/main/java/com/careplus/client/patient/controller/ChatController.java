@@ -20,13 +20,10 @@ public class ChatController {
 
 	public ChatController(ChatView view) {
 		this.view = view;
-		view.getBtnSend().addActionListener(e -> sendMessage());
-		view.getBtnRefresh().addActionListener(e -> refresh());
-		view.getBtnClear().addActionListener(e -> view.clearMessageField());
 		refresh();
 	}
 
-	private void sendMessage() {
+	public void sendMessage() {
 		String msg = view.getTxtMessage().getText().trim();
 
 		if (msg.isEmpty()) {
@@ -86,7 +83,7 @@ public class ChatController {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void refresh() {
+	public void refresh() {
 		Response res = Client.send(
 				new Request(
 						RequestType.CHAT_POLL,

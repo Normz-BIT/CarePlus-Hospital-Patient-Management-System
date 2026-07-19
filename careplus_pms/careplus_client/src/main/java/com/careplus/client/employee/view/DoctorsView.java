@@ -18,6 +18,7 @@ import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.table.DefaultTableModel;
 
+import com.careplus.client.employee.controller.DoctorsController;
 /**
  * Read-only directory of doctors (used by receptionists when assigning staff
  * and by doctors for reference).
@@ -118,15 +119,20 @@ public class DoctorsView extends JInternalFrame {
 		tableModel.addRow(row);
 	}
 
+	/*
+	 * Attaches this view's controls to the controller that handles them.
+	 */
+	public void registerActionListener(DoctorsController controller) {
+
+		btnRefresh.addActionListener(e -> controller.refresh());
+
+	}
+
 	public void showMessage(String message) {
 		JOptionPane.showMessageDialog(this, message);
 	}
 
 	public DefaultTableModel getTableModel() {
 		return tableModel;
-	}
-
-	public JButton getBtnRefresh() {
-		return btnRefresh;
 	}
 }

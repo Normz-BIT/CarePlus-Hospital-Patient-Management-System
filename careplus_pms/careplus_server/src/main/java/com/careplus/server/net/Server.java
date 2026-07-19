@@ -1,76 +1,182 @@
 package com.careplus.server.net;
 
-import java.io.EOFException;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/*
+ * Server
+ * Accepts client connections and hands each one to a ClientHandler thread.
+ *
+ * The accept loop blocks, so start() runs it on its own thread. Constructing a
+ * Server no longer starts it - the caller decides when to listen.
+ */
 public class Server {
 
-	ServerSocket serverSock;
-	Socket socket;
-	ObjectOutputStream outputStream;
-	ObjectInputStream inputStream;
-	ClientHandler clientHandler = null;
-	int port = 8888;
-	int backlogCount = 1;
-	String clientId = "";
+	private ServerSocket serverSock;
+	private Thread acceptThread;
+
+	private final List<ClientHandler> handlers = new ArrayList<>();
+
+	private volatile boolean running = false;
+
+	private final int port = 8888;
+	private final int backlogCount = 50;
+
+	private Consumer<String> console;
 
 	private static final Logger logger = LogManager.getLogger(Server.class);
 
 	public Server() {
-		this.createConnection();
-		this.waitForRequests();
 
 	}
 
-	public void createConnection() {
+	/*
+	 * Mirrors server activity into the given console, e.g. the server window.
+	 */
+	public void setConsole(Consumer<String> console) {
+		this.console = console;
+	}
+
+	public boolean isRunning() {
+		return running;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	/*
+	 * Opens the socket and begins accepting clients on a background thread.
+	 * Returns false when the server is already running or the port is taken.
+	 */
+	public boolean start() {
+
+		if (running) {
+
+			report("Server is already running.");
+			return false;
+		}
+
 		try {
 			serverSock = new ServerSocket(port, backlogCount);
-		} catch (IOException ex) {
-			ex.printStackTrace();
+
+		} catch (IOException e) {
+
+			logger.error("The server socket could not be opened on port {}", port, e);
+			report("Unable to listen on port " + port + ": " + e.getMessage());
+
+			return false;
 		}
+
+		running = true;
+
+		acceptThread = new Thread(this::waitForRequests, "careplus-accept");
+		acceptThread.setDaemon(true);
+		acceptThread.start();
+
+		logger.info("Server started on port {}", port);
+		report("Server started on port " + port + ".");
+
+		return true;
 	}
 
-	public void closeConnection() {
+	/*
+	 * Stops accepting clients and closes every open client connection.
+	 */
+	public boolean stop() {
+
+		if (!running) {
+
+			report("Server is not running.");
+			return false;
+		}
+
+		running = false;
+
+		// Closing the socket makes the blocked accept() throw, ending the loop.
+		closeConnection();
+
+		synchronized (handlers) {
+
+			for (ClientHandler handler : handlers)
+				handler.disconnect();
+
+			handlers.clear();
+		}
+
+		logger.info("Server stopped");
+		report("Server stopped.");
+
+		return true;
+	}
+
+	private void closeConnection() {
+
 		if (serverSock != null && !serverSock.isClosed()) {
+
 			try {
 				serverSock.close();
+
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.warn("The server socket could not be closed cleanly", e);
 			}
 		}
 	}
 
-	public void waitForRequests() {
+	private void waitForRequests() {
 
-		while (true) {
+		logger.info("Server is listening on port {}", port);
+
+		while (running) {
+
 			try {
-				logger.info("Server is listening on port " + port);
 
-				socket = serverSock.accept();
-				clientId = socket.getInetAddress().getHostAddress() + ":" + socket.getPort();
-				logger.info("Client connected: " + clientId);
+				Socket socket = serverSock.accept();
 
-				// create a new thread for each client
-				clientHandler = new ClientHandler(socket);
+				String clientId = socket.getInetAddress().getHostAddress() + ":" + socket.getPort();
+
+				logger.info("Client connected: {}", clientId);
+				report("Client connected: " + clientId);
+
+				ClientHandler clientHandler = new ClientHandler(socket);
 				clientHandler.setName(clientId);
+
+				synchronized (handlers) {
+					handlers.add(clientHandler);
+				}
+
 				clientHandler.start();
 
-				logger.info("Active threads: " + Thread.activeCount());
+			} catch (SocketException e) {
 
-			} catch (EOFException ex) {
-				logger.warn("Client has terminted connections with the server" + ex.getMessage());
-			} catch (IOException ex) {
-				ex.printStackTrace();
+				// Expected when stop() closes the socket out from under accept().
+				if (running) {
+					logger.error("The server socket failed unexpectedly", e);
+					report("Server socket error: " + e.getMessage());
+				}
+
+			} catch (IOException e) {
+
+				logger.error("A client could not be accepted", e);
+				report("Failed to accept a client: " + e.getMessage());
 			}
+		}
 
+		logger.info("Server has stopped listening on port {}", port);
+	}
+
+	private void report(String message) {
+
+		if (console != null) {
+			console.accept(message);
 		}
 	}
 }

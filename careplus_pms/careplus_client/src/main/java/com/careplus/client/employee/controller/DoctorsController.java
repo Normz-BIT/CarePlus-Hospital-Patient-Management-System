@@ -22,7 +22,6 @@ public class DoctorsController {
 
     public DoctorsController(DoctorsView view) {
         this.view = view;
-        view.getBtnRefresh().addActionListener(e -> refresh());
         refresh();
     }
 
@@ -30,7 +29,7 @@ public class DoctorsController {
      * View All Doctors
      */
     @SuppressWarnings("unchecked")
-    private void refresh() {
+    public void refresh() {
         Response res = Client.send(
                 new Request(
                         RequestType.GET_DOCTORS,
