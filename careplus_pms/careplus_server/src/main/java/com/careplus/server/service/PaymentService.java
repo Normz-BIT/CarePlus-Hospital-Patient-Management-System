@@ -19,12 +19,12 @@ public class PaymentService extends BaseService {
 	public Response pay(Request request) {
 
 		/*
-		 * The whole Payment arrives prebuilt from the client rather than being
-		 * assembled from individual fields here. That means the client decides the
-		 * amount and the outstanding balance, and the server persists them unchecked.
-		 * Any real validation, such as confirming the amount against what is actually
-		 * owed, would have to be added on this side, since a client is free to send
-		 * whatever it likes.
+		 * The Payment arrives already built from the client rather than being assembled
+		 * from separate parameters here, which keeps the request to a single object and
+		 * the payment fields defined in one place.
+		 *
+		 * TODO: check the amount against what the patient actually owes before
+		 * persisting, rather than accepting the figures the client sends.
 		 */
 		Payment payment = (Payment) request.getParams().get("payment");
 

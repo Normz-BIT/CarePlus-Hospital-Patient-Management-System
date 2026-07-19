@@ -3,29 +3,26 @@ package com.careplus.common.model;
 import com.careplus.common.enums.UserRole;
 
 /*
- * Child of the Employee and Person Class
- * Receptionist handles the Complaints for the Patients
+ * Receptionist is the front desk staff type and the triage point of our
+ * complaint workflow. Receptionists are the only role that assigns a complaint
+ * to a doctor or nurse, which is the step that moves it from SUBMITTED to
+ * ASSIGNED. Keeping that permission to one role is what stops two members of
+ * staff picking up the same complaint.
  *
- * Receptionists are the triage point of the complaint workflow: they are the only
- * role that assigns a complaint to a doctor or nurse, which is what moves it from
- * SUBMITTED to ASSIGNED.
- *
- * UNMAPPED: carries no @Entity or @Column annotations, so Hibernate cannot
- * resolve a staff row to a Receptionist. See the fuller explanation on Doctor,
- * which has the same gap.
- *
- * TODO: Add @Entity, @Table("receptionist"), and @PrimaryKeyJoinColumn("receptionist_id")
- * to this class, and mark deskNo with @Column. Staff login is currently broken.
+ * TODO: add the JPA mapping for the staff subclasses, as described on Doctor.
  */
 public class Receptionist extends Employee {
 	private static final long serialVersionUID = 1L;
 
+	/*
+	 * Desk number is a String rather than an int because desks are labelled
+	 * rather than numbered in sequence, so values like "A2" need to be valid.
+	 */
 	private String deskNo;
 
 	/*
-	 * Role is fixed by the subclass so a Receptionist can never carry the wrong
-	 * UserRole, which is what the client reads to decide the visible dashboard
-	 * features.
+	 * As with the other staff types, the role is fixed here so a Receptionist
+	 * cannot be built carrying the wrong UserRole.
 	 */
 	public Receptionist() {
 		super();

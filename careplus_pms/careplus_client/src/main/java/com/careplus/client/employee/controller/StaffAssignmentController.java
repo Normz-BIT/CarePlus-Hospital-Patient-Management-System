@@ -24,13 +24,13 @@ import com.careplus.common.net.Response;
 public class StaffAssignmentController {
 
 	/*
-	 * Departments are a free-text column on Employee, not an enum.
+	 * The four departments a member of staff can be assigned to. These are listed
+	 * here so the combo is populated without a round trip to the server, since the
+	 * set of departments is part of how the hospital is organised rather than data
+	 * that changes during use.
 	 *
-	 * Hardcoded here as a result, so this list is a client side convention that
-	 * nothing validates against the values actually stored on employee rows. A
-	 * department renamed in the database would leave this combo silently wrong.
-	 * Promoting department to an enum, as DoctorSpecialization already is, would
-	 * remove the duplication.
+	 * TODO: make department an enum on Employee, as DoctorSpecialization already
+	 * is, so this list and the stored values come from one definition.
 	 */
 	private static final String[] DEPARTMENTS = { "Medical", "Billing", "Reception", "Administration" };
 
@@ -46,10 +46,10 @@ public class StaffAssignmentController {
 	/*
 	 * Load Department and Complaint Status
 	 *
-	 * Both combos are populated locally rather than from the server, the departments
-	 * from the constant above and the statuses from the enum. Neither costs a round
-	 * trip, but the department list can drift from the data while the status list
-	 * cannot.
+	 * Both combos are filled locally rather than from the server, the departments
+	 * from the constant above and the statuses from the ComplaintStatus enum. Both
+	 * describe the domain rather than stored data, so the screen opens without
+	 * waiting on a request.
 	 */
 	private void loadCombos() {
 		view.getCboDepartment().removeAllItems();

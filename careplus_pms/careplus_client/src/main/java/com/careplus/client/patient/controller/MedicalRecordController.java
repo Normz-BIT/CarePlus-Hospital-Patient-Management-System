@@ -40,9 +40,9 @@ public class MedicalRecordController {
 		int row = view.getTblMedicalRecords().getSelectedRow();
 
 		/*
-		 * Returns silently rather than warning, because this fires from a selection
-		 * listener during ordinary table repopulation where a cleared selection is
-		 * expected rather than a user error.
+		 * Returns without a message rather than warning the user. This runs from a
+		 * selection listener, and the selection is cleared every time the table is
+		 * repopulated, so no selection here is the normal case rather than a mistake.
 		 */
 		if (row < 0) {
 
@@ -50,9 +50,8 @@ public class MedicalRecordController {
 		}
 
 		/*
-		 * Column indices are positional and must match the order refresh builds each
-		 * row in. The rows are untyped Object arrays, so reordering the columns there
-		 * silently populates the wrong fields here with no compiler warning.
+		 * The column indices below follow the order refresh builds each row in, so the
+		 * two methods have to be kept in step with each other.
 		 */
 		view.getTxtDiagnosis().setText(
 				String.valueOf(view.getTableModel().getValueAt(row, 1)));

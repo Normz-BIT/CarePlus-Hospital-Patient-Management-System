@@ -4,20 +4,18 @@ import com.careplus.common.enums.DoctorSpecialization;
 import com.careplus.common.enums.UserRole;
 
 /*
- * Child of the Employee and Person Class
+ * Doctor is one of the three staff types in our Person hierarchy, alongside
+ * Nurse and Receptionist. Doctors are the clinical decision makers in the
+ * system: they record diagnoses, write medical records and attend appointments.
  *
- * Doctors create medical records and attend Appointments
+ * We chose an enum for specialization rather than free text so the scheduling
+ * and directory screens can group doctors reliably, and a String for licenseNo
+ * because a licence number is an identifier we display and never calculate with.
  *
- * UNMAPPED: unlike Person, Employee and Patient, this class carries no @Entity,
- * @Table or @PrimaryKeyJoinColumn annotation, and the two fields below have no
- * @Column mapping. Hibernate therefore has no knowledge of Doctor at all, which
- * has a concrete consequence: because Employee is abstract, a staff row in the
- * database has no concrete type Hibernate can instantiate, so the Person lookup
- * in AuthService cannot return a doctor. Adding the annotations here, and on
- * Nurse and Receptionist, is what makes staff login work.
- *
- * TODO: Add @Entity, @Table("doctor"), and @PrimaryKeyJoinColumn("doctor_id") to this class
- * and mark specialization and licenseNo with @Column. Staff login is currently broken.
+ * TODO: add the JPA mapping for the staff subclasses (@Entity, @Table and the
+ * @PrimaryKeyJoinColumn, plus @Column on the two fields below) so Hibernate can
+ * load a staff row into a Doctor. Person, Employee and Patient are already
+ * mapped; the staff side is the next piece of persistence work.
  */
 public class Doctor extends Employee {
 	private static final long serialVersionUID = 1L;
@@ -27,9 +25,10 @@ public class Doctor extends Employee {
 
 
 	/*
-	 * Role is fixed by the subclass rather than passed in, so a Doctor can never be
-	 * constructed carrying the wrong UserRole. That matters because role is what the
-	 * client reads to decide which dashboard features to show.
+	 * We fix the role inside the constructor rather than accepting it as a
+	 * parameter, so a Doctor can never be built carrying the wrong UserRole. This
+	 * matters because the client reads role to decide which dashboard features to
+	 * open, and a mismatch there would show a doctor the wrong workspace.
 	 */
 	public Doctor() {
 		super();
@@ -37,9 +36,10 @@ public class Doctor extends Employee {
 	}
 
 	/*
-	 * Note the asymmetry with the no-arg constructor above: this one relies on
-	 * passing UserRole.DOCTOR up to super rather than calling setRole, so the two
-	 * paths set the role by different means but reach the same state.
+	 * The full constructor passes the role up to super instead of calling setRole,
+	 * so the two constructors reach the same state by different routes. Both are
+	 * kept because Hibernate needs the no-arg version while application code is
+	 * clearer building a doctor in one step.
 	 */
 	public Doctor(String personId, String firstName, String lastName, String email, String phone, String password) {
 		super(personId, firstName, lastName, email, phone, password, UserRole.DOCTOR);

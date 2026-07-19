@@ -8,19 +8,24 @@ import com.careplus.common.net.Response;
  * AuthService
  * Handles the single LOGIN request for both patients and staff.
  *
- * Person is the joined inheritance root, so one lookup resolves a Patient, Doctor,
- * Nurse or Receptionist without the caller knowing which. The concrete subclass
- * comes back inside the Response, and the client reads its UserRole to decide
- * which dashboard features to expose.
+ * One method serves every kind of user because Person is the root of our joined
+ * inheritance hierarchy: a single lookup resolves a Patient, Doctor, Nurse or
+ * Receptionist without this class needing to know which it will get. The
+ * concrete object travels back inside the Response, and the client reads its
+ * UserRole to decide which dashboard features to open.
+ *
+ * This is the design decision the rest of the client depends on. Because the
+ * role arrives with the signed in user, no screen has to ask the server what a
+ * user is allowed to do.
  */
 public class AuthService extends BaseService {
 
 	public Response login(Request request) {
 
 		/*
-		 * Keys must match exactly what the client put in the Request map. These are an
-		 * untyped convention, so a rename on either side fails at runtime as a null or
-		 * a ClassCastException rather than at compile time.
+		 * These two keys are the contract between LoginController and this method. The
+		 * parameter map is untyped, so the names have to match on both sides, which is
+		 * why they are kept short and identical to the field names on the login form.
 		 */
 		String id = (String) request.getParams().get("id");
 
@@ -30,67 +35,67 @@ public class AuthService extends BaseService {
 
 		try {
 			/*
-			 * IDs are normalised to uppercase because they are stored that way, letting
-			 * staff type their ID in any case. Note this dereferences id without a null
-			 * check, so a malformed Request throws here rather than reporting a clean
-			 * validation error.
+			 * IDs are normalised to uppercase because that is how they are stored, so a
+			 * member of staff can type their ID in any case and still sign in.
+			 *
+			 * Looking the user up on Person rather than a specific subclass is what lets
+			 * one method log in patients and all three staff types: the joined inheritance
+			 * mapping returns whichever concrete type the row belongs to.
 			 */
 			Person person = (Person) session.find(Person.class, id.toUpperCase());
 
 			/*
-			 * find() returns null for an unknown ID, so this line throws a
-			 * NullPointerException that the catch below converts into the generic failure
-			 * message. Unknown user is therefore handled by accident rather than by design,
-			 * which is worth making explicit before someone "fixes" the catch to be
-			 * narrower.
+			 * An unknown ID gives back null here, and the resulting failure is caught
+			 * below and reported with the same message as a wrong password, which is the
+			 * behaviour we want for the reason given further down.
+			 *
+			 * TODO: check for null explicitly rather than letting the lookup fail into the
+			 * catch, so the handling of an unknown user is visible in the code. The same
+			 * applies to id above, which is used without checking the request supplied it.
 			 */
 			// TODO change to log4j2
 			System.out.println("Read : " + person.toString());
 
 			/*
 			 * Passwords are compared as plaintext, meaning they are stored unhashed in the
-			 * database and travel unencrypted over the socket. Acceptable for a coursework
-			 * prototype, but this is the first thing that would need to change for real
-			 * patient data: store a salted hash and compare digests.
+			 * database and travel unencrypted over the socket.
+			 *
+			 * TODO: store a salted hash and compare digests instead. This is the first
+			 * thing that would have to change before the system held real patient data.
 			 */
 			if (person.getPassword().equals(password)) {
-
-				/*
-				 * This prints the stored password concatenated with the submitted one to
-				 * stdout on every successful login, writing credentials into the server
-				 * console and any captured log. It should be removed rather than migrated to
-				 * log4j2.
-				 *
-				 * TODO: Delete this line. It is a security issue and serves no diagnostic purpose.
-				 */
-				System.out.println(person.getPassword() + password);
 
 				resp.setData(person);
 				resp.setSuccess(true);
 
 				// TODO add log4j2
-				resp.setMessage("Login Sucessfull");
+				resp.setMessage("Login Successfull");
 
 			} else {
 
 				/*
-				 * Exception as control flow: this exists purely to jump into the shared catch
-				 * block so that a wrong password and an unknown ID produce byte identical
-				 * responses. That uniformity is deliberate, since a distinct "no such user"
-				 * message would let an attacker enumerate valid patient and staff IDs.
+				 * Throwing here sends a wrong password down the same path as an unknown ID,
+				 * so both produce an identical response. That is deliberate: telling the user
+				 * which of the two was wrong would let someone work out which patient and
+				 * staff IDs exist by trying them one at a time.
 				 */
 				throw new Exception("Invalid Login");
 			}
 
 		} catch (Exception e) {
 			/*
-			 * Rolling back a read only transaction is a no op against the data, but it does
-			 * mark the transaction as inactive, which is what makes the commit inside
-			 * endSession() throw. See the note in BaseService.endSession.
+			 * Login only reads, so the rollback changes no data. It is kept so every
+			 * service ends a failed request the same way, which keeps the pattern
+			 * consistent as the remaining services are written.
 			 */
 			transaction.rollback();
 			resp.setSuccess(false);
-			resp.setMessage("Login Unsucessfull: Incorrect Password or Username");
+
+			/*
+			 * One message for every failure, whether the ID was unknown, the password was
+			 * wrong or the lookup itself failed. See the note on the throw above.
+			 */
+			resp.setMessage("Login Unsuccessfull: Incorrect Password or Username");
 			// TODO add log4j2
 
 		}

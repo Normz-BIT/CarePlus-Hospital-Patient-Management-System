@@ -7,15 +7,16 @@ import java.time.LocalDateTime;
  * Patient has Medical records
  * Doctor creates Medical records
  *
- * DTO ONLY: no JPA annotations, matching MedicalRecordService still being an
- * unimplemented stub.
+ * Medical records are append only by design. A correction is made by adding a
+ * further record rather than editing an existing one, because the accumulated
+ * history is what shows the next clinician how a patient was treated before.
+ * Overwriting would lose the reasoning behind an earlier decision.
  *
- * Records are append only by intent. A correction should add a superseding record
- * rather than overwrite an existing one, since the accumulated history is what
- * makes a patient's prior treatment visible to the next clinician.
+ * A wire type for now, gaining its JPA mapping when MedicalRecordService is
+ * completed.
  *
- * Carries neither a patient nor an authoring doctor reference, both of which are
- * needed before a record can be attributed or retrieved.
+ * TODO: add the JPA annotations, plus the patient and authoring doctor
+ * references a record needs to be attributed and retrieved.
  */
 public class MedicalRecord implements Serializable{
 	private static final long serialVersionUID = 1L;

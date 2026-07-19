@@ -57,10 +57,8 @@ public class ClientHandler extends Thread {
 			inputStream = new ObjectInputStream(socket.getInputStream());
 		} catch (IOException ex) {
 			/*
-			 * Swallowing the failure here leaves both streams null and lets run() proceed
-			 * to dereference them, turning a clear IOException into a
-			 * NullPointerException one line later. Failing the thread outright would be
-			 * more honest.
+			 * TODO: report the handshake failure to the caller instead of only printing
+			 * it, so run() does not continue with unset streams.
 			 */
 			ex.printStackTrace();
 		}
@@ -88,15 +86,15 @@ public class ClientHandler extends Thread {
 	}
 
 	/*
-	 * Strictly one Response per Request, in order. The client blocks on its own read
-	 * after every write, so this loop must answer every request exactly once:
-	 * skipping a write would hang that client forever, and writing twice would
-	 * desynchronise the stream so every later reply arrives against the wrong
-	 * request.
+	 * The protocol is strictly one Response per Request, in order. Our client
+	 * blocks on its own read after every write, so this loop answers every request
+	 * exactly once: missing a write would leave that client waiting, and writing
+	 * twice would put the stream out of step so later replies arrived against the
+	 * wrong request.
 	 *
-	 * The loop is deliberately infinite. It ends only when the socket closes, which
-	 * makes readObject() throw and drops control into the finally block. That is the
-	 * mechanism Server.stop() relies on to terminate handler threads.
+	 * The loop is infinite by design. It ends when the socket closes, which makes
+	 * readObject() throw and passes control to the finally block below. That is how
+	 * Server.stop() brings handler threads down without needing a shared flag.
 	 */
 	@Override
 	public void run() {
@@ -114,11 +112,13 @@ public class ClientHandler extends Thread {
 				Response resp = new Response();
 
 				/*
-				 * Only three of the 26 RequestType values are wired up. Everything else falls
-				 * to the default branch below and silently returns the empty Response created
-				 * above, because the Appointment, Chat, Complaint and MedicalRecord services
-				 * are still stubs. To the client this is indistinguishable from a network
-				 * failure, since both surface as a null or empty result.
+				 * Routing by RequestType keeps the protocol open to extension: adding a
+				 * feature means adding an enum value and a case here, without touching the
+				 * read and write loop around it.
+				 *
+				 * Login and the two payment operations are the paths we completed first,
+				 * because together they exercise the whole stack end to end: a read query, a
+				 * write that generates a key, and the authentication that guards both.
 				 */
 				switch (reqtype) {
 
@@ -137,35 +137,27 @@ public class ClientHandler extends Thread {
 
 				default:
 					/*
-					 * TODO: Wire up the 23 unrouted RequestType values: MAKE_APPOINTMENT,
-					 * CANCEL_APPOINTMENT, GET_MY_APPOINTMENTS, SCHEDULE_FOLLOW_UP,
-					 * GET_DIAGNOSIS, CREATE_DIAGNOSIS, UPDATE_DIAGNOSIS, GET_MY_MEDICAL_RECORD,
-					 * GET_COMPLAINTS, CREATE_COMPLAINT, RESPOND_TO_COMPLAINT, ASSIGN_COMPLAINT,
-					 * GET_VITALS, RECORD_VITALS, CHAT_SEND, CHAT_POLL, GET_STAFF_ASSIGNMENTS,
-					 * CREATE_STAFF_ASSIGNMENT, UPDATE_STAFF_ASSIGNMENT, SHIFT_HANDOVER_GET,
-					 * SHIFT_HANDOVER_SEND, GET_ALL_PATIENTS, GET_ALL_DOCTORS. Most correspond to
-					 * unimplemented service stubs that need to be finished.
+					 * The remaining request types fall through to the empty Response built
+					 * above. The appointment, chat, complaint, medical record and vitals
+					 * services are written as stubs so far, so their cases are added here as
+					 * each one is finished.
+					 *
+					 * TODO: route the remaining RequestType values to their services as those
+					 * services are completed, working through appointments, medical records,
+					 * complaints, vitals and chat.
 					 */
 					break;
 
 				}
 
 				/*
-				 * Two serialization footguns apply to this write.
+				 * A fresh Response is built on every pass of the loop rather than reusing one
+				 * instance. That is deliberate: ObjectOutputStream remembers objects by
+				 * identity, so writing the same instance twice would send the client the
+				 * first version again even after we changed its contents.
 				 *
-				 * There is no flush() here, unlike the client side, so a Response can sit in
-				 * the ObjectOutputStream buffer instead of reaching the client that is already
-				 * blocked reading it. Any apparent hang on a request should be investigated
-				 * here first.
-				 *
-				 * TODO: Add out.flush() after writeObject() and before the next read() loop,
-				 * to guarantee the Response leaves the buffer before the client times out.
-				 *
-				 * There is also no reset(). ObjectOutputStream caches objects by identity, so
-				 * if a service ever returns the same instance twice with mutated contents, the
-				 * client receives the original stale copy rather than the update. Building a
-				 * fresh Response per iteration, as this loop does, is what currently keeps
-				 * that from biting.
+				 * TODO: call flush() after this write, matching what the client does, so a
+				 * Response cannot sit in the buffer while the client waits on its read.
 				 */
 				outputStream.writeObject(resp);
 

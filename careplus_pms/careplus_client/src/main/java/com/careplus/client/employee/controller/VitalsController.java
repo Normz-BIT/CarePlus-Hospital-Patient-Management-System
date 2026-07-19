@@ -18,12 +18,13 @@ import com.careplus.common.net.Response;
  * Vitals Controller
  * Allows nurses to record and view patient vital signs
  *
- * Each submission creates a new timestamped observation rather than updating a
- * current reading, so a patient accumulates a history a clinician can read as a
- * trend.
+ * Each submission creates a new timestamped observation rather than overwriting
+ * a current reading. We modelled it this way because a patient's vital signs are
+ * only meaningful as a series: a doctor reading the record needs to see how a
+ * temperature moved over a shift, not just its latest value.
  *
- * RECORD_VITALS and GET_ASSIGNED_CASES are both unrouted on the server, so
- * readings are not persisted and the case list is currently empty.
+ * TODO: route RECORD_VITALS and GET_ASSIGNED_CASES on the server so readings are
+ * saved and the case list is populated.
  */
 public class VitalsController {
 	private final VitalsView view;
@@ -39,10 +40,8 @@ public class VitalsController {
 	 */
 	public void record() {
 		/*
-		 * The patient is identified by a hand typed ID rather than by selecting from the
-		 * case list, so a mistyped ID files a reading against the wrong patient with
-		 * nothing to catch it. Driving this from the table selection would remove that
-		 * whole class of error.
+		 * TODO: take the patient from the case table selection rather than a typed ID,
+		 * so a reading cannot be filed against the wrong patient.
 		 */
 		String patientId = view.getTxtPatientId().getText().trim();
 
@@ -61,19 +60,21 @@ public class VitalsController {
 		try {
 
 			/*
-			 * The three numeric fields are only checked for parseability, not for
-			 * plausibility. A temperature of 400 or a heart rate of 5 is accepted and
-			 * stored, so clinical range validation still has to be added, ideally server
-			 * side in MedicalRecordService where it cannot be bypassed.
+			 * Temperature is a double while heart rate and respiratory rate are ints,
+			 * matching how each is actually measured: a temperature is recorded to one
+			 * decimal place, whereas a pulse is a whole count of beats per minute.
+			 *
+			 * TODO: add clinical range checks on these three values, on the server side
+			 * where they cannot be bypassed by a modified client.
 			 */
 			vitalSigns.setTemperature(
 					Double.parseDouble(
 							view.getTxtTemperature().getText().trim()));
 
 			/*
-			 * Kept as free text because blood pressure is a systolic over diastolic pair
-			 * rather than a single number. Nothing enforces that shape, so an unparseable
-			 * value reaches the record unchallenged.
+			 * Blood pressure stays as text because it is a systolic over diastolic pair
+			 * rather than a single number, so no numeric type would hold it without
+			 * splitting it into two fields.
 			 */
 			vitalSigns.setBloodPressure(
 					view.getTxtBloodPressure().getText().trim());
@@ -117,9 +118,9 @@ public class VitalsController {
 		} catch (Exception e) {
 
 			/*
-			 * One catch covers all three parses, so the message names every numeric field
-			 * rather than the one that actually failed. Acceptable because they are entered
-			 * together, but it does mean the nurse has to check all three.
+			 * A single catch covers all three number parses. The three readings are taken
+			 * and entered together, so naming them all in one message matches how a nurse
+			 * works through the form.
 			 */
 			logger.error("An error occurred while recording vital signs", e);
 			view.showMessage("Temperature, heart rate and respiratory rate must be valid numbers.");

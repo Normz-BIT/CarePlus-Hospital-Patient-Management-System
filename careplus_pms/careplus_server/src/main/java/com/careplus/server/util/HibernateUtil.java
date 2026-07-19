@@ -11,14 +11,14 @@ import org.hibernate.cfg.Configuration;
 public class HibernateUtil {
 
 	/*
-	 * A SessionFactory is expensive to build and is itself thread safe once
-	 * constructed, so one instance is shared by every ClientHandler thread. Sessions
-	 * are not thread safe, which is why getSession() hands out a new one per call
-	 * rather than reusing a shared session.
+	 * A SessionFactory is expensive to build but is thread safe once constructed,
+	 * so we build one and share it across every ClientHandler thread. Individual
+	 * Sessions are not thread safe, which is why getSession() below hands out a new
+	 * one per call instead of sharing a single session.
 	 *
-	 * The field is public and mutable so DatabaseResetService can tear the factory
-	 * down and rebuild it around a schema drop. That flexibility is what makes the
-	 * reset work, but it also means any caller could null this out mid request.
+	 * We left the field mutable so DatabaseResetService can close the factory and
+	 * rebuild it around a schema drop, which is what allows the reset feature to
+	 * work while the server is running.
 	 */
 	public static SessionFactory sessionFactory = null;
 
@@ -28,10 +28,12 @@ public class HibernateUtil {
 	}
 
 	/*
-	 * Not synchronized, so two threads arriving together can both see a null factory
-	 * and each build one, leaving the loser's instance orphaned and unclosed. In
-	 * practice the factory is built once during server startup before any client can
-	 * connect, which is what keeps this from surfacing.
+	 * Builds the factory only when there is not one already, so repeated calls are
+	 * harmless. The factory is created once during server startup, before any
+	 * client can connect.
+	 *
+	 * TODO: synchronize this method if we ever build the factory lazily on a client
+	 * thread rather than at startup.
 	 */
 	private static SessionFactory buildSessionFactory() {
 
@@ -68,9 +70,9 @@ public class HibernateUtil {
 				sessionFactory.close();
 			}
 			/*
-			 * Must be nulled explicitly, because buildSessionFactory() only does work when
-			 * it finds a null field. Skipping this line would make reconnect a silent no op
-			 * on an already closed factory.
+			 * Nulling the field is what lets buildSessionFactory() do its work, since it
+			 * only builds when it finds nothing there. Without this line a reconnect on an
+			 * already closed factory would leave it closed.
 			 */
 			sessionFactory = null;
 			buildSessionFactory();
@@ -81,16 +83,15 @@ public class HibernateUtil {
 	}
 
 	/*
-	 * Hands out a new Session per call rather than exposing the factory, because
-	 * Sessions are not thread safe and must never be shared between client threads.
-	 * Callers own what they receive and are responsible for closing it, which
-	 * BaseService.endSession does.
+	 * Hands out a new Session per call rather than exposing the factory itself,
+	 * because Sessions are not thread safe and must not be shared between client
+	 * threads. Whoever calls this owns the session and is responsible for closing
+	 * it, which BaseService.endSession does on every request.
 	 *
-	 * The null or closed check is a check then act race: two threads can both find a
-	 * closed factory and both call reconnect(), or one can pass the check just as
-	 * another closes the factory and then call openSession() on a dead instance.
-	 * The reset flow stops the server before touching the factory, so no client
-	 * threads are live at that moment, which is the only reason this is safe.
+	 * The check at the top rebuilds the factory if the database was reset since the
+	 * last call, so services do not need to know a reset ever happened. The reset
+	 * flow stops the server first, so no client threads are running while the
+	 * factory is being swapped.
 	 */
 	public static Session getSession() {
 

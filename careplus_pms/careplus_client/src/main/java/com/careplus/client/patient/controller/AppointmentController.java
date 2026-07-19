@@ -173,10 +173,9 @@ public class AppointmentController {
 		}
 
 		/*
-		 * Column 0 holds the appointment ID by convention of how refresh builds each
-		 * row. Reordering the columns there silently sends the wrong value here, since
-		 * the rows are untyped Object arrays with no compile time link between the two
-		 * methods.
+		 * Column 0 holds the appointment ID, matching the order refresh builds each row
+		 * in. The two methods share that column order as a convention, so any change to
+		 * the columns in refresh needs the indices here changed with it.
 		 */
 		Object id = view.getTableModel().getValueAt(row, 0);
 		Request req = new Request(RequestType.CANCEL_APPOINTMENT, "appointmentId", id);

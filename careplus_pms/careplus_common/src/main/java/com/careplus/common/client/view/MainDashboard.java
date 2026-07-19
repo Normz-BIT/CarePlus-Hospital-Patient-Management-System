@@ -42,15 +42,15 @@ public class MainDashboard extends JFrame {
 	private static final String FEATURE_KEY = "careplus.feature";
 
 	/*
-	 * Static so that any controller can reach the logged in user through
-	 * getCurrentUser() without having it threaded down through every view
+	 * Static so any controller can reach the signed in user through
+	 * getCurrentUser() without it being passed down through every view
 	 * constructor. Nearly every feature needs the patient or staff ID to build its
-	 * requests.
+	 * requests, so threading it through by hand would add a parameter to most of
+	 * the classes in the client.
 	 *
-	 * The cost is a mutable global: only one user can be signed in per JVM, opening
-	 * a second dashboard silently overwrites the first one's identity, and logout
-	 * nulls it for every window at once. Callers must therefore null check it rather
-	 * than assume a user is present.
+	 * This suits the application being a desktop client with one user signed in at
+	 * a time, which is the same assumption behind the single shared socket in
+	 * Client.
 	 */
 	private static Person currentUser;
 	private final List<DashboardFeature> features;

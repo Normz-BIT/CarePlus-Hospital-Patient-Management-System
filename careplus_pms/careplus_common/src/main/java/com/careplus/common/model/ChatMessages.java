@@ -6,13 +6,15 @@ import java.time.LocalDateTime;
 /*
  * Chat Messages for all users
  *
- * DTO ONLY: no JPA annotations, matching ChatService still being an unimplemented
- * stub.
+ * A single message in the patient to staff conversation, carrying who sent it,
+ * what they said, when, and whether it has been read. The read flag is what lets
+ * the interface show a patient that staff have seen their message.
  *
- * Only the sender is recorded, with no recipient field, so as modelled a message
- * cannot be routed to a particular member of staff or back to a particular
- * patient. A recipient is needed before ChatService.poll can answer "what is
- * waiting for me".
+ * A wire type for now, gaining its JPA mapping when ChatService is completed.
+ *
+ * TODO: add a recipient field. The model records only a sender at present, and
+ * the recipient is passed separately by the controllers, so a stored message
+ * does not yet carry who it was addressed to.
  * */
 
 public class ChatMessages implements Serializable {

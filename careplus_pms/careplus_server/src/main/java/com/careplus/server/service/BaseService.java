@@ -7,14 +7,16 @@ import com.careplus.common.net.Response;
 import com.careplus.server.util.HibernateUtil;
 
 /*
- * BaseService
- * Shared Hibernate session and transaction handling for the server's services.
+ * BaseService holds the Hibernate session and transaction handling that every
+ * service needs, so the individual services are left to express only their own
+ * query logic. Pulling this up into a parent class keeps the open, commit and
+ * close sequence identical everywhere and means a change to how we manage
+ * transactions is made in one place.
  *
- * These three fields are plain instance state with no synchronization, which makes
- * every subclass single threaded by contract. That holds today only because
- * ClientHandler constructs its own service instances per connection. Making any
- * service static or sharing one instance between client threads would let two
- * requests overwrite each other's session and commit each other's work.
+ * The three fields below are ordinary instance state, so each service instance
+ * belongs to a single request at a time. This is why ClientHandler creates its
+ * own services per connection rather than sharing them: it gives each client
+ * thread its own session without any locking.
  */
 public abstract class BaseService {
 
@@ -41,25 +43,21 @@ public abstract class BaseService {
 
 		try {
 			/*
-			 * Called unconditionally from every subclass finally block, including on paths
-			 * where the catch block already called rollback(). Committing an
-			 * already rolled back transaction throws IllegalStateException, which is then
-			 * swallowed below. The rollback still wins, so the data stays correct, but the
-			 * error path is noisier than it looks.
+			 * Every service calls this from a finally block so the session is always tidied
+			 * up, including on paths where the catch has already rolled back. Committing an
+			 * transaction that was rolled back throws, which is why the catch below is
+			 * broad: the rollback has already decided the outcome and the data is correct
+			 * either way.
 			 */
 			transaction.commit();
+
 			/*
-			 * Reached only if commit() succeeded. A commit failure skips this close and
-			 * leaks the session along with its database connection, since no finally block
-			 * covers it. Moving the close into its own finally would make cleanup
-			 * unconditional.
-			 *
-			 * TODO: Wrap session.close() in its own finally block so it runs whether or not
-			 * commit() throws, preventing session and connection leaks on commit failures.
+			 * TODO: move this close into its own finally block so the session and its
+			 * database connection are released even when the commit above throws.
 			 */
 			session.close();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
+			// TODO add log4j2
 			e.printStackTrace();
 		}
 

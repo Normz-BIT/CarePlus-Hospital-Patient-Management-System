@@ -4,28 +4,26 @@ import com.careplus.common.enums.NurseWard;
 import com.careplus.common.enums.UserRole;
 
 /*
- * Child of the Employee and Person Class
- * Nurses record the vital Signs for the patients
+ * Nurse is the staff type responsible for the bedside record: nurses take
+ * patients' vital signs and write the nursing notes that go with them.
  *
- * UNMAPPED: carries no @Entity or @Column annotations, so Hibernate cannot
- * resolve a staff row to a Nurse. See the fuller explanation on Doctor, which has
- * the same gap.
- *
- * TODO: Add @Entity, @Table("nurse"), and @PrimaryKeyJoinColumn("nurse_id") to this class,
- * and mark ward with @Column. Staff login is currently broken.
+ * TODO: add the JPA mapping for the staff subclasses, as described on Doctor.
  */
 public class Nurse extends Employee {
 
 	private static final long serialVersionUID = 1L;
 	/*
-	 * Ward assignment is what scopes a nurse's case list, so this is the field that
-	 * would drive "assigned cases" once the server side query exists.
+	 * Ward is what scopes a nurse to a set of patients, so this field is what the
+	 * "assigned cases" list is built from once the server side query is written.
+	 * We made it an enum rather than free text so two nurses on the same ward
+	 * always match exactly, which a typed ward name could not guarantee.
 	 */
 	private NurseWard ward;
 
 	/*
-	 * Role is fixed by the subclass so a Nurse can never carry the wrong UserRole,
-	 * which is what the client reads to decide the visible dashboard features.
+	 * As with Doctor, the role is fixed here rather than passed in so a Nurse
+	 * cannot be built with the wrong UserRole, which is what drives the dashboard
+	 * features the client shows.
 	 */
 	public Nurse() {
 		super();

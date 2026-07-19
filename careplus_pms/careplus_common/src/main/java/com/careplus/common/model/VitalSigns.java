@@ -7,13 +7,15 @@ import java.time.LocalDateTime;
  * Patient has Vital Records
  * Nurse records Vital signs
  *
- * DTO ONLY: no JPA annotations, matching MedicalRecordService still being an
- * unimplemented stub.
+ * Each instance is a timestamped observation rather than a set of current
+ * values, so readings build up as a series. We modelled it this way because
+ * vital signs are read as a trend: what matters clinically is how a temperature
+ * or pulse moved across a shift, not only its latest figure.
  *
- * Each instance is a timestamped observation rather than a mutable current state,
- * so readings accumulate as separate records and a clinician can see the trend.
- * Like Appointment, it carries no patient reference yet, which will be needed
- * before it can be stored against anyone.
+ * A wire type for now, gaining its JPA mapping alongside MedicalRecordService.
+ *
+ * TODO: add the JPA annotations and a patient reference, so a reading can be
+ * stored against the patient it belongs to.
  */
 
 public class VitalSigns implements Serializable {

@@ -9,10 +9,14 @@ import com.careplus.common.enums.ComplaintStatus;
  * Patient files Complaints
  * Receptionist handles Complaints
  *
- * DTO ONLY: no JPA annotations, so Hibernate cannot persist this. Along with
- * Appointment, MedicalRecord, VitalSigns and ChatMessages, it currently exists
- * purely as a wire type, which is consistent with ComplaintService still being an
- * unimplemented stub. Mapping this class is a prerequisite for that service.
+ * Complaint carries the whole triage workflow: a patient files one, a
+ * receptionist assigns it, and a doctor or nurse responds. The status field is
+ * what tracks its position in that sequence.
+ *
+ * Like Appointment, MedicalRecord, VitalSigns and ChatMessages, this is a wire
+ * type for now and gains its JPA mapping when ComplaintService is completed.
+ *
+ * TODO: add the JPA annotations so complaints can be persisted.
  */
 
 public class Complaint implements Serializable {

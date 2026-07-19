@@ -37,16 +37,17 @@ public class Patient extends Person {
 	private static final long serialVersionUID = 1L;
 
 	/*
-	 * LocalDate rather than LocalDateTime, since a birth date has no meaningful time
-	 * component. Age must be derived from this on read rather than stored, otherwise
-	 * it silently goes stale.
+	 * LocalDate rather than LocalDateTime, since a birth date has no meaningful
+	 * time component. We store the date and work age out when it is needed, because
+	 * a stored age would be wrong from the patient's next birthday onwards.
 	 */
 	@Column(name = "date_of_birth")
 	private LocalDate dateOfBirth;
 
     /*
-     * Stored by name rather than ordinal so that reordering the Gender enum cannot
-     * silently reassign the meaning of existing patient rows.
+     * Stored by name rather than ordinal, for the same reason as role on Person:
+     * reordering the Gender constants must not change what rows already in the
+     * database mean.
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "gender", nullable = false)

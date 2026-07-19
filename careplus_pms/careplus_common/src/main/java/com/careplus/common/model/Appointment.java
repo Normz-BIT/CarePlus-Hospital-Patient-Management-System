@@ -10,13 +10,13 @@ import com.careplus.common.enums.AppointmentStatus;
  * Patient Books Appointments
  * Doctor Attends Appointments
  *
- * DTO ONLY: no JPA annotations, so this cannot be persisted as it stands, which
- * matches AppointmentService still being an unimplemented stub.
+ * Appointment is one of the models we defined as a wire type first, so the
+ * client screens could be built and demonstrated while the matching service was
+ * still being written. It travels between client and server as a serialized
+ * object and gains its JPA mapping when AppointmentService is completed.
  *
- * Note the model carries no patient or doctor reference, even though the patient
- * facing screen has to show which doctor is assigned. Those fields are missing
- * rather than deliberately omitted, and will be needed before the service can be
- * written.
+ * TODO: add the JPA annotations, plus the patient and doctor references the
+ * booking screens need in order to show who an appointment is with.
  */
 public class Appointment implements Serializable{
 	private static final long serialVersionUID = 1L;

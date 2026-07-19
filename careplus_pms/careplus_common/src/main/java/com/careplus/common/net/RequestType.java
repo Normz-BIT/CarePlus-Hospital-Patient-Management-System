@@ -4,20 +4,18 @@ package com.careplus.common.net;
  * The action codes of the client/server protocol. Every Request carries exactly
  * one of these, and ClientHandler switches on it to pick a service method.
  *
- * Two things to be aware of before adding or reordering values:
+ * Using an enum rather than String action names means the compiler checks every
+ * request type at both ends, and the switch in ClientHandler cannot be given a
+ * value that does not exist.
  *
- * 1. Enums serialize by name, not by ordinal, so reordering this list is safe
- *    across client and server builds. Renaming a constant is not: the receiving
- *    side throws InvalidObjectException when it cannot resolve the name.
+ * We declared the full set of actions up front, before the matching services
+ * were written, so the client controllers could be built against the protocol we
+ * had agreed as a group rather than waiting on the server side. Each value gains
+ * its handler as the corresponding service is completed.
  *
- * 2. Declaring a constant here does not make it work. The dispatch switch in
- *    ClientHandler currently implements only LOGIN, MAKE_PAYMENT and
- *    GET_MY_PAYMENTS. Every other value below falls through to the default
- *    branch and returns an all null Response, because the corresponding services
- *    (Appointment, Chat, Complaint, MedicalRecord) are still unimplemented
- *    stubs. The constants are declared ahead of the services so that client side
- *    controllers can be written against the final protocol, but a controller
- *    sending any of them today gets silence rather than data.
+ * Enums serialize by name rather than ordinal, so this list can safely be
+ * reordered between client and server builds. Renaming a constant cannot: the
+ * receiving side would no longer resolve the old name.
  */
 public enum RequestType {
     LOGIN,

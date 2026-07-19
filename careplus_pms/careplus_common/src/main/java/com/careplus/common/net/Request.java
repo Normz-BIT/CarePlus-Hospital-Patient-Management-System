@@ -7,11 +7,14 @@ import java.util.Map;
 /**
  * Request Sent From the client to the server
  *
- * This is one half of the wire protocol. Instances are written directly onto an
- * ObjectOutputStream by Client.send and read back by ClientHandler, so this class
- * is a published binary contract: renaming or retyping a field silently breaks
- * every client built against an older jar. Bump serialVersionUID deliberately if
- * the shape ever has to change, rather than letting the compiler generate one.
+ * This is one half of our wire protocol. Instances are written straight onto an
+ * ObjectOutputStream by Client.send and read back by ClientHandler, so the shape
+ * of this class is shared by both sides and has to stay in step between them.
+ *
+ * We set serialVersionUID by hand rather than letting the compiler generate one,
+ * so the value only changes when we decide it should. A generated identifier
+ * would change whenever the class was edited, and every client built against an
+ * older jar would stop being able to read it.
  */
 
 public class Request implements Serializable {
@@ -20,11 +23,14 @@ public class Request implements Serializable {
 	private RequestType type;
 
 	/*
-	 * Deliberately an untyped bag rather than a per-action DTO. It keeps one
-	 * envelope class serving all 26 RequestType values, but the cost is that
-	 * parameter keys and value types are a convention only: the compiler cannot
-	 * catch a misspelled key or a wrong cast, so mismatches surface at runtime on
-	 * the server as a ClassCastException inside the dispatch switch.
+	 * We chose a general map of parameters rather than a separate request class per
+	 * action. One envelope serves every RequestType, so adding a feature does not
+	 * mean adding a new class to both modules, and the protocol stays small enough
+	 * to reason about as a group.
+	 *
+	 * The trade off we accepted is that parameter names and value types are a
+	 * convention between client and server rather than something the compiler
+	 * checks, so both sides have to agree on the keys each request uses.
 	 */
 	private Map<String, Object> params;
 

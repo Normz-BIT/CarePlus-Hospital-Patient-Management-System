@@ -223,8 +223,9 @@ public class EmployeeComplaintController {
 		for (String category : categories)
 			view.getCboFilter().addItem(category);
 		/*
-		 * Silently no ops if the previously selected category no longer exists in the
-		 * data, leaving the combo on its first entry, which is "All".
+		 * Restores what the user had chosen before the refresh, so filtering does not
+		 * reset every time the list reloads. If that category is no longer present the
+		 * combo falls back to its first entry, "All".
 		 */
 		if (selected != null)
 			view.getCboFilter().setSelectedItem(selected);

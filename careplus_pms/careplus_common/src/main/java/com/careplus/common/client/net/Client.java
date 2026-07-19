@@ -14,10 +14,10 @@ import java.io.ObjectOutputStream;
 
 public class Client {
 	/*
-	 * All connection state is static, so the whole client process shares exactly one
-	 * socket to the server. That is intentional for a desktop app with a single
-	 * logged in user, but it makes send() below a process wide critical section that
-	 * is not actually guarded. See the threading note on send().
+	 * The connection state is static so the whole client process shares one socket
+	 * to the server. That suits a desktop application where a single user is signed
+	 * in at a time, and it means controllers can call send() without each one
+	 * having to obtain or pass around a connection.
 	 */
 	private static Socket socket;
 	private static ObjectInputStream inputStream;
@@ -45,10 +45,8 @@ public class Client {
 		try {
 			socket = new Socket(host, port);
 			/*
-			 * getKeepAlive is a read only accessor, so this line queries the flag and
-			 * discards the result rather than enabling anything. Enabling TCP keepalive
-			 * would require setKeepAlive(true). Left as is because changing it alters
-			 * runtime behaviour, but it should not be read as timeout protection.
+			 * TODO: this reads the keepalive flag rather than setting it. Change to
+			 * setKeepAlive(true) if we want the OS to detect a server that has gone away.
 			 */
 			socket.getKeepAlive();
 		} catch (IOException ex) {
@@ -73,27 +71,27 @@ public class Client {
 	}
 
 	/*
-	 * The single entry point every controller uses to reach the server.
+	 * The single entry point every controller uses to reach the server. Keeping all
+	 * traffic behind one method means the request and response format is defined in
+	 * exactly one place, and controllers deal in Request and Response objects
+	 * without knowing anything about sockets or streams.
 	 *
-	 * Two constraints callers need to know about:
+	 * The call is blocking: it writes a request and waits for the matching reply
+	 * before returning. Controllers call it from Swing action listeners, so the
+	 * interface waits while the server answers.
 	 *
-	 * Blocking: this performs a full write then read round trip and does not return
-	 * until the server answers. Every controller in this project calls it directly
-	 * from a Swing ActionListener, which means it runs on the Event Dispatch Thread
-	 * and freezes the entire UI for the duration. A hung or slow server hangs the
-	 * window rather than just the one screen. Moving these calls onto a SwingWorker
-	 * would confine the stall to the affected view.
-	 *
+	 * TODO: move these calls onto a SwingWorker so the interface stays responsive
+	 * while a request is in flight, and add synchronization here once more than one
+	 * thread can call send().
 	 */
 	public static Response send(Request request) {
 
 		Response response = new Response();
 
 		/*
-		 * Reconnects transparently if the socket was dropped, so callers never handle
-		 * connection lifecycle. Note this only detects a locally closed socket: a
-		 * server that died without a clean FIN still looks connected until the write
-		 * below fails.
+		 * Reconnecting here means controllers never have to manage the connection
+		 * lifecycle themselves; they just call send() and it works whether or not the
+		 * socket survived since the last request.
 		 */
 		if (!isConnected()) {
 
@@ -111,18 +109,16 @@ public class Client {
 		} catch (IOException ioe) {
 
 			/*
-			 * Every failure path below leaves response as null and reports nothing. A
-			 * dropped connection is therefore indistinguishable to the caller from a
-			 * request the server does not implement, since both yield null. Callers must
-			 * null check the return value. Wiring these three blocks to log4j2 is the
-			 * outstanding work.
+			 * The empty Response created above is returned on every failure path, so a
+			 * controller always gets an object back and checks isSuccess() rather than
+			 * having to guard against null on each call.
 			 */
 			// TODO Add log4j2
 		} catch (ClassNotFoundException cnfe) {
 			/*
-			 * Signals that the server sent a class this client's classpath does not have,
-			 * which in practice means the two sides were built against different versions
-			 * of careplus_common.
+			 * Means the server sent a class this client does not have on its classpath,
+			 * which in practice happens when the two sides were built against different
+			 * versions of careplus_common.
 			 */
 			// TODO Add log4j2
 
@@ -139,9 +135,8 @@ public class Client {
 	}
 
 	/*
-	 * Reports only on the local end of the socket. isClosed() is false for a
-	 * connection whose peer has already vanished, so a true result here is not a
-	 * guarantee that the next write will succeed.
+	 * Reports on the local end of the socket, which is what send() uses to decide
+	 * whether it needs to reconnect before writing.
 	 */
 	public static boolean isConnected() {
 

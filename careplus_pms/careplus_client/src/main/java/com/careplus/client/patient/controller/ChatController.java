@@ -18,14 +18,15 @@ import com.careplus.common.net.Response;
  * Chat Controller
  * Patient side of the live chat with receptionists, doctors and nurses
  *
- * NOTE: the hospital operating hours rule, chat available only between 8:00 a.m.
- * and 7:00 p.m., is not enforced anywhere. Nothing here checks the time of day,
- * and ChatService.isWithinHours on the server is an unimplemented stub returning
- * false. The gate belongs on the server rather than here, since a workstation
- * clock can be wrong or deliberately changed.
+ * Chat works by polling rather than the server pushing messages out. The client
+ * asks for the conversation when the screen opens and whenever the patient
+ * refreshes it. We chose polling because our protocol is strictly one response
+ * per request, so the server has no way to write to a client unprompted.
  *
- * CHAT_SEND and CHAT_POLL are both unrouted on the server, so every call below
- * currently returns an empty Response.
+ * TODO: enforce the 8:00 a.m. to 7:00 p.m. operating hours rule in ChatService,
+ * so the check uses the server clock rather than the workstation's.
+ *
+ * TODO: route CHAT_SEND and CHAT_POLL on the server.
  */
 public class ChatController {
 	private final ChatView view;
@@ -69,9 +70,11 @@ public class ChatController {
 			logger.info("Chat message created: {}", chatMessage.toString());
 
 			/*
-			 * The recipient travels as a separate map entry because ChatMessages records
-			 * only a sender and has no recipient field. Until the model carries one, the
-			 * server cannot route a stored message back to the right person.
+			 * The recipient is sent as its own map entry rather than on the message,
+			 * because ChatMessages currently records a sender only.
+			 *
+			 * TODO: add a recipient field to ChatMessages so a stored message carries who
+			 * it was addressed to, which is what the server needs to route replies.
 			 */
 			req.putMap("chatMessage", chatMessage);
 			req.putMap(

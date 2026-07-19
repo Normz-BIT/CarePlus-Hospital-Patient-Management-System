@@ -48,10 +48,13 @@ public abstract class Person implements Serializable {
 	@Column(name = "last_name", nullable = false)
 	protected String lastName;
 	/*
-	 * The unique constraint is enforced at the database level, so a duplicate
-	 * registration surfaces as a ConstraintViolationException on commit rather than
-	 * as a clean validation message. Any user facing duplicate check has to happen
-	 * in the service before persisting.
+	 * Email is unique because it is how a person is identified when registering, so
+	 * the constraint lives in the database where it holds regardless of which part
+	 * of the application does the insert.
+	 *
+	 * TODO: check for an existing email in the service before persisting, so a
+	 * duplicate registration produces a readable message rather than a constraint
+	 * violation on commit.
 	 */
 	@Column(name = "email", nullable = false, unique = true)
 	protected String email;
@@ -66,10 +69,11 @@ public abstract class Person implements Serializable {
 	protected String password;
 
 	/*
-	 * EnumType.STRING rather than the ORDINAL default, so the database holds
-	 * "DOCTOR" instead of a positional integer. This matters because ORDINAL would
-	 * silently reassign every existing row's meaning the moment someone reordered
-	 * the UserRole constants.
+	 * We use EnumType.STRING rather than the ORDINAL default so the database holds
+	 * "DOCTOR" instead of a positional number. With ORDINAL, reordering the
+	 * UserRole constants would change what every existing row means, and the stored
+	 * data would no longer say what it did when it was written. Storing the name
+	 * also makes the table readable when marking or debugging.
 	 */
 	@Enumerated(EnumType.STRING)
 	@Column(name = "role", nullable = false)

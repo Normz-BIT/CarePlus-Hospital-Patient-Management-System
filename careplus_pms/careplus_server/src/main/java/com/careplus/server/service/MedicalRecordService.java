@@ -27,13 +27,12 @@ public class MedicalRecordService {
 	}
 
 	/*
-	 * Vitals are a timestamped observation rather than a mutable current state, so
-	 * each reading is a new row. Overwriting the previous one would destroy the
-	 * trend a nurse or doctor needs to see.
+	 * Vitals are a timestamped observation rather than a current state, so each
+	 * reading is stored as a new row. Overwriting the previous one would lose the
+	 * trend a nurse or doctor reads the record for.
 	 *
-	 * Range validation belongs here as well as in the client. VitalsController only
-	 * checks that the values parse as numbers, so a mistyped temperature reaches
-	 * the database unchallenged today.
+	 * TODO: validate the clinical ranges here as well as in the client, so the
+	 * check cannot be bypassed by whatever is sending the request.
 	 */
 	public Response recordVitals(VitalSigns vitalSigns) {
 		return null;

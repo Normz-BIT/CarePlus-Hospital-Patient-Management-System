@@ -24,13 +24,13 @@ import com.careplus.client.employee.controller.StaffChatController;
  * Employee side of the live chat staff pick a patient and exchange messages,
  * responding to and updating patients on their requests.
  *
- * Visible to all three staff roles. Like the patient side ChatView the
- * conversation is a plain JTextArea rather than a table, so a refresh rewrites
- * the whole transcript instead of appending only new messages.
+ * Available to all three staff roles, since any of them may need to answer a
+ * patient directly. The conversation is a read only JTextArea rather than a
+ * table because a chat reads as continuous text, and making it non editable
+ * keeps the transcript a faithful record of what was actually sent.
  *
- * The patient is identified by a hand typed ID rather than chosen from a list,
- * unlike the patient side which picks a recipient from a combo. A mistyped ID
- * therefore sends the message to the wrong patient with nothing to catch it.
+ * TODO: select the patient from a list rather than a typed ID, matching how the
+ * patient side chooses its recipient.
  */
 public class StaffChatView extends JInternalFrame {
 

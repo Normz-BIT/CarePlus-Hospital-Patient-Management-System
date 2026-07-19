@@ -22,11 +22,10 @@ public class DBConnectionTest {
 		try {
 
 			/*
-			 * Deliberately builds its own throwaway SessionFactory instead of using
-			 * HibernateUtil, so the check exercises the configuration from scratch and
-			 * cannot pass just because the application already holds a working factory.
-			 * The cost is that this duplicates HibernateUtil's bootstrap logic and will
-			 * drift from it if that changes.
+			 * Builds its own SessionFactory rather than going through HibernateUtil, so
+			 * the check tests the configuration from scratch. Reusing the application's
+			 * factory would let the test pass simply because a working one already
+			 * existed, which would not tell us the config file is correct.
 			 */
 			Configuration config = new Configuration();
 
@@ -55,17 +54,16 @@ public class DBConnectionTest {
 			System.out.println("Connected. Person rows: " + count); // should print 9
 
 			/*
-			 * Both closes sit on the success path only, so a failure above leaks the
-			 * session and the factory along with their connections. Acceptable in a
-			 * short lived test process, but it would matter if this ran repeatedly.
+			 * TODO: close the session and factory in a finally block so they are released
+			 * even when the query above throws.
 			 */
 			session.close();
 			sf.close();
 			return 1;
 		} catch (Exception e) {
 			/*
-			 * Any failure is collapsed into a 0 return, so the caller learns that the check
-			 * failed but not why. The stack trace on stdout is the only diagnostic.
+			 * The stack trace is printed because the return value only reports whether the
+			 * check passed, and when it fails the reason is what we actually need to see.
 			 */
 			e.printStackTrace();
 		}
