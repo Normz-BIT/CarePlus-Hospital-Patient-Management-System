@@ -26,6 +26,19 @@ import javax.swing.table.DefaultTableModel;
 
 import com.careplus.client.patient.controller.AppointmentController;
 
+/**
+ * Patient appointment workspace: book a consultation, cancel one, and review
+ * upcoming appointments with their date, assigned doctor and status.
+ *
+ * An MDI child window like every feature screen. The view owns the widgets and
+ * exposes helpers such as clearTable and addAppointment, while every decision and
+ * server call lives in AppointmentController.
+ *
+ * The doctor and department combos are filled from the server rather than from
+ * local enums, so they are empty until that lookup succeeds. Date and time are
+ * plain text fields, which is why the controller has to parse and validate them
+ * by hand against a fixed yyyy-MM-dd HH:mm:ss pattern.
+ */
 public class AppointmentView extends JInternalFrame {
 
 	private static final long serialVersionUID = 1L;

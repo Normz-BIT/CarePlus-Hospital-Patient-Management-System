@@ -13,6 +13,15 @@ import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
 
+/*
+ * Medical Record Controller
+ * Read only view of a patient's own diagnoses and treatment notes
+ *
+ * The only patient feature with no write path: patients read their record but
+ * never alter it, since clinical content is authored by doctors through
+ * DiagnosisController. GET_MEDICAL_RECORDS is unrouted on the server, so the
+ * table is currently empty.
+ */
 public class MedicalRecordController {
 	private final MedicalRecordView view;
 	private static final Logger logger = LogManager.getLogger(MedicalRecordController.class);
@@ -22,14 +31,29 @@ public class MedicalRecordController {
 		refresh();
 	}
 
+	/*
+	 * Copies the selected row into the detail fields so long free text such as a
+	 * treatment note can be read in full, rather than clipped to a table cell.
+	 * Nothing is re-fetched: the values come from the row already in the table.
+	 */
 	public void displaySelectedRecord() {
 		int row = view.getTblMedicalRecords().getSelectedRow();
 
+		/*
+		 * Returns silently rather than warning, because this fires from a selection
+		 * listener during ordinary table repopulation where a cleared selection is
+		 * expected rather than a user error.
+		 */
 		if (row < 0) {
 
 			return;
 		}
 
+		/*
+		 * Column indices are positional and must match the order refresh builds each
+		 * row in. The rows are untyped Object arrays, so reordering the columns there
+		 * silently populates the wrong fields here with no compiler warning.
+		 */
 		view.getTxtDiagnosis().setText(
 				String.valueOf(view.getTableModel().getValueAt(row, 1)));
 

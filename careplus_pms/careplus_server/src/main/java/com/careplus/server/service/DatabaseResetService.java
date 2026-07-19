@@ -68,11 +68,29 @@ public class DatabaseResetService {
 		
 		report(console, "Hibernate session factory closed.");
 
+		/*
+		 * Declared outside the try so it survives into the catch, where it identifies
+		 * which statement failed. A variable scoped to the block would be unreachable
+		 * from the error path.
+		 */
 		int executed = 0;
 
+		/*
+		 * try-with-resources closes the statement and the connection in reverse order
+		 * on every path, including the SQLException below, so a failed reset cannot
+		 * strand an open connection against a half rebuilt schema.
+		 */
 		try (Connection connection = openServerConnection();
 				Statement statement = connection.createStatement()) {
 
+			/*
+			 * Executed sequentially on one connection with autocommit left on, so each
+			 * statement commits as it runs. There is deliberately no surrounding
+			 * transaction: MySQL cannot roll back DDL such as DROP DATABASE and CREATE
+			 * TABLE, so wrapping this would give a false impression of atomicity. The
+			 * practical consequence is that a mid script failure leaves the schema
+			 * partially built, and the fix is to run the reset again rather than to undo it.
+			 */
 			for (String sql : statements) {
 
 				statement.execute(sql);

@@ -26,6 +26,14 @@ import javax.swing.KeyStroke;
 /*
  * Login View
  * Allows patients and employees to access the CarePlus system
+ *
+ * A JFrame rather than a JInternalFrame, unlike every feature screen, because it
+ * exists before the MDI dashboard does. On success LoginController opens the
+ * dashboard and disposes this window, so the two are never on screen together.
+ *
+ * One login form serves both patients and staff. Nothing here distinguishes them:
+ * the server returns the concrete Person subclass and its role decides which
+ * dashboard features appear.
  */
 public class Login extends JFrame {
 
@@ -151,6 +159,10 @@ public class Login extends JFrame {
 
     /*
      * Register Login Events
+     *
+     * Only the purely presentational controls are wired here. Anything that talks
+     * to the server goes through registerActionListener below, which keeps this
+     * view free of any dependency on the controller for local-only behaviour.
      */
     private void registerEvents() {
 
@@ -158,16 +170,28 @@ public class Login extends JFrame {
 
             txtId.setText("");
             txtPassword.setText("");
+            /*
+             * Focus is returned to the ID field so the user can retype immediately after
+             * clearing, rather than having to click back into the form.
+             */
             txtId.requestFocusInWindow();
 
         });
 
+        /*
+         * Exits the JVM outright rather than disposing the window, since abandoning
+         * login means there is nothing left to return to.
+         */
         btnExit.addActionListener(e -> System.exit(0));
 
     }
 
     /*
      * Attaches this view's controls to the controller that handles them.
+     *
+     * Called by ClientApp after construction rather than from the constructor,
+     * which is what breaks the circular dependency: the controller needs the view
+     * to read the form, and the view needs the controller to handle the click.
      */
     public void registerActionListener(LoginController controller) {
 

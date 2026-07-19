@@ -17,6 +17,13 @@ import com.careplus.common.net.Response;
 /*
  * Vitals Controller
  * Allows nurses to record and view patient vital signs
+ *
+ * Each submission creates a new timestamped observation rather than updating a
+ * current reading, so a patient accumulates a history a clinician can read as a
+ * trend.
+ *
+ * RECORD_VITALS and GET_ASSIGNED_CASES are both unrouted on the server, so
+ * readings are not persisted and the case list is currently empty.
  */
 public class VitalsController {
 	private final VitalsView view;
@@ -28,13 +35,15 @@ public class VitalsController {
 	}
 
 	/*
-	 * Initialize Vital Sign Events
-	 */
-
-	/*
 	 * Record Patient Vital Signs
 	 */
 	public void record() {
+		/*
+		 * The patient is identified by a hand typed ID rather than by selecting from the
+		 * case list, so a mistyped ID files a reading against the wrong patient with
+		 * nothing to catch it. Driving this from the table selection would remove that
+		 * whole class of error.
+		 */
 		String patientId = view.getTxtPatientId().getText().trim();
 
 		if (patientId.isEmpty()) {
@@ -51,10 +60,21 @@ public class VitalsController {
 
 		try {
 
+			/*
+			 * The three numeric fields are only checked for parseability, not for
+			 * plausibility. A temperature of 400 or a heart rate of 5 is accepted and
+			 * stored, so clinical range validation still has to be added, ideally server
+			 * side in MedicalRecordService where it cannot be bypassed.
+			 */
 			vitalSigns.setTemperature(
 					Double.parseDouble(
 							view.getTxtTemperature().getText().trim()));
 
+			/*
+			 * Kept as free text because blood pressure is a systolic over diastolic pair
+			 * rather than a single number. Nothing enforces that shape, so an unparseable
+			 * value reaches the record unchallenged.
+			 */
 			vitalSigns.setBloodPressure(
 					view.getTxtBloodPressure().getText().trim());
 
@@ -96,6 +116,11 @@ public class VitalsController {
 
 		} catch (Exception e) {
 
+			/*
+			 * One catch covers all three parses, so the message names every numeric field
+			 * rather than the one that actually failed. Acceptable because they are entered
+			 * together, but it does mean the nurse has to check all three.
+			 */
 			logger.error("An error occurred while recording vital signs", e);
 			view.showMessage("Temperature, heart rate and respiratory rate must be valid numbers.");
 		}

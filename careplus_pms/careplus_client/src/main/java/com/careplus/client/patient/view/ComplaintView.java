@@ -27,6 +27,18 @@ import javax.swing.table.DefaultTableModel;
 
 import com.careplus.client.patient.controller.ComplaintController;
 
+/**
+ * Patient complaint workspace: file a complaint and review previous ones
+ * together with the response and who gave it.
+ *
+ * An MDI child window like every feature screen, following the same view owns
+ * widgets and controller owns decisions split.
+ *
+ * The category combo is filled from the ComplaintCategory enum rather than from
+ * the server, so it needs no round trip. The optional parent ID field is what
+ * turns a submission into a follow up on an earlier complaint rather than a new
+ * case.
+ */
 public class ComplaintView extends JInternalFrame {
 
 	private static final long serialVersionUID = 1L;

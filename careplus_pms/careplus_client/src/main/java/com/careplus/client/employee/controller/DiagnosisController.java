@@ -14,6 +14,13 @@ import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
 
+/*
+ * Diagnosis Controller
+ * Lets a doctor record a diagnosis, treatment note and follow up date
+ *
+ * ADD_DIAGNOSIS, UPDATE_DIAGNOSIS and GET_DIAGNOSIS_RECORDS are all unrouted on
+ * the server, so nothing written here is persisted yet.
+ */
 public class DiagnosisController {
 	private final DiagnosisView view;
 	private static final Logger logger = LogManager.getLogger(DiagnosisController.class);
@@ -38,6 +45,16 @@ public class DiagnosisController {
 		save(RequestType.UPDATE_DIAGNOSIS);
 	}
 
+	/*
+	 * Create and update share one implementation because the payload is identical
+	 * and only the RequestType and the need for a selected row differ. The type
+	 * parameter is what the two public entry points above vary.
+	 *
+	 * Worth noting against the append only intent described on MedicalRecord: an
+	 * update path overwrites an existing clinical record rather than superseding it,
+	 * which loses the previous diagnosis. Whether that is acceptable is a decision
+	 * for the server side service.
+	 */
 	private void save(RequestType type) {
 		if (view.getTxtPatientId().getText().trim().isEmpty()
 				|| view.getTxtDiagnosis().getText().trim().isEmpty()) {
@@ -61,6 +78,17 @@ public class DiagnosisController {
 			medicalRecord.setTreatmentNote(
 					view.getTxtTreatment().getText().trim());
 
+			/*
+			 * Follow up is optional, and left blank the field stays null, which is what
+			 * distinguishes a record needing no return visit from one that does.
+			 *
+			 * Parsed as a date only value, unlike AppointmentController and
+			 * PatientsController which both expect yyyy-MM-dd HH:mm:ss. This is the third
+			 * distinct date convention in the client, so the expected input differs from
+			 * screen to screen with nothing shared between them. atStartOfDay then pads
+			 * the value to midnight, so the time component here carries no meaning and
+			 * must not be read as an appointment time.
+			 */
 			if (!view.getTxtFollowUpDate().getText().trim().isEmpty()) {
 				medicalRecord.setFollowUpDate(
 						LocalDate.parse(view.getTxtFollowUpDate().getText().trim())
@@ -69,6 +97,11 @@ public class DiagnosisController {
 
 			medicalRecord.setCreatedDate(LocalDateTime.now());
 
+			/*
+			 * An update needs the ID of the row being changed, which only exists once
+			 * something is selected. A create has no such requirement, which is why this
+			 * guard is inside the type check rather than applying to both paths.
+			 */
 			if (type == RequestType.UPDATE_DIAGNOSIS) {
 				int row = view.getTblDiagnosis().getSelectedRow();
 

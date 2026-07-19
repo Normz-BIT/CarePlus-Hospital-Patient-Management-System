@@ -28,6 +28,18 @@ import com.careplus.client.employee.controller.VitalsController;
 /**
  * Nurse workspace: view assigned cases and record vital signs, patient
  * observations, and nursing notes.
+ *
+ * Observations and nursing notes are deliberately separate fields: the first
+ * records what the nurse saw, the second the care given, and keeping them apart
+ * preserves that distinction in the clinical record.
+ *
+ * Temperature, pulse and respiratory rate are free text fields checked only for
+ * being parseable numbers, not for clinical plausibility, so a mistyped reading
+ * is accepted. Blood pressure is text by design, since it is a systolic over
+ * diastolic pair rather than a single value.
+ *
+ * The patient is identified by a hand typed ID rather than by selecting from the
+ * case table, so a typo files a reading against the wrong patient.
  */
 public class VitalsView extends JInternalFrame {
 

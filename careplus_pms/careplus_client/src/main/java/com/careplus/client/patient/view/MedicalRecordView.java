@@ -25,6 +25,16 @@ import javax.swing.table.DefaultTableModel;
 
 import com.careplus.client.patient.controller.MedicalRecordController;
 
+/**
+ * Patient view of their own medical records: diagnoses, treatment notes and
+ * follow up dates.
+ *
+ * The only patient screen with no write path, since clinical content is authored
+ * by doctors through DiagnosisView. The detail fields beside the table exist so
+ * long free text such as a treatment note can be read in full rather than clipped
+ * to a table cell, and are populated from the already loaded row rather than by
+ * re-querying.
+ */
 public class MedicalRecordView extends JInternalFrame {
 
 	private static final long serialVersionUID = 1L;

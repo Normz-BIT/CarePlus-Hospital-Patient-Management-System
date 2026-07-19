@@ -27,6 +27,18 @@ import javax.swing.table.DefaultTableModel;
 
 import com.careplus.client.employee.controller.EmployeeComplaintController;
 
+/**
+ * Receptionist's complaint queue: review every complaint, filter by category,
+ * assign staff, respond, and read the dashboard totals.
+ *
+ * The largest view in the project, and the only one with a summary label and a
+ * filter combo. Both are driven from a cache held by EmployeeComplaintController
+ * rather than from the table model, because the model only ever holds the
+ * currently visible subset while the totals must describe every loaded complaint.
+ *
+ * The filter combo is repopulated from the data on each refresh, so its options
+ * reflect the categories actually present rather than the full enum.
+ */
 public class EmployeeComplaintView extends JInternalFrame {
 
 	private static final long serialVersionUID = 1L;

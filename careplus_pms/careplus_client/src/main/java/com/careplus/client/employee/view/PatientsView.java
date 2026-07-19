@@ -27,6 +27,13 @@ import com.careplus.client.employee.controller.PatientsController;
 /**
  * Doctor's assigned-patients directory: lists patient id, name, contact,
  * complaint and history, and lets the doctor schedule a follow-up.
+ *
+ * The only screen offering two ways to identify a patient: a typed ID field and
+ * the table selection. The typed value wins, with the selection used as a
+ * fallback, so a doctor need not retype an ID for a patient already highlighted.
+ *
+ * Follow up date and time are free text fields parsed against a fixed
+ * yyyy-MM-dd HH:mm:ss pattern, the same convention AppointmentView uses.
  */
 public class PatientsView extends JInternalFrame {
 

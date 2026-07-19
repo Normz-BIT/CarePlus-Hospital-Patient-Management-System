@@ -2,6 +2,16 @@ package com.careplus.server.util;
 
 /*
  * A destination for progress messages, implemented by the server window.
+ *
+ * Exists so that Server and DatabaseResetService can report progress without
+ * importing Swing. They depend on this one method interface instead of on
+ * ServerView, which keeps the networking and persistence code headless and
+ * testable, and leaves the door open for a console only server build.
+ *
+ * Implementations must tolerate being called from any thread. Messages arrive
+ * from the accept thread and from background worker threads, never only from the
+ * Event Dispatch Thread, so a Swing implementation has to marshal onto the EDT
+ * itself. ServerView does exactly that.
  */
 public interface ServerConsole {
 

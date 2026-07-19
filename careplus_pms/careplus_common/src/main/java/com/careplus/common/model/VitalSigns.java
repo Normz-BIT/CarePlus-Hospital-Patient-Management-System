@@ -6,18 +6,47 @@ import java.time.LocalDateTime;
 /*
  * Patient has Vital Records
  * Nurse records Vital signs
+ *
+ * DTO ONLY: no JPA annotations, matching MedicalRecordService still being an
+ * unimplemented stub.
+ *
+ * Each instance is a timestamped observation rather than a mutable current state,
+ * so readings accumulate as separate records and a clinician can see the trend.
+ * Like Appointment, it carries no patient reference yet, which will be needed
+ * before it can be stored against anyone.
  */
 
 public class VitalSigns implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private int vitalId;
+	/*
+	 * No unit is recorded alongside the value, so Celsius against Fahrenheit is an
+	 * unwritten convention between whoever enters the reading and whoever reads it.
+	 * VitalsController only validates that the input parses as a number, so nothing
+	 * currently rejects a physiologically impossible temperature.
+	 */
 	private double temperature;
+	/*
+	 * A String because blood pressure is a systolic over diastolic pair rather than
+	 * one number. The tradeoff is that it cannot be compared or averaged without
+	 * parsing, and no format is enforced on entry.
+	 */
 	private String bloodPressure;
 	private int heartRate;
 	private int respiratoryRate;
+	/*
+	 * Two separate free text fields by design: observations are what the nurse saw
+	 * about the patient, nursing notes are the care given. Keeping them apart
+	 * preserves that distinction in the clinical record.
+	 */
 	private String observations;
 	private String nursingNotes;
+	/*
+	 * When the reading was taken, which is what orders the trend. Set from the
+	 * client clock at entry time, so it reflects the workstation's time rather than
+	 * the server's.
+	 */
 	private LocalDateTime recordedAt;
 
 	public VitalSigns() {

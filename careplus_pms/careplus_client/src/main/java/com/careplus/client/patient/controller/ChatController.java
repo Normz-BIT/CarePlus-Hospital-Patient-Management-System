@@ -14,6 +14,19 @@ import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
 
+/*
+ * Chat Controller
+ * Patient side of the live chat with receptionists, doctors and nurses
+ *
+ * NOTE: the hospital operating hours rule, chat available only between 8:00 a.m.
+ * and 7:00 p.m., is not enforced anywhere. Nothing here checks the time of day,
+ * and ChatService.isWithinHours on the server is an unimplemented stub returning
+ * false. The gate belongs on the server rather than here, since a workstation
+ * clock can be wrong or deliberately changed.
+ *
+ * CHAT_SEND and CHAT_POLL are both unrouted on the server, so every call below
+ * currently returns an empty Response.
+ */
 public class ChatController {
 	private final ChatView view;
 	private static final Logger logger = LogManager.getLogger(ChatController.class);
@@ -47,10 +60,19 @@ public class ChatController {
 
 			chatMessage.setTimeStamp(LocalDateTime.now());
 
+			/*
+			 * A newly sent message is unread by definition. The recipient's client is what
+			 * would flip this, so it stays false until the other side acknowledges.
+			 */
 			chatMessage.setIsRead(false);
 
 			logger.info("Chat message created: {}", chatMessage.toString());
 
+			/*
+			 * The recipient travels as a separate map entry because ChatMessages records
+			 * only a sender and has no recipient field. Until the model carries one, the
+			 * server cannot route a stored message back to the right person.
+			 */
 			req.putMap("chatMessage", chatMessage);
 			req.putMap(
 					"recipient",
@@ -70,6 +92,10 @@ public class ChatController {
 
 			logger.info("Chat message sent successfully");
 
+			/*
+			 * Cleared only after the server confirms the send, so a failed message stays in
+			 * the box and the user does not lose what they typed.
+			 */
 			view.clearMessageField();
 
 		} catch (Exception e) {
@@ -82,6 +108,13 @@ public class ChatController {
 
 	}
 
+	/*
+	 * Chat is pull based: the server never pushes to an idle client, so new messages
+	 * only appear when this runs. It fires on open, after a send, and on the manual
+	 * refresh button, with no timer, so a patient sees a reply only by clicking.
+	 * A Swing Timer polling this would make the conversation feel live, but each tick
+	 * would block the Event Dispatch Thread on a socket round trip.
+	 */
 	@SuppressWarnings("unchecked")
 	public void refresh() {
 		Response res = Client.send(

@@ -188,15 +188,6 @@ CREATE INDEX idx_complaint_category ON complaint (category);
 CREATE INDEX idx_appt_date          ON appointment (appointment_date);
 CREATE INDEX idx_chat_inbox         ON chat_message (receiver_id, is_read);
 
-
--- SAMPLE DATA  (load before presentation)
-
--- NOTE: Do not put a semicolon inside a string literal in this file.
--- DatabaseResetService splits statements on the semicolon character, so one
--- inside quoted text breaks that statement in two. Use a comma or a full stop
--- instead. (This note deliberately spells out the character rather than using
--- it, for the same reason.)
-
 -- People: patients
 INSERT INTO person (person_id, first_name, last_name, email, phone, password, role) VALUES
  ('PAT0001', 'Andre',    'Campbell', 'andre.campbell@example.com',  '876-555-0101', 'pat123','PATIENT'),

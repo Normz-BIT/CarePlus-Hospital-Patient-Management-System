@@ -23,7 +23,15 @@ import com.careplus.common.net.Response;
  */
 public class StaffAssignmentController {
 
-	// Departments are a free-text column on Employee, not an enum.
+	/*
+	 * Departments are a free-text column on Employee, not an enum.
+	 *
+	 * Hardcoded here as a result, so this list is a client side convention that
+	 * nothing validates against the values actually stored on employee rows. A
+	 * department renamed in the database would leave this combo silently wrong.
+	 * Promoting department to an enum, as DoctorSpecialization already is, would
+	 * remove the duplication.
+	 */
 	private static final String[] DEPARTMENTS = { "Medical", "Billing", "Reception", "Administration" };
 
 	private final StaffAssignmentView view;
@@ -36,11 +44,12 @@ public class StaffAssignmentController {
 	}
 
 	/*
-	 * Initialize Button Events
-	 */
-
-	/*
 	 * Load Department and Complaint Status
+	 *
+	 * Both combos are populated locally rather than from the server, the departments
+	 * from the constant above and the statuses from the enum. Neither costs a round
+	 * trip, but the department list can drift from the data while the status list
+	 * cannot.
 	 */
 	private void loadCombos() {
 		view.getCboDepartment().removeAllItems();
@@ -56,6 +65,11 @@ public class StaffAssignmentController {
 
 	/*
 	 * Assign or update a staff assignment. Both actions send the same request.
+	 *
+	 * There is no separate update action because the server cannot distinguish the
+	 * two without a StaffAssignment model: ASSIGN_STAFF is expected to create or
+	 * overwrite the assignment for a given complaint. That makes assignment
+	 * idempotent, so reassigning the same complaint replaces rather than duplicates.
 	 */
 	public void save() {
 		save(RequestType.ASSIGN_STAFF);

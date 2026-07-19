@@ -28,9 +28,33 @@ public class ClientApp {
 
 	/*
 	 * Assign Views and Controllers to User Roles
+	 *
+	 * The single registry of every feature in the client, and the only place role
+	 * based access is declared. Nothing inside any view or controller checks the
+	 * user's role, so this method is where to look when asking who can reach a given
+	 * screen.
+	 *
+	 * Each entry supplies a factory rather than an instance, so the twelve screens
+	 * are built lazily on first menu click. That matters because every controller
+	 * constructor performs a blocking server call: constructing all twelve eagerly
+	 * would stall login behind twelve round trips.
+	 *
+	 * The repeated view then controller then registerActionListener sequence is the
+	 * project's MVC wiring convention. There is no base controller or view class, so
+	 * the three step handshake is written out per feature: the controller needs the
+	 * view to read its inputs, and the view needs the controller to handle its
+	 * buttons, so the listener is attached after both exist.
+	 *
+	 * Note "Doctors" is the only feature visible to two roles, since both doctors
+	 * and receptionists need the directory when assigning staff.
 	 */
 	public static List<DashboardFeature> assignFeatures() {
 
+		/*
+		 * Immutable, so the feature list cannot be altered after startup. It is shared
+		 * with LoginController and then with every MainDashboard, and an unmodifiable
+		 * list makes that sharing safe.
+		 */
 		return List.of(
 
 				// Patient features
@@ -104,6 +128,12 @@ public class ClientApp {
 
 	/*
 	 * Start CarePlus Client Application
+	 *
+	 * Shared by both the patient and the employee client: there is one executable,
+	 * and the role attached to whoever logs in decides which dashboard they get.
+	 *
+	 * The whole bootstrap runs inside invokeLater because Swing components must be
+	 * created and touched only on the Event Dispatch Thread, construction included.
 	 */
 	public static void main(String[] args) {
 
@@ -121,13 +151,26 @@ public class ClientApp {
 				login.registerActionListener(loginController);
 				login.setVisible(true);
 
-				//initialise client connection
+				/*
+				 * Connects after the window is already visible, so the user sees the login form
+				 * immediately rather than waiting on the socket. Ordering it this way also
+				 * means a server that is down does not block the UI from appearing.
+				 *
+				 * The instance is discarded because Client holds its socket in static fields,
+				 * so this exists purely to establish the connection. Client.send would
+				 * reconnect on demand anyway, making this a warm up rather than a
+				 * prerequisite.
+				 */
 				new Client();
-				
+
 				logger.info("CarePlus login view opened successfully");
 
 			} catch (Exception e) {
 
+				/*
+				 * Last resort handler. A failure this early leaves no usable window, so the
+				 * only thing left is to record why before the application dies.
+				 */
 				// TODO
 				logger.error("CarePlus client application could not be started", e);
 			}

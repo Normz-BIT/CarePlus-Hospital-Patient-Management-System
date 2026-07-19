@@ -93,6 +93,12 @@ public class ServerView extends JFrame implements ServerConsole {
 		});
 	}
 
+	/*
+	 * Unlike println above, this touches the text area directly with no invokeLater,
+	 * so it is only safe from the event dispatch thread. That holds today because
+	 * its only caller is a button handler, but it must not be called from the server
+	 * or database worker threads the way println can be.
+	 */
 	public void clearConsole() {
 		txtConsole.setText("");
 	}

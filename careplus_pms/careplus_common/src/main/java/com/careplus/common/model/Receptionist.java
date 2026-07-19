@@ -5,12 +5,25 @@ import com.careplus.common.enums.UserRole;
 /*
  * Child of the Employee and Person Class
  * Receptionist handles the Complaints for the Patients
+ *
+ * Receptionists are the triage point of the complaint workflow: they are the only
+ * role that assigns a complaint to a doctor or nurse, which is what moves it from
+ * SUBMITTED to ASSIGNED.
+ *
+ * UNMAPPED: carries no @Entity or @Column annotations, so Hibernate cannot
+ * resolve a staff row to a Receptionist. See the fuller explanation on Doctor,
+ * which has the same gap.
  */
 public class Receptionist extends Employee {
 	private static final long serialVersionUID = 1L;
 
 	private String deskNo;
 
+	/*
+	 * Role is fixed by the subclass so a Receptionist can never carry the wrong
+	 * UserRole, which is what the client reads to decide the visible dashboard
+	 * features.
+	 */
 	public Receptionist() {
 		super();
 		setRole(UserRole.RECEPTIONIST);
@@ -18,7 +31,6 @@ public class Receptionist extends Employee {
 
 	public Receptionist(String personId, String firstName, String lastName, String email, String phone, String password) {
 		super(personId, firstName, lastName, email, phone, password, UserRole.RECEPTIONIST);
-		// TODO Auto-generated constructor stub
 	}
 
 	public String getDeskNo() {

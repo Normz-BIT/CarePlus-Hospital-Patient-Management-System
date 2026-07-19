@@ -27,6 +27,18 @@ import javax.swing.table.DefaultTableModel;
 
 import com.careplus.client.employee.controller.StaffAssignmentController;
 
+/**
+ * Receptionist's staff assignment workspace: attach a complaint to an employee
+ * and review existing assignments.
+ *
+ * Works with untyped Object array rows rather than a typed model, because
+ * careplus_common has no StaffAssignment class to bind to. See the note on
+ * StaffAssignmentController.
+ *
+ * The department combo is filled from a hardcoded list in that controller rather
+ * than from the server, since department is free text on Employee rather than an
+ * enum.
+ */
 public class StaffAssignmentView extends JInternalFrame {
 
 	private static final long serialVersionUID = 1L;

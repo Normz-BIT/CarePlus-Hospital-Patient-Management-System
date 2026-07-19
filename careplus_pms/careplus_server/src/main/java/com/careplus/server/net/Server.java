@@ -24,10 +24,29 @@ public class Server {
 	private ServerSocket serverSock;
 	private Thread acceptThread;
 
+	/*
+	 * Touched by the accept thread on every new connection and by whichever thread
+	 * calls stop(), so every access below is wrapped in synchronized (handlers). A
+	 * plain ArrayList is deliberate rather than a concurrent collection: stop()
+	 * needs to iterate the whole list and clear it as one atomic unit, which a
+	 * CopyOnWriteArrayList would not give without an outer lock anyway. Both
+	 * critical sections are short enough that lock contention is not a concern.
+	 */
 	private final List<ClientHandler> handlers = new ArrayList<>();
 
+	/*
+	 * volatile because it is written by the thread calling stop() and read by the
+	 * accept thread's loop condition. Without it the accept thread could cache a
+	 * stale true and keep looping after shutdown. It also tells the SocketException
+	 * handler whether a failure was our own doing or a genuine fault.
+	 */
 	private volatile boolean running = false;
 
+	/*
+	 * Must match the port compiled into the client's Client class. The backlog caps
+	 * how many connections the OS queues while accept() is busy; beyond this,
+	 * further clients are refused rather than queued.
+	 */
 	private final int port = 8888;
 	private final int backlogCount = 50;
 
@@ -77,9 +96,18 @@ public class Server {
 			return false;
 		}
 
+		/*
+		 * Set before the thread starts so the loop condition cannot observe false and
+		 * exit immediately.
+		 */
 		running = true;
 
 		acceptThread = new Thread(this::waitForRequests, "careplus-accept");
+		/*
+		 * Daemon so that closing the server window terminates the JVM even if stop()
+		 * was never called. A non daemon accept thread parked in accept() would keep
+		 * the process alive indefinitely with no visible window.
+		 */
 		acceptThread.setDaemon(true);
 		acceptThread.start();
 
@@ -100,11 +128,22 @@ public class Server {
 			return false;
 		}
 
+		/*
+		 * Cleared first so that the accept thread, if it happens to be mid loop, sees
+		 * the shutdown and treats the SocketException below as expected rather than
+		 * logging it as a fault.
+		 */
 		running = false;
 
 		// Closing the socket makes the blocked accept() throw, ending the loop.
 		closeConnection();
 
+		/*
+		 * Disconnecting each handler closes its socket, which is what unblocks that
+		 * thread's readObject() and lets it run its finally block. There is no join()
+		 * here, so stop() returns before the handler threads have necessarily died;
+		 * they terminate on their own shortly after.
+		 */
 		synchronized (handlers) {
 
 			for (ClientHandler handler : handlers)
@@ -132,6 +171,13 @@ public class Server {
 		}
 	}
 
+	/*
+	 * The accept loop. Runs one thread per connected client with no upper bound and
+	 * no thread pool, which satisfies the multi client requirement and keeps a slow
+	 * database call from blocking anyone but the client that made it. The tradeoff
+	 * is that N clients cost N threads, so this design would need an ExecutorService
+	 * before it could handle a large ward.
+	 */
 	private void waitForRequests() {
 
 		logger.info("Server is listening on port {}", port);
@@ -148,8 +194,18 @@ public class Server {
 				report("Client connected: " + clientId);
 
 				ClientHandler clientHandler = new ClientHandler(socket);
+				/*
+				 * Naming the thread after the client's address and port makes thread dumps and
+				 * log output traceable back to a specific connection.
+				 */
 				clientHandler.setName(clientId);
 
+				/*
+				 * Registered before being started, so a stop() that lands between these two
+				 * statements still finds the handler and closes its socket. Starting first
+				 * would leave a window where a live connection is invisible to shutdown and
+				 * would outlive the server.
+				 */
 				synchronized (handlers) {
 					handlers.add(clientHandler);
 				}
@@ -158,7 +214,11 @@ public class Server {
 
 			} catch (SocketException e) {
 
-				// Expected when stop() closes the socket out from under accept().
+				/*
+				 * Expected when stop() closes the socket out from under accept(). The running
+				 * check is what distinguishes our own orderly shutdown from a genuine socket
+				 * fault, so a deliberate stop does not spam the log with errors.
+				 */
 				if (running) {
 					logger.error("The server socket failed unexpectedly", e);
 					report("Server socket error: " + e.getMessage());

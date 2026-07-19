@@ -26,6 +26,17 @@ import javax.swing.table.DefaultTableModel;
 
 import com.careplus.client.patient.controller.PaymentController;
 
+/**
+ * Patient payment workspace: record a payment and review payment history.
+ *
+ * A JInternalFrame rather than a JFrame because every feature screen is a child
+ * window of the MDI desktop owned by MainDashboard.
+ *
+ * Follows the project's view convention: the view owns the Swing widgets and
+ * exposes them plus small helpers such as clearTable and addPayment, while all
+ * decisions and server calls live in PaymentController. The two are joined by
+ * registerActionListener after both exist.
+ */
 public class PaymentView extends JInternalFrame {
 
 	private static final long serialVersionUID = 1L;
@@ -50,6 +61,10 @@ public class PaymentView extends JInternalFrame {
 
 	public PaymentView() {
 
+		/*
+		 * The four flags are resizable, closable, maximizable and iconifiable, all
+		 * enabled so the frame behaves like a full window inside the MDI desktop.
+		 */
 		super("Payments", true, true, true, true);
 
 		initializeComponents();
@@ -57,6 +72,11 @@ public class PaymentView extends JInternalFrame {
 		configureKeyboardShortcuts();
 
 		setSize(900, 600);
+		/*
+		 * Made visible here rather than by the caller, because a JInternalFrame is
+		 * hidden by default and would otherwise be added to the desktop pane without
+		 * ever appearing.
+		 */
 		setVisible(true);
 
 	}
@@ -74,6 +94,11 @@ public class PaymentView extends JInternalFrame {
 		txtDescription.setLineWrap(true);
 		txtDescription.setWrapStyleWord(true);
 
+		/*
+		 * setLabelFor is what makes the mnemonic actually work: pressing Alt+A moves
+		 * focus to the field rather than to the label, which cannot hold focus itself.
+		 * It also lets screen readers announce the label when the field is focused.
+		 */
 		lblAmount.setDisplayedMnemonic(KeyEvent.VK_A);
 		lblAmount.setLabelFor(txtAmount);
 
@@ -97,8 +122,21 @@ public class PaymentView extends JInternalFrame {
 
 		tableModel = new DefaultTableModel();
 
+		/*
+		 * Column order here is a contract with PaymentController: it builds each row as
+		 * an untyped Object array in exactly this sequence. Reordering these headers
+		 * without reordering the row construction there misaligns every value, and
+		 * nothing will fail to compile.
+		 */
 		tableModel.setColumnIdentifiers(new Object[] { "Payment ID", "Amount Paid", "Outstanding Balance", "Description", "Date" });
 
+		/*
+		 * DefaultTableModel reports every cell as editable, so this history table can be
+		 * typed into even though it is meant to be read only. Edits go nowhere: they
+		 * change the model in memory, are never sent to the server, and vanish on the
+		 * next refresh. Overriding isCellEditable to return false would make the
+		 * intent explicit.
+		 */
 		tblPayments = new JTable(tableModel);
 		tblPayments.setRowHeight(25);
 
@@ -198,6 +236,12 @@ public class PaymentView extends JInternalFrame {
 
 	}
 
+	/*
+	 * setRowCount(0) discards every row in one call, which is cheaper than removing
+	 * them individually and fires a single table change event rather than one per
+	 * row. Paired with addPayment below it gives the clear and rebuild refresh the
+	 * controllers rely on.
+	 */
 	public void clearTable() {
 		tableModel.setRowCount(0);
 	}
@@ -208,6 +252,13 @@ public class PaymentView extends JInternalFrame {
 
 	/*
 	 * Attaches this view's controls to the controller that handles them.
+	 *
+	 * Called by ClientApp after both objects exist, which is what breaks the
+	 * circular dependency between them: the controller needs the view to read its
+	 * inputs, and the view needs the controller to handle its buttons.
+	 *
+	 * Note Clear is wired to this view's own method rather than to the controller,
+	 * because emptying the form is presentation only and needs no server round trip.
 	 */
 	public void registerActionListener(PaymentController controller) {
 

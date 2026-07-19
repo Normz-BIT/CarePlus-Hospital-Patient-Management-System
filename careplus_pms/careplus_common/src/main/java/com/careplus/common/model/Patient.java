@@ -22,6 +22,12 @@ import jakarta.persistence.Transient;
  *    
  */
 
+/*
+ * Unlike the three staff subclasses, this one is fully mapped, which is why
+ * patient login and patient lookups work while staff equivalents do not. It sits
+ * one level below Person rather than under Employee, so a patient read costs a
+ * single join instead of two.
+ */
 @Entity
 @Table(name = "patient")
 @PrimaryKeyJoinColumn(name = "person_id")
@@ -29,17 +35,31 @@ public class Patient extends Person {
 
 	@Transient
 	private static final long serialVersionUID = 1L;
-	
+
+	/*
+	 * LocalDate rather than LocalDateTime, since a birth date has no meaningful time
+	 * component. Age must be derived from this on read rather than stored, otherwise
+	 * it silently goes stale.
+	 */
 	@Column(name = "date_of_birth")
 	private LocalDate dateOfBirth;
-	
+
+    /*
+     * Stored by name rather than ordinal so that reordering the Gender enum cannot
+     * silently reassign the meaning of existing patient rows.
+     */
     @Enumerated(EnumType.STRING)
     @Column(name = "gender", nullable = false)
     private Gender gender;
-	
+
     @Column(name = "address", length = 200)
     private String address;
 
+    /*
+     * TEXT rather than a bounded VARCHAR because clinical history is free form and
+     * accumulates over time, so any column limit would eventually truncate a
+     * patient's record.
+     */
     @Column(name = "medical_history", columnDefinition = "TEXT")
     private String medicalHistory;
 

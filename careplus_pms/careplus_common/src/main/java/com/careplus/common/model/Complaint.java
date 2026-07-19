@@ -8,6 +8,11 @@ import com.careplus.common.enums.ComplaintStatus;
 /*
  * Patient files Complaints
  * Receptionist handles Complaints
+ *
+ * DTO ONLY: no JPA annotations, so Hibernate cannot persist this. Along with
+ * Appointment, MedicalRecord, VitalSigns and ChatMessages, it currently exists
+ * purely as a wire type, which is consistent with ComplaintService still being an
+ * unimplemented stub. Mapping this class is a prerequisite for that service.
  */
 
 public class Complaint implements Serializable {
@@ -15,12 +20,29 @@ public class Complaint implements Serializable {
 
 	private int complaintId;
 
+	/*
+	 * Self reference that makes a complaint thread: a reply is another Complaint row
+	 * pointing at the one it answers, rather than a separate reply type. Zero means
+	 * this is an original complaint rather than a response, since the field is a
+	 * primitive int and so cannot be null.
+	 */
 	private int complaintParentId;
 
 	private String description;
 	private LocalDateTime dateSubmitted;
+	/*
+	 * Duplicates what the parentId threading above already expresses, giving two
+	 * competing ways to record a reply. Whichever is chosen, the pair should be
+	 * consistent, since the patient's "view responses" screen reads the response
+	 * and its date together.
+	 */
 	private String response;
 	private LocalDateTime responseDate;
+	/*
+	 * Lifecycle is SUBMITTED, ASSIGNED, IN_PROGRESS, RESOLVED, with REOPENED
+	 * available afterwards. Nothing in the codebase enforces legal transitions
+	 * today, so that rule has to live in ComplaintService once it is written.
+	 */
 	private ComplaintStatus status;
 	private ComplaintCategory category;
 

@@ -16,6 +16,13 @@ import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
 
+/*
+ * Complaint Controller
+ * Lets a patient file a complaint and review previous ones with their responses
+ *
+ * SUBMIT_COMPLAINT, DELETE_COMPLAINT and GET_MY_COMPLAINTS are all unrouted on
+ * the server, so every call below currently returns an empty Response.
+ */
 public class ComplaintController {
 	private final ComplaintView view;
 	private static final Logger logger = LogManager.getLogger(ComplaintController.class);
@@ -29,6 +36,12 @@ public class ComplaintController {
 
 	/*
 	 * Load the complaint categories straight from the enum
+	 *
+	 * Read locally rather than fetched from the server, unlike the doctor and
+	 * department combos in AppointmentController. Categories are a fixed part of the
+	 * domain rather than data, so this costs no round trip and cannot drift out of
+	 * step with the enum. The tradeoff is that adding a category needs a client
+	 * rebuild.
 	 */
 	private void loadCategories() {
 		view.getCboCategory().removeAllItems();
@@ -60,10 +73,22 @@ public class ComplaintController {
 					ComplaintCategory.valueOf(
 							String.valueOf(view.getCboCategory().getSelectedItem())));
 
+			/*
+			 * Every complaint enters at SUBMITTED, the only valid entry point of the
+			 * lifecycle. A receptionist moves it onward from there.
+			 */
 			complaint.setStatus(ComplaintStatus.SUBMITTED);
 
 			complaint.setDateSubmitted(LocalDateTime.now());
 
+			/*
+			 * An optional parent ID is what turns this complaint into a follow up on an
+			 * earlier one rather than a new case. Left unset it stays zero, since the
+			 * field is a primitive int, and zero is what marks an original complaint.
+			 *
+			 * The ID is typed by hand with no validation that it exists or belongs to this
+			 * patient, so the server would need to verify ownership before linking.
+			 */
 			if (!view.getTxtParentId().getText().trim().isEmpty()) {
 				complaint.setComplaintParentId(
 						Integer.parseInt(view.getTxtParentId().getText().trim()));

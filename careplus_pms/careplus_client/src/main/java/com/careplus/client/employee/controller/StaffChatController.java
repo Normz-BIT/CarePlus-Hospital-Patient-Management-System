@@ -17,6 +17,17 @@ import com.careplus.common.net.Response;
 /*
  * Staff Chat Controller
  * Allows employees to exchange messages with patients
+ *
+ * The employee counterpart to the patient side ChatController, and visible to all
+ * three staff roles. The asymmetry is in how the other party is chosen: a patient
+ * picks a recipient from a combo, while staff type a patient ID by hand, so a
+ * mistyped ID here sends a message to the wrong patient with nothing to catch it.
+ *
+ * The 8:00 a.m. to 7:00 p.m. operating hours rule is not enforced on this side
+ * either. See the note on ChatController.
+ *
+ * CHAT_SEND and CHAT_POLL are both unrouted on the server, so every call
+ * currently returns an empty Response.
  */
 public class StaffChatController {
 	private final StaffChatView view;

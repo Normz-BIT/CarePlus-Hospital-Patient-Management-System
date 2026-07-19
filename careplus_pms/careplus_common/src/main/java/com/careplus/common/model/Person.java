@@ -8,13 +8,38 @@ import jakarta.persistence.*;
 
 /**
  * Root of the person inheritance hierarchy
+ *
+ * JOINED inheritance gives each subclass its own table holding only its extra
+ * columns, linked back to person by shared primary key. That keeps the schema
+ * normalised to 3NF, at the cost of a join per subclass read. The alternative,
+ * SINGLE_TABLE, would be faster but would force every doctor-only and
+ * patient-only column to be nullable in one wide table.
+ *
+ * The practical payoff is in AuthService: one lookup against Person resolves a
+ * patient or any staff member without the caller knowing which, and the concrete
+ * subclass comes back with its role attached.
+ *
+ * This is also a Serializable object sent over the socket, so it is both a JPA
+ * entity and a wire type. That dual role is why serialVersionUID below is marked
+ * @Transient.
  */
 @Entity
 @Table(name = "person")
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Person implements Serializable {
+	/*
+	 * @Transient keeps Hibernate from trying to map this serialization bookkeeping
+	 * field to a column. Without it, Hibernate would look for a matching column and
+	 * fail at startup.
+	 */
 	@Transient
 	private static final long serialVersionUID = 1L;
+	/*
+	 * A human readable business key, such as a staff or patient ID, rather than a
+	 * generated surrogate. It is assigned by the hospital and typed in at login,
+	 * which is why AuthService normalises it to uppercase before lookup: the value
+	 * stored here is the canonical uppercase form.
+	 */
 	@Id
 	@Column(name = "person_id")
 	protected String personId;
@@ -22,18 +47,41 @@ public abstract class Person implements Serializable {
 	protected String firstName;
 	@Column(name = "last_name", nullable = false)
 	protected String lastName;
+	/*
+	 * The unique constraint is enforced at the database level, so a duplicate
+	 * registration surfaces as a ConstraintViolationException on commit rather than
+	 * as a clean validation message. Any user facing duplicate check has to happen
+	 * in the service before persisting.
+	 */
 	@Column(name = "email", nullable = false, unique = true)
 	protected String email;
 	@Column(name = "phone", length = 20)
 	protected String phone;
+	/*
+	 * Stored as plaintext, which is what lets AuthService compare with equals. This
+	 * is the field that would need to hold a salted hash before the system could
+	 * handle real patient data.
+	 */
 	@Column(name = "password", nullable = false)
 	protected String password;
 
+	/*
+	 * EnumType.STRING rather than the ORDINAL default, so the database holds
+	 * "DOCTOR" instead of a positional integer. This matters because ORDINAL would
+	 * silently reassign every existing row's meaning the moment someone reordered
+	 * the UserRole constants.
+	 */
 	@Enumerated(EnumType.STRING)
 	@Column(name = "role", nullable = false)
 	protected UserRole role;
 
 
+	/*
+	 * Required by both Hibernate and Java serialization to instantiate before
+	 * populating fields. Protected rather than public so application code is pushed
+	 * towards the argument taking constructors, which cannot leave an entity half
+	 * built.
+	 */
 	protected Person() {
 
 	}

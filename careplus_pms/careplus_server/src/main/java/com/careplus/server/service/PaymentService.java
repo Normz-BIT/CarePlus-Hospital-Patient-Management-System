@@ -6,10 +6,26 @@ import com.careplus.common.model.Payment;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.Response;
 
+/*
+ * PaymentService
+ * Records payments and serves a patient's payment history.
+ *
+ * One of only three request types currently wired into ClientHandler, so this
+ * class plus AuthService is the working reference for how a service should be
+ * shaped: acquire session, work, roll back on failure, always endSession.
+ */
 public class PaymentService extends BaseService {
 
 	public Response pay(Request request) {
 
+		/*
+		 * The whole Payment arrives prebuilt from the client rather than being
+		 * assembled from individual fields here. That means the client decides the
+		 * amount and the outstanding balance, and the server persists them unchecked.
+		 * Any real validation, such as confirming the amount against what is actually
+		 * owed, would have to be added on this side, since a client is free to send
+		 * whatever it likes.
+		 */
 		Payment payment = (Payment) request.getParams().get("payment");
 
 		startSession();
@@ -18,6 +34,12 @@ public class PaymentService extends BaseService {
 			// TODO change to log4j2
 			System.out.println("Read : " + payment.toString());
 
+			/*
+			 * persist rather than merge, because paymentId is database generated and this
+			 * is always a new row. Hibernate assigns the identifier here but the INSERT is
+			 * not guaranteed to reach the database until the commit inside endSession, so
+			 * a constraint violation surfaces there rather than on this line.
+			 */
 			session.persist(payment);
 
 			resp.setSuccess(true);
@@ -49,11 +71,30 @@ public class PaymentService extends BaseService {
 		String id = (String) request.getParams().get("patientId");
 
 		try {
+			/*
+			 * HQL, not SQL: "Payment" is the mapped entity name and "patientId" the Java
+			 * field, so this query survives a change to the underlying table or column
+			 * names.
+			 *
+			 * The ?1 placeholder with setParameter is what keeps this safe from injection.
+			 * Concatenating the id into the query string instead would let a crafted
+			 * patient ID read another patient's records.
+			 *
+			 * Note the result is unbounded. A patient with a long billing history returns
+			 * every row in one Response, all of which must serialize across the socket
+			 * and land in a JTable. Paging would be needed before this scales.
+			 */
 			List<Payment> payments = session.createQuery("FROM Payment WHERE patientId = ?1", Payment.class)
 					.setParameter(1, id).list();
 
 			resp.setSuccess(true);
 			resp.setMessage("Payments found");
+			/*
+			 * Hibernate's list implementation is itself Serializable here, but anything
+			 * lazily loaded inside these entities would fail on the client with a
+			 * LazyInitializationException, since the session closes before the Response is
+			 * written. Payment holds only primitives and Strings, so it travels safely.
+			 */
 			resp.setData(payments);
 
 		}

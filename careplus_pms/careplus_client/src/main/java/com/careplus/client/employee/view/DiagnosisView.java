@@ -26,6 +26,18 @@ import javax.swing.table.DefaultTableModel;
 
 import com.careplus.client.employee.controller.DiagnosisController;
 
+/**
+ * Doctor's clinical workspace: record a diagnosis and treatment note against a
+ * patient, and schedule a follow up.
+ *
+ * Offers both a create and an update action, which is why the table selection
+ * matters here: an update needs the record ID of the highlighted row, while a
+ * create does not.
+ *
+ * The follow up date field takes a date only value, unlike the appointment
+ * screens which expect a full date and time. That difference lives in
+ * DiagnosisController's parsing and is not signalled by the form itself.
+ */
 public class DiagnosisView extends JInternalFrame {
 
 	private static final long serialVersionUID = 1L;
