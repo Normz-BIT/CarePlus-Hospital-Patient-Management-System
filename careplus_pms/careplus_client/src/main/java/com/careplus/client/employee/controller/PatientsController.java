@@ -74,7 +74,6 @@ public class PatientsController {
 
 			appointment.setStatus(AppointmentStatus.SCHEDULED);
 
-			//TODO log4j2
 			logger.info(
 					"Follow-up appointment created for patient ID: {}",
 					patientId);
