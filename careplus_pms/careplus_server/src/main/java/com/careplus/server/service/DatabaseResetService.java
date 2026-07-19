@@ -1,9 +1,7 @@
 package com.careplus.server.service;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -12,13 +10,13 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.function.Consumer;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.cfg.Configuration;
 
 import com.careplus.server.util.HibernateUtil;
+import com.careplus.server.util.ServerConsole;
 
 /*
  * Database Reset Service
@@ -41,7 +39,7 @@ public class DatabaseResetService {
 	 *
 	 * Returns the number of statements executed, or -1 if the reset failed.
 	 */
-	public int resetDatabase(Consumer<String> console) {
+	public int resetDatabase(ServerConsole console) {
 
 		List<String> statements;
 
@@ -106,20 +104,14 @@ public class DatabaseResetService {
 	 */
 	private Connection openServerConnection() throws SQLException {
 
+		// Hibernate normalises cfg.xml keys to the hibernate.* prefix, and the
+		// credentials come from hibernate.properties under the same prefix.
 		Properties properties = new Configuration().configure().getProperties();
 
-		String url = property(properties, "hibernate.connection.url", "connection.url");
-		String username = property(properties, "hibernate.connection.username", "connection.username");
-		String password = property(properties, "hibernate.connection.password", "connection.password");
-
-		return DriverManager.getConnection(stripSchema(url), username, password);
-	}
-
-	private String property(Properties properties, String prefixedKey, String plainKey) {
-
-		String value = properties.getProperty(prefixedKey);
-
-		return value != null ? value : properties.getProperty(plainKey);
+		return DriverManager.getConnection(
+				stripSchema(properties.getProperty("hibernate.connection.url")),
+				properties.getProperty("hibernate.connection.username"),
+				properties.getProperty("hibernate.connection.password"));
 	}
 
 	/*
@@ -145,19 +137,30 @@ public class DatabaseResetService {
 	}
 
 	/*
-	 * Splits the script into executable statements.
-	 *
-	 * Splitting naively on ';' would corrupt the seed data - several inserts hold
-	 * semicolons inside quoted text, for example 'Type 2 diabetes; penicillin
-	 * allergy.' - so this tracks quoting and comments while scanning.
+	 * Splits the script on ';'. Safe because no statement terminator is ambiguous:
+	 * the script deliberately contains no semicolons inside string literals or
+	 * comments (see the note above the sample data in the .sql file).
 	 */
 	List<String> readStatements() throws IOException {
 
 		List<String> statements = new ArrayList<>();
-		StringBuilder current = new StringBuilder();
 
-		boolean inSingleQuote = false;
-		boolean inDoubleQuote = false;
+		for (String chunk : readScript().split(";")) {
+
+			String sql = chunk.trim();
+
+			if (containsSql(sql)) {
+				statements.add(sql);
+			}
+		}
+
+		return statements;
+	}
+
+	/*
+	 * Reads the whole script from the classpath.
+	 */
+	private String readScript() throws IOException {
 
 		try (InputStream in = getClass().getClassLoader().getResourceAsStream(SCRIPT_NAME)) {
 
@@ -166,76 +169,32 @@ public class DatabaseResetService {
 				throw new IOException(SCRIPT_NAME + " was not found on the classpath");
 			}
 
-			BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-
-			String line;
-
-			while ((line = reader.readLine()) != null) {
-
-				for (int i = 0; i < line.length(); i++) {
-
-					char c = line.charAt(i);
-
-					// A -- comment runs to end of line, but only outside quotes.
-					if (!inSingleQuote && !inDoubleQuote
-							&& c == '-' && i + 1 < line.length() && line.charAt(i + 1) == '-') {
-
-						break;
-					}
-
-					if (c == '\'' && !inDoubleQuote && !isEscaped(line, i)) {
-						inSingleQuote = !inSingleQuote;
-					} else if (c == '"' && !inSingleQuote && !isEscaped(line, i)) {
-						inDoubleQuote = !inDoubleQuote;
-					}
-
-					if (c == ';' && !inSingleQuote && !inDoubleQuote) {
-
-						add(statements, current);
-						current.setLength(0);
-
-						continue;
-					}
-
-					current.append(c);
-				}
-
-				// Preserve the line break so -- comments cannot swallow the next line.
-				current.append('\n');
-			}
+			return new String(in.readAllBytes(), StandardCharsets.UTF_8);
 		}
-
-		add(statements, current);
-
-		return statements;
 	}
 
 	/*
-	 * True when the character at index is escaped by an odd run of backslashes.
+	 * A chunk carries the comments that preceded its statement, so skip any chunk
+	 * that is blank or nothing but -- comment lines.
 	 */
-	private boolean isEscaped(String line, int index) {
+	private boolean containsSql(String chunk) {
 
-		int backslashes = 0;
+		for (String line : chunk.split("\n")) {
 
-		for (int i = index - 1; i >= 0 && line.charAt(i) == '\\'; i--)
-			backslashes++;
+			String trimmed = line.trim();
 
-		return backslashes % 2 == 1;
-	}
-
-	private void add(List<String> statements, StringBuilder current) {
-
-		String sql = current.toString().trim();
-
-		if (!sql.isEmpty()) {
-			statements.add(sql);
+			if (!trimmed.isEmpty() && !trimmed.startsWith("--")) {
+				return true;
+			}
 		}
+
+		return false;
 	}
 
-	private void report(Consumer<String> console, String message) {
+	private void report(ServerConsole console, String message) {
 
 		if (console != null) {
-			console.accept(message);
+			console.println(message);
 		}
 	}
 }

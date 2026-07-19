@@ -26,11 +26,10 @@ public class ServerController {
 
 		this.view = view;
 
-		server.setConsole(view::appendConsole);
-
+		server.setConsole(view);
 
 		view.setRunning(false);
-		view.appendConsole("CarePlus server console ready.");
+		view.println("CarePlus server console ready.");
 
 		initializeDatabase();
 	}
@@ -42,7 +41,7 @@ public class ServerController {
 	private void initializeDatabase() {
 
 		view.setResetEnabled(false);
-		view.appendConsole("Connecting to the database...");
+		view.println("Connecting to the database...");
 
 		new Thread(() -> {
 
@@ -52,10 +51,10 @@ public class ServerController {
 
 			if (connected) {
 				logger.info("Hibernate session factory created");
-				view.appendConsole("Database connection established.");
+				view.println("Database connection established.");
 			} else {
 				logger.error("The Hibernate session factory could not be created");
-				view.appendConsole("Database connection failed - check hibernate.properties. "
+				view.println("Database connection failed - check hibernate.properties. "
 						+ "You can still use Clear/Reset Database to rebuild the schema.");
 			}
 
@@ -102,7 +101,7 @@ public class ServerController {
 
 		if (!confirmed) {
 
-			view.appendConsole("Database reset cancelled.");
+			view.println("Database reset cancelled.");
 			return;
 		}
 
@@ -110,18 +109,19 @@ public class ServerController {
 
 		if (wasRunning) {
 
-			view.appendConsole("Stopping the server before resetting the database...");
+			view.println("Stopping the server before resetting the database...");
 
 			server.stop();
 			view.setRunning(false);
 		}
 
 		view.setResetEnabled(false);
-		view.appendConsole("Resetting the database...");
+
+		view.println("Resetting the database...");
 
 		new Thread(() -> {
 
-			int executed = databaseResetService.resetDatabase(view::appendConsole);
+			int executed = databaseResetService.resetDatabase(view);
 
 			SwingUtilities.invokeLater(() -> {
 
@@ -135,7 +135,7 @@ public class ServerController {
 
 				if (wasRunning) {
 
-					view.appendConsole("Restarting the server...");
+					view.println("Restarting the server...");
 
 					if (server.start()) {
 						view.setRunning(true);

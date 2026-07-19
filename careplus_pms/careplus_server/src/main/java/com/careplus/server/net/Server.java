@@ -6,10 +6,11 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.careplus.server.util.ServerConsole;
 
 /*
  * Server
@@ -30,7 +31,7 @@ public class Server {
 	private final int port = 8888;
 	private final int backlogCount = 50;
 
-	private Consumer<String> console;
+	private ServerConsole console;
 
 	private static final Logger logger = LogManager.getLogger(Server.class);
 
@@ -41,7 +42,7 @@ public class Server {
 	/*
 	 * Mirrors server activity into the given console, e.g. the server window.
 	 */
-	public void setConsole(Consumer<String> console) {
+	public void setConsole(ServerConsole console) {
 		this.console = console;
 	}
 
@@ -176,7 +177,7 @@ public class Server {
 	private void report(String message) {
 
 		if (console != null) {
-			console.accept(message);
+			console.println(message);
 		}
 	}
 }

@@ -14,8 +14,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
+import com.careplus.server.util.ServerConsole;
+
 import com.careplus.server.controller.ServerController;
-public class ServerView extends JFrame {
+
+public class ServerView extends JFrame implements ServerConsole {
 
 	private static final long serialVersionUID = 1L;
 
@@ -77,10 +80,11 @@ public class ServerView extends JFrame {
 	}
 
 	/*
-	 * Appends a timestamped line to the console. Safe to call from any thread -
-	 * the server and database work run off the event dispatch thread.
+	 * Appends a timestamped line to the console. Safe to call from any thread - the
+	 * server and database work run off the event dispatch thread.
 	 */
-	public void appendConsole(String message) {
+	@Override
+	public void println(String message) {
 
 		SwingUtilities.invokeLater(() -> {
 
@@ -113,11 +117,7 @@ public class ServerView extends JFrame {
 	 */
 	public boolean confirm(String message, String title) {
 
-		return JOptionPane.showConfirmDialog(
-				this,
-				message,
-				title,
-				JOptionPane.YES_NO_OPTION,
+		return JOptionPane.showConfirmDialog(this, message, title, JOptionPane.YES_NO_OPTION,
 				JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION;
 	}
 
