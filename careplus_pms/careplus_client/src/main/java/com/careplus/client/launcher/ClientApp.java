@@ -140,17 +140,19 @@ public class ClientApp {
 		SwingUtilities.invokeLater(() -> {
 
 			try {
-
+	
 				logger.info("Starting CarePlus client application");
 
 				//get list of controllers and views and who can access them
 				List<DashboardFeature> features = assignFeatures();
 
-				Login login = new Login();
+				LoginView login = new LoginView();
 				LoginController loginController = new LoginController(login, features);
 				login.registerActionListener(loginController);
 				login.setVisible(true);
 
+				
+				
 				/*
 				 * Connects after the window is already visible, so the user sees the login form
 				 * immediately rather than waiting on the socket. Ordering it this way also

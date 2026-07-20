@@ -7,7 +7,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.careplus.common.client.net.Client;
 import com.careplus.common.client.view.DashboardFeature;
-import com.careplus.common.client.view.Login;
+import com.careplus.common.client.view.LoginView;
 import com.careplus.common.client.view.MainDashboard;
 import com.careplus.common.model.Person;
 import com.careplus.common.net.Request;
@@ -20,11 +20,11 @@ import com.careplus.common.net.Response;
  * Opens the dashboard with the correct features
  */
 public class LoginController {
-	private final Login view;
+	private final LoginView view;
 	private final List<DashboardFeature> features;
 	private static final Logger logger = LogManager.getLogger(LoginController.class);
 
-	public LoginController(Login view, List<DashboardFeature> features) {
+	public LoginController(LoginView view, List<DashboardFeature> features) {
 		this.view = view;
 		this.features = features;
 	}
@@ -100,6 +100,11 @@ public class LoginController {
 				 * down when the last one closes.
 				 */
 				MainDashboard dashboard = new MainDashboard(user, features);
+				
+				
+				//pass the icons from the login to the all dashboard view
+				dashboard.setIcons(view.getIconImages());
+				
 				dashboard.setVisible(true);
 				view.dispose();
 				
@@ -132,6 +137,7 @@ public class LoginController {
 
 			// TODO
 			logger.error("An error occurred while logging in user ID: " + id, e);
+			
 			view.showMessage("Unable to complete login: " + e.getMessage());
 		}
 	}

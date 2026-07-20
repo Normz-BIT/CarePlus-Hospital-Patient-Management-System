@@ -2,10 +2,14 @@ package com.careplus.server.view;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.awt.Image;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -28,7 +32,9 @@ public class ServerView extends JFrame implements ServerConsole {
 	private JButton startBtn;
 	private JButton stopBtn;
 	private JButton resetDbs;
-
+	
+	//icons
+	List<Image> icons;
 	// Console
 	private JTextArea txtConsole;
 
@@ -77,6 +83,9 @@ public class ServerView extends JFrame implements ServerConsole {
 
 		add(topPanel, BorderLayout.NORTH);
 		add(consoleScroll, BorderLayout.CENTER);
+		
+		
+		setWindowIcon();
 	}
 
 	/*
@@ -111,6 +120,21 @@ public class ServerView extends JFrame implements ServerConsole {
 		startBtn.addActionListener(e -> controller.start());
 		stopBtn.addActionListener(e -> controller.stop());
 		resetDbs.addActionListener(e -> controller.resetDatabase());
+
+	}
+	
+	
+	private void setWindowIcon() {
+
+		icons = new ArrayList<>();
+
+		// Load multiple resolutions of the logo
+		icons.add(new ImageIcon(getClass().getResource("/CarePlusLogo64.png")).getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH));
+		icons.add(new ImageIcon(getClass().getResource("/CarePlusLogo32.png")).getImage().getScaledInstance(32, 32, Image.SCALE_SMOOTH));
+		icons.add(new ImageIcon(getClass().getResource("/CarePlusLogo128.png")).getImage().getScaledInstance(128, 128, Image.SCALE_SMOOTH));
+
+		// Apply the list to the window
+		this.setIconImages(icons);
 
 	}
 

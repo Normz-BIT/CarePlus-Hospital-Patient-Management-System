@@ -69,15 +69,15 @@ public class StaffAssignmentController {
 	 * There is no separate update action because the server cannot distinguish the
 	 * two without a StaffAssignment model: ASSIGN_STAFF is expected to create or
 	 * overwrite the assignment for a given complaint. That makes assignment
-	 * idempotent, so reassigning the same complaint replaces rather than duplicates.
+	 * idempotent, so reassigning the same complaint replaces rather than
+	 * duplicates.
 	 */
 	public void save() {
 		save(RequestType.ASSIGN_STAFF);
 	}
 
 	private void save(RequestType type) {
-		if (view.getTxtComplaintId().getText().trim().isEmpty()
-				|| view.getTxtStaffId().getText().trim().isEmpty()) {
+		if (view.getTxtComplaintId().getText().trim().isEmpty() || view.getTxtStaffId().getText().trim().isEmpty()) {
 
 			view.showMessage("Complaint ID and employee ID are required.");
 			logger.warn("Staff assignment rejected because the complaint ID or employee ID was empty");
@@ -90,29 +90,17 @@ public class StaffAssignmentController {
 
 		try {
 
-			req.putMap(
-					"complaintId",
-					Integer.parseInt(view.getTxtComplaintId().getText().trim()));
+			req.putMap("complaintId", Integer.parseInt(view.getTxtComplaintId().getText().trim()));
 
-			req.putMap(
-					"employeeId",
-					Integer.parseInt(view.getTxtStaffId().getText().trim()));
+			req.putMap("employeeId", Integer.parseInt(view.getTxtStaffId().getText().trim()));
 
-			req.putMap(
-					"department",
-					String.valueOf(view.getCboDepartment().getSelectedItem()));
+			req.putMap("department", String.valueOf(view.getCboDepartment().getSelectedItem()));
 
-			req.putMap(
-					"status",
-					String.valueOf(view.getCboStatus().getSelectedItem()));
+			req.putMap("status", String.valueOf(view.getCboStatus().getSelectedItem()));
 
-			req.putMap(
-					"notes",
-					view.getTxtNotes().getText().trim());
+			req.putMap("notes", view.getTxtNotes().getText().trim());
 
-			logger.info(
-					"Assigning complaint ID: {} to employee ID: {}",
-					view.getTxtComplaintId().getText().trim(),
+			logger.info("Assigning complaint ID: {} to employee ID: {}", view.getTxtComplaintId().getText().trim(),
 					view.getTxtStaffId().getText().trim());
 
 			Response res = Client.send(req);
@@ -140,11 +128,7 @@ public class StaffAssignmentController {
 	 */
 	@SuppressWarnings("unchecked")
 	public void refresh() {
-		Response res = Client.send(
-				new Request(
-						RequestType.GET_STAFF_ASSIGNMENTS,
-						"all",
-						true));
+		Response res = Client.send(new Request(RequestType.GET_STAFF_ASSIGNMENTS, "all", true));
 
 		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 

@@ -2,6 +2,7 @@ package com.careplus.common.client.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Image;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.LinkedHashMap;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.AbstractButton;
+import javax.swing.ImageIcon;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
@@ -88,8 +90,11 @@ public class MainDashboard extends JFrame {
 					currentUser.getPersonId(),
 					currentUser.getRole());
 		}
+		
+		
 	}
-
+	
+	// Retrieve the details of the current logged in user
 	public static Person getCurrentUser() {
 
 		return currentUser;
@@ -163,7 +168,7 @@ public class MainDashboard extends JFrame {
 			currentUser = null;
 			dispose();
 
-			Login login = new Login();
+			LoginView login = new LoginView();
 			new LoginController(login, features);
 			login.setVisible(true);
 		});
@@ -279,7 +284,10 @@ public class MainDashboard extends JFrame {
 
 			frame.setMaximum(true);
 			frame.setVisible(true);
+			// sets the icon image for the current open tab, rescaled as original is too large
+			frame.setFrameIcon(new ImageIcon(this.getIconImage().getScaledInstance(16, 16,Image.SCALE_SMOOTH)));;
 			frame.setIcon(false);
+			
 			frame.setSelected(true);
 			frame.toFront();
 
@@ -290,4 +298,11 @@ public class MainDashboard extends JFrame {
 					ex);
 		}
 	}
+	
+	
+	public void setIcons(List<Image> icons) {
+		
+		this.setIconImages(icons);
+	}
+	
 }
