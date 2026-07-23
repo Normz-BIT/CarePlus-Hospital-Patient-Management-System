@@ -44,7 +44,11 @@ public class Payment implements Serializable {
 	 */
 	@Column(name = "outstanding_balance", nullable = false)
 	private double outstandingBalance;
-	@Column(name = "description", nullable = false,length = 200)
+	/*
+	 * Nullable, matching the schema: payment.description has no NOT NULL, and a
+	 * payment can legitimately be recorded without a note against it.
+	 */
+	@Column(name = "description", length = 200)
 	private String description;
 	@Column(name = "payment_date", nullable = false)
 	private LocalDateTime paymentDate;

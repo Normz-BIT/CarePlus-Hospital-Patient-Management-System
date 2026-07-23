@@ -172,6 +172,19 @@ public abstract class Person implements Serializable {
 		this.password = password;
 	}
 
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
+
+	/*
+	 * The column is mapped updatable = false, so a value set here only reaches the
+	 * database on the initial insert. Changing it on an already persisted Person
+	 * has no effect once the row exists.
+	 */
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
+
 	@Override
 	public String toString() {
 		return "Person [personId=" + personId + ", firstName=" + firstName + ", lastName=" + lastName + ", email="

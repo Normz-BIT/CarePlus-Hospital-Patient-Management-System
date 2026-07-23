@@ -31,20 +31,35 @@ public class VitalSigns implements Serializable {
 	@Column(name = "vital_id", nullable = false)
 	private int vitalId;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "patient_id", nullable = false)
+	/*
+	 * The patient observed and the nurse who took the reading, held as person_id
+	 * Strings with @Column rather than as mapped associations, for the reason set
+	 * out on Payment: a VitalSigns row is serialized across the socket, and a lazy
+	 * association would risk putting an uninitialised proxy on the wire. The schema
+	 * enforces both keys through fk_vitals_patient and fk_vitals_nurse.
+	 *
+	 * patientId previously carried @ManyToOne while typed as a String, which is not
+	 * a legal mapping: an association target has to be an entity. nurseId carried a
+	 * bare @JoinColumn with no association at all, so it fell back to Hibernate's
+	 * default naming and looked for a "nurseId" column that does not exist.
+	 */
+	@Column(name = "patient_id", nullable = false)
 	private String patientId;
 
-	@JoinColumn(name = "nurse_id", nullable = false)
+	@Column(name = "nurse_id", nullable = false)
 	private String nurseId;
 	/*
 	 * No unit is recorded alongside the value, so Celsius against Fahrenheit is an
 	 * unwritten convention between whoever enters the reading and whoever reads it.
 	 * VitalsController only validates that the input parses as a number, so nothing
 	 * currently rejects a physiologically impossible temperature.
+	 *
+	 * Boxed, because the column is nullable and a primitive would report an absent
+	 * reading as 0.0. The chk_vitals_temp constraint rejects a stored zero, so that
+	 * default would have been written as a real value and then refused.
 	 */
 	@Column(name = "temperature")
-	private double temperature;
+	private Double temperature;
 	/*
 	 * A String because blood pressure is a systolic over diastolic pair rather than
 	 * one number. The tradeoff is that it cannot be compared or averaged without
@@ -81,9 +96,12 @@ public class VitalSigns implements Serializable {
 
 	}
 
-	public VitalSigns(int vitalId, double temperature, String bloodPressure, int heartRate, int respiratoryRate,
-			String observations, String nursingNotes, LocalDateTime recordedAt) {
+	public VitalSigns(int vitalId, String patientId, String nurseId, Double temperature, String bloodPressure,
+			Integer heartRate, Integer respiratoryRate, String observations, String nursingNotes,
+			LocalDateTime recordedAt) {
 		this.vitalId = vitalId;
+		this.patientId = patientId;
+		this.nurseId = nurseId;
 		this.temperature = temperature;
 		this.bloodPressure = bloodPressure;
 		this.heartRate = heartRate;
@@ -101,11 +119,27 @@ public class VitalSigns implements Serializable {
 		this.vitalId = vitalId;
 	}
 
-	public double getTemperature() {
+	public String getPatientId() {
+		return patientId;
+	}
+
+	public void setPatientId(String patientId) {
+		this.patientId = patientId;
+	}
+
+	public String getNurseId() {
+		return nurseId;
+	}
+
+	public void setNurseId(String nurseId) {
+		this.nurseId = nurseId;
+	}
+
+	public Double getTemperature() {
 		return temperature;
 	}
 
-	public void setTemperature(double temperature) {
+	public void setTemperature(Double temperature) {
 		this.temperature = temperature;
 	}
 
@@ -117,19 +151,25 @@ public class VitalSigns implements Serializable {
 		this.bloodPressure = bloodPressure;
 	}
 
-	public int getHeartRate() {
+	/*
+	 * These four accessors return the boxed type rather than unboxing to a
+	 * primitive. Both columns are nullable, so a reading that was never taken comes
+	 * back as null, and the previous "public int getHeartRate()" would have thrown
+	 * a NullPointerException on that row rather than reporting the absence.
+	 */
+	public Integer getHeartRate() {
 		return heartRate;
 	}
 
-	public void setHeartRate(int heartRate) {
+	public void setHeartRate(Integer heartRate) {
 		this.heartRate = heartRate;
 	}
 
-	public int getRespiratoryRate() {
+	public Integer getRespiratoryRate() {
 		return respiratoryRate;
 	}
 
-	public void setRespiratoryRate(int respiratoryRate) {
+	public void setRespiratoryRate(Integer respiratoryRate) {
 		this.respiratoryRate = respiratoryRate;
 	}
 

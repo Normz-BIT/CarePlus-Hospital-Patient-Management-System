@@ -1,6 +1,5 @@
 package com.careplus.common.model;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.careplus.common.enums.Gender;
@@ -38,12 +37,15 @@ public class Patient extends Person {
 	private static final long serialVersionUID = 1L;
 
 	/*
-	 * LocalDate rather than LocalDateTime, since a birth date has no meaningful
-	 * time component. We store the date and work age out when it is needed, because
-	 * a stored age would be wrong from the patient's next birthday onwards.
+	 * We store the date of birth and work age out when it is needed, because a
+	 * stored age would be wrong from the patient's next birthday onwards.
+	 *
+	 * patient.date_of_birth is a DATE column, so the time half of this value is
+	 * not stored: MySQL discards it on write and a read comes back at midnight.
+	 * Only the date part is meaningful.
 	 */
 	@Column(name = "date_of_birth")
-	private LocalDate dateOfBirth;
+	private LocalDateTime dateOfBirth;
 
     /*
      * Stored by name rather than ordinal, for the same reason as role on Person:
@@ -83,11 +85,11 @@ public class Patient extends Person {
 
 
 
-	public LocalDate getDateOfBirth() {
+	public LocalDateTime getDateOfBirth() {
 		return dateOfBirth;
 	}
 
-	public void setDateOfBirth(LocalDate dateOfBirth) {
+	public void setDateOfBirth(LocalDateTime dateOfBirth) {
 		this.dateOfBirth = dateOfBirth;
 	}
 

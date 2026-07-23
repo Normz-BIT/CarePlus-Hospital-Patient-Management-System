@@ -47,23 +47,52 @@ public class Appointment implements Serializable {
 	@Column(name = "status", nullable = false)
 	private AppointmentStatus status;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "patient_id", nullable = false)
-	private Patient patient;
+	/*
+	 * Both foreign keys are held as person_id Strings with @Column rather than as
+	 * mapped associations, following the same reasoning as Payment: an Appointment
+	 * is serialized across the socket, and a lazy association would risk putting an
+	 * uninitialised proxy on the wire. Referential integrity is enforced by the
+	 * schema through fk_appt_patient and fk_appt_doctor.
+	 *
+	 * These carried @JoinColumn previously with no @ManyToOne to go with it. On its
+	 * own that annotation declares no mapping, so both fields fell back to
+	 * Hibernate's default naming and looked for columns "patientId" and "doctorId",
+	 * neither of which exists in the appointment table.
+	 */
+	@Column(name = "patient_id", nullable = false)
+	private String patientId;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "doctor_id", nullable = false)
-	private Doctor doctor;
+	@Column(name = "doctor_id", nullable = false)
+	private String doctorId;
 
 	public Appointment() {
 
 	}
 
-	public Appointment(int appointmentId, LocalDateTime appointmentDate, String reason, AppointmentStatus status) {
+	public Appointment(int appointmentId, LocalDateTime appointmentDate, String reason, AppointmentStatus status,
+			String patientId, String doctorId) {
 		this.appointmentId = appointmentId;
 		this.appointmentDate = appointmentDate;
 		this.reason = reason;
 		this.status = status;
+		this.patientId = patientId;
+		this.doctorId = doctorId;
+	}
+
+	public String getPatientId() {
+		return patientId;
+	}
+
+	public void setPatientId(String patientId) {
+		this.patientId = patientId;
+	}
+
+	public String getDoctorId() {
+		return doctorId;
+	}
+
+	public void setDoctorId(String doctorId) {
+		this.doctorId = doctorId;
 	}
 
 	public int getAppointmentId() {
@@ -100,8 +129,8 @@ public class Appointment implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Appointment [appointmentId=" + appointmentId + ", appointmentDate=" + appointmentDate + ", reason="
-				+ reason + ", status=" + status + "]";
+		return "Appointment [appointmentId=" + appointmentId + ", patientId=" + patientId + ", doctorId=" + doctorId
+				+ ", appointmentDate=" + appointmentDate + ", reason=" + reason + ", status=" + status + "]";
 	}
 
 	@Override

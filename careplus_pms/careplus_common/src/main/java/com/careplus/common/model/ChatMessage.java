@@ -11,10 +11,6 @@ import jakarta.persistence.*;
  * the interface show a patient that staff have seen their message.
  *
  * A wire type for now, gaining its JPA mapping when ChatService is completed.
- *
- * TODO: add a recipient field. The model records only a sender at present, and
- * the recipient is passed separately by the controllers, so a stored message
- * does not yet carry who it was addressed to.
  * */
 
 @Entity
@@ -32,13 +28,21 @@ public class ChatMessage implements Serializable {
 	 * A String matching Person.personId, so patients and staff share one identifier
 	 * space and either can be a sender. Note ChatService.poll takes an int, an
 	 * inconsistency that has to be resolved before the two can be wired together.
+	 *
+	 * Both are plain @Column person_id values rather than mapped associations, for
+	 * the reason set out on Payment: a ChatMessage is serialized across the socket,
+	 * and a lazy association would risk putting an uninitialised proxy on the wire.
+	 * Loading a whole Person for each end of a conversation would also carry that
+	 * person's password with it. fk_chat_sender and fk_chat_receiver enforce both.
+	 *
+	 * These carried @ManyToOne while typed as Strings, which is not a legal
+	 * mapping: the target of an association has to be an entity, and String is not
+	 * one.
 	 */
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "sender_id", nullable = false)
+	@Column(name = "sender_id", nullable = false)
 	private String senderId;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "receiver_id", nullable = false)
+	@Column(name = "receiver_id", nullable = false)
 	private String receiverId;
 
 	@Column(name = "content", nullable = false, columnDefinition = "TEXT")
@@ -85,12 +89,12 @@ public class ChatMessage implements Serializable {
 	        this.senderId = sender;
 	    }
 
-	    public String getReceiver() {
+	    public String getReceiverId() {
 	        return receiverId;
 	    }
 
-	    public void setReceiver(String receiver) {
-	        this.receiverId = receiver;
+	    public void setReceiverId(String receiverId) {
+	        this.receiverId = receiverId;
 	    }
 
 	    public String getContent() {

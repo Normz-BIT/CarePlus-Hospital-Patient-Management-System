@@ -1,6 +1,7 @@
 package com.careplus.common.model;
 
 import java.io.Serializable;
+
 import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
@@ -44,9 +45,11 @@ public class MedicalRecord implements Serializable{
 	 * Nullable in effect: most records need no follow up, and null is what
 	 * distinguishes those from a scheduled return visit.
 	 *
-	 * Note this is populated by DiagnosisController from a date-only input parsed
-	 * with atStartOfDay, so the time component is always midnight and carries no
-	 * clinical meaning. Do not read it as an appointment time.
+	 * medical_record.follow_up_date is a DATE column, so the time half of this
+	 * value is not stored: MySQL discards it on write and a read comes back at
+	 * midnight. DiagnosisController pads a date-only input with atStartOfDay, so
+	 * the time component carries no clinical meaning and must not be read as an
+	 * appointment time.
 	 */
 	 @Column(name = "follow_up_date")
     private LocalDateTime followUpDate;
@@ -59,22 +62,30 @@ public class MedicalRecord implements Serializable{
 
 
 
-   @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "patient_id", nullable = false)
-    private Patient patientId;
+	/*
+	 * The patient the record belongs to and the doctor who authored it, held as
+	 * person_id Strings rather than mapped associations, for the reason set out on
+	 * Payment: a MedicalRecord is serialized across the socket, and a lazy
+	 * association would risk putting an uninitialised proxy on the wire. Loading a
+	 * whole Patient here would also carry that person's password across with it.
+	 * The schema enforces the keys through fk_record_patient and fk_record_doctor.
+	 */
+	@Column(name = "patient_id", nullable = false)
+    private String patientId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "doctor_id", nullable = false)
-    private Doctor doctorId;
-	
+    @Column(name = "doctor_id", nullable = false)
+    private String doctorId;
+
 	public MedicalRecord() {
-		
-		
+
+
 	}
-	
-	public MedicalRecord(int recordId, String diagnosis, String treatmentNote, LocalDateTime followUpDate,
-			LocalDateTime createdDate) {
+
+	public MedicalRecord(int recordId, String patientId, String doctorId, String diagnosis, String treatmentNote,
+			LocalDateTime followUpDate, LocalDateTime createdDate) {
 		this.recordId = recordId;
+		this.patientId = patientId;
+		this.doctorId = doctorId;
 		this.diagnosis = diagnosis;
 		this.treatmentNote = treatmentNote;
 		this.followUpDate = followUpDate;
@@ -104,6 +115,18 @@ public class MedicalRecord implements Serializable{
 	public void setFollowUpDate(LocalDateTime followUpDate) {
 		this.followUpDate = followUpDate;
 	}
+	public String getPatientId() {
+		return patientId;
+	}
+	public void setPatientId(String patientId) {
+		this.patientId = patientId;
+	}
+	public String getDoctorId() {
+		return doctorId;
+	}
+	public void setDoctorId(String doctorId) {
+		this.doctorId = doctorId;
+	}
 	public LocalDateTime getCreatedDate() {
 		return createdDate;
 	}
@@ -113,8 +136,9 @@ public class MedicalRecord implements Serializable{
 
 	@Override
 	public String toString() {
-		return "MedicalRecord [recordId=" + recordId + ", diagnosis=" + diagnosis + ", treatmentNote=" + treatmentNote
-				+ ", followUpDate=" + followUpDate + ", createdDate=" + createdDate + "]";
+		return "MedicalRecord [recordId=" + recordId + ", patientId=" + patientId + ", doctorId=" + doctorId
+				+ ", diagnosis=" + diagnosis + ", treatmentNote=" + treatmentNote + ", followUpDate=" + followUpDate
+				+ ", createdDate=" + createdDate + "]";
 	}
 
 	@Override

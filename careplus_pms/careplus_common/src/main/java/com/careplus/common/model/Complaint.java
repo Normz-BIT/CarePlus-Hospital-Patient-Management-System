@@ -33,13 +33,37 @@ public class Complaint implements Serializable {
 
 	/*
 	 * Self reference that makes a complaint thread: a reply is another Complaint
-	 * row pointing at the one it answers, rather than a separate reply type. Zero
-	 * means this is an original complaint rather than a response, since the field
-	 * is a primitive int and so cannot be null.
+	 * row pointing at the one it answers, rather than a separate reply type.
+	 *
+	 * Boxed rather than a primitive int because the column is a nullable foreign
+	 * key back to complaint.complaint_id. A primitive would default to zero, and
+	 * zero is not a complaint, so every original complaint would be rejected by
+	 * fk_complaint_parent on insert. Null is what marks an original complaint.
 	 */
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "complaintParentId")
-	private int complaintParentId;
+	@Column(name = "complaintParentId")
+	private Integer complaintParentId;
+
+	/*
+	 * The patient who filed the complaint, held as the person_id String rather
+	 * than a mapped association, for the same reason set out on Payment: these
+	 * objects are serialized across the socket, and an association would risk
+	 * dragging a lazy proxy onto the wire. The foreign key is enforced by the
+	 * schema through fk_complaint_patient.
+	 */
+	@Column(name = "patient_id", nullable = false)
+	private String patientId;
+
+	/*
+	 * Both are employee person_id values and both are nullable: a complaint that
+	 * nobody has picked up yet has neither. respondedBy is who wrote the response
+	 * text, assignedTo is who owns the case, and they are not always the same
+	 * person, since a receptionist can reply while assigning it to a doctor.
+	 */
+	@Column(name = "responded_by")
+	private String respondedBy;
+
+	@Column(name = "assigned_to")
+	private String assignedTo;
 
 	@Column(name = "description", nullable = false, columnDefinition = "TEXT")
 	private String description;
@@ -76,10 +100,11 @@ public class Complaint implements Serializable {
 
 	}
 
-	public Complaint(int complaintId, String description, LocalDateTime dateSubmitted, String response,
+	public Complaint(int complaintId, String patientId, String description, LocalDateTime dateSubmitted, String response,
 			LocalDateTime responseDate, ComplaintStatus status, ComplaintCategory category) {
 
 		this.complaintId = complaintId;
+		this.patientId = patientId;
 		this.description = description;
 		this.dateSubmitted = dateSubmitted;
 		this.response = response;
@@ -96,12 +121,40 @@ public class Complaint implements Serializable {
 		this.complaintId = complaintId;
 	}
 
-	public int getComplaintParentId() {
+	/*
+	 * Returns null for an original complaint, rather than zero as the previous
+	 * primitive did. Callers testing whether this is a reply must check for null.
+	 */
+	public Integer getComplaintParentId() {
 		return complaintParentId;
 	}
 
-	public void setComplaintParentId(int complaintParentId) {
+	public void setComplaintParentId(Integer complaintParentId) {
 		this.complaintParentId = complaintParentId;
+	}
+
+	public String getPatientId() {
+		return patientId;
+	}
+
+	public void setPatientId(String patientId) {
+		this.patientId = patientId;
+	}
+
+	public String getRespondedBy() {
+		return respondedBy;
+	}
+
+	public void setRespondedBy(String respondedBy) {
+		this.respondedBy = respondedBy;
+	}
+
+	public String getAssignedTo() {
+		return assignedTo;
+	}
+
+	public void setAssignedTo(String assignedTo) {
+		this.assignedTo = assignedTo;
 	}
 
 	public String getDescription() {
@@ -154,9 +207,10 @@ public class Complaint implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Complaint [complaintId=" + complaintId + ", complaintParentId=" + complaintParentId + ", description="
-				+ description + ", dateSubmitted=" + dateSubmitted + ", response=" + response + ", responseDate="
-				+ responseDate + ", status=" + status + ", category=" + category + "]";
+		return "Complaint [complaintId=" + complaintId + ", complaintParentId=" + complaintParentId + ", patientId="
+				+ patientId + ", description=" + description + ", dateSubmitted=" + dateSubmitted + ", response="
+				+ response + ", responseDate=" + responseDate + ", status=" + status + ", category=" + category
+				+ ", respondedBy=" + respondedBy + ", assignedTo=" + assignedTo + "]";
 	}
 
 	@Override

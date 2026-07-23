@@ -35,22 +35,23 @@ public abstract class Employee extends Person {
 
 	@Column(name = "department", length = 80)
 	protected String department;
-	@Column(name = "hireDate")
+	/*
+	 * employee.hire_date is a DATE column, so the time half of this value is not
+	 * stored: MySQL discards it on write and a read comes back at midnight. Treat
+	 * the date part as the only meaningful component.
+	 */
+	@Column(name = "hire_date")
 	protected LocalDateTime hireDate;
 
 	protected Employee() {
 		super();
 	}
 
-	
-
 	public Employee(String personId, String firstName, String lastName, String email, String phone, String password,
 			UserRole role, LocalDateTime createdAt) {
 		super(personId, firstName, lastName, email, phone, password, role, createdAt);
-		
+
 	}
-
-
 
 	public String getDepartment() {
 		return department;
