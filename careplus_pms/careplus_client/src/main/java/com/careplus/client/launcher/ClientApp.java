@@ -170,10 +170,9 @@ public class ClientApp {
 			} catch (Exception e) {
 
 				/*
-				 * Last resort handler. A failure this early leaves no usable window, so the
+				 *A failure this early leaves no usable window, so the
 				 * only thing left is to record why before the application dies.
 				 */
-				// TODO
 				logger.error("CarePlus client application could not be started", e);
 			}
 		});

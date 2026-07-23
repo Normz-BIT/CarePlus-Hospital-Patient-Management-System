@@ -11,7 +11,6 @@ import jakarta.persistence.*;
  * Nurse is the staff type responsible for the bedside record: nurses take
  * patients' vital signs and write the nursing notes that go with them.
  *
- * TODO: add the JPA mapping for the staff subclasses, as described on Doctor.
  */
 
 @Entity

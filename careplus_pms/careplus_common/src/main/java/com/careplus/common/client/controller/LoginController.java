@@ -135,7 +135,7 @@ public class LoginController {
 
 		} catch (Exception e) {
 
-			// TODO
+		
 			logger.error("An error occurred while logging in user ID: " + id, e);
 			
 			view.showMessage("Unable to complete login: " + e.getMessage());

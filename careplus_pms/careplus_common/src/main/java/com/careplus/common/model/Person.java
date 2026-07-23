@@ -52,10 +52,6 @@ public abstract class Person implements Serializable {
 	 * Email is unique because it is how a person is identified when registering, so
 	 * the constraint lives in the database where it holds regardless of which part
 	 * of the application does the insert.
-	 *
-	 * TODO: check for an existing email in the service before persisting, so a
-	 * duplicate registration produces a readable message rather than a constraint
-	 * violation on commit.
 	 */
 	@Column(name = "email", nullable = false, unique = true)
 	protected String email;
@@ -188,7 +184,7 @@ public abstract class Person implements Serializable {
 	@Override
 	public String toString() {
 		return "Person [personId=" + personId + ", firstName=" + firstName + ", lastName=" + lastName + ", email="
-				+ email + ", phone=" + phone + ", password=" + password + ", role=" + role + ", createdAt=" + createdAt
+				+ email + ", phone=" + phone + ", role=" + role + ", createdAt=" + createdAt
 				+ "]";
 	}
 

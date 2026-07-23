@@ -18,8 +18,6 @@ import jakarta.persistence.*;
  * A wire type for now, gaining its JPA mapping when MedicalRecordService is
  * completed.
  *
- * TODO: add the JPA annotations, plus the patient and authoring doctor
- * references a record needs to be attributed and retrieved.
  */
  
  

@@ -137,7 +137,6 @@ public class ClientHandler extends Thread {
 					break;
 
 				case GET_MY_PAYMENTS:
-
 					resp = paymentService.getPayments(req);
 					break;
 				
@@ -165,11 +164,10 @@ public class ClientHandler extends Thread {
 				 * identity, so writing the same instance twice would send the client the
 				 * first version again even after we changed its contents.
 				 *
-				 * TODO: call flush() after this write, matching what the client does, so a
-				 * Response cannot sit in the buffer while the client waits on its read.
+				 *call flush() after this write to clear the output
 				 */
 				outputStream.writeObject(resp);
-
+				outputStream.flush();
 			}
 
 		} catch (ClassNotFoundException e) {

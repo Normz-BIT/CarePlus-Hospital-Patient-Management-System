@@ -16,8 +16,6 @@ import jakarta.persistence.*;
  *
  * A wire type for now, gaining its JPA mapping alongside MedicalRecordService.
  *
- * TODO: add the JPA annotations and a patient reference, so a reading can be
- * stored against the patient it belongs to.
  */
 
 @Entity

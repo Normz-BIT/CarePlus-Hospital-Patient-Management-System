@@ -163,8 +163,9 @@ public class MainDashboard extends JFrame {
 
 			if (currentUser != null) {
 				logger.info("User ID: {} logged out", currentUser.getPersonId());
+				
 			}
-
+		
 			currentUser = null;
 			dispose();
 

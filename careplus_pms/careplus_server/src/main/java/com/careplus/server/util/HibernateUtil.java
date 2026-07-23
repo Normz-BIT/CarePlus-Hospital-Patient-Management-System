@@ -31,9 +31,6 @@ public class HibernateUtil {
 	 * Builds the factory only when there is not one already, so repeated calls are
 	 * harmless. The factory is created once during server startup, before any
 	 * client can connect.
-	 *
-	 * TODO: synchronize this method if we ever build the factory lazily on a client
-	 * thread rather than at startup.
 	 */
 	private static SessionFactory buildSessionFactory() {
 

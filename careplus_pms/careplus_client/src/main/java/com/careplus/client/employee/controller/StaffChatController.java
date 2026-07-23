@@ -25,7 +25,7 @@ import com.careplus.common.net.Response;
  * TODO: choose the patient from a list rather than a typed ID, matching how the
  * patient side selects its recipient.
  *
- * TODO: apply the operating hours rule here too, once ChatService enforces it.
+ * 
  */
 public class StaffChatController {
 	private final StaffChatView view;

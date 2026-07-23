@@ -10,8 +10,6 @@ import jakarta.persistence.*;
  * to a doctor or nurse, which is the step that moves it from SUBMITTED to
  * ASSIGNED. Keeping that permission to one role is what stops two members of
  * staff picking up the same complaint.
- *
- * TODO: add the JPA mapping for the staff subclasses, as described on Doctor.
  */
 
 @Entity

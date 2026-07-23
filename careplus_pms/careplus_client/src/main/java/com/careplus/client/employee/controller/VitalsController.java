@@ -61,11 +61,8 @@ public class VitalsController {
 
 			/*
 			 * Temperature is a double while heart rate and respiratory rate are ints,
-			 * matching how each is actually measured: a temperature is recorded to one
-			 * decimal place, whereas a pulse is a whole count of beats per minute.
+			 * matching how each is actually measured.
 			 *
-			 * TODO: add clinical range checks on these three values, on the server side
-			 * where they cannot be bypassed by a modified client.
 			 */
 			vitalSigns.setTemperature(
 					Double.parseDouble(

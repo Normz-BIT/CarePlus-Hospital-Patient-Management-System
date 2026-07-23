@@ -23,8 +23,6 @@ public class PaymentService extends BaseService {
 		 * from separate parameters here, which keeps the request to a single object and
 		 * the payment fields defined in one place.
 		 *
-		 * TODO: check the amount against what the patient actually owes before
-		 * persisting, rather than accepting the figures the client sends.
 		 */
 		Payment payment = (Payment) request.getParams().get("payment");
 

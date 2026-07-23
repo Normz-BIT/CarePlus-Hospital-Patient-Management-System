@@ -18,9 +18,8 @@ import jakarta.persistence.*;
  *
  * Like Appointment, MedicalRecord, VitalSigns and ChatMessages, this is a wire
  * type for now and gains its JPA mapping when ComplaintService is completed.
- *
- * TODO: add the JPA annotations so complaints can be persisted.
  */
+
 @Entity
 @Table(name = "complaint")
 public class Complaint implements Serializable {

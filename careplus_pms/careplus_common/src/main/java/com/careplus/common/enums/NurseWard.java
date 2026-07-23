@@ -8,7 +8,7 @@ package com.careplus.common.enums;
  *
  * GENERAL is the default posting for a nurse with no specialist ward.
  *
- * TODO: apply this scoping in the assigned-cases query once that service is
+ * TODO: apply in the assigned-cases query once that service is
  * written.
  * */
 public enum NurseWard {

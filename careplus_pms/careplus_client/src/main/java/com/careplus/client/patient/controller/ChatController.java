@@ -23,8 +23,7 @@ import com.careplus.common.net.Response;
  * refreshes it. We chose polling because our protocol is strictly one response
  * per request, so the server has no way to write to a client unprompted.
  *
- * TODO: enforce the 8:00 a.m. to 7:00 p.m. operating hours rule in ChatService,
- * so the check uses the server clock rather than the workstation's.
+ * TODO: enforce operating hours rule in ChatService,
  *
  * TODO: route CHAT_SEND and CHAT_POLL on the server.
  */
@@ -69,13 +68,6 @@ public class ChatController {
 
 			logger.info("Chat message created: {}", chatMessage.toString());
 
-			/*
-			 * The recipient is sent as its own map entry rather than on the message,
-			 * because ChatMessages currently records a sender only.
-			 *
-			 * TODO: add a recipient field to ChatMessages so a stored message carries who
-			 * it was addressed to, which is what the server needs to route replies.
-			 */
 			req.putMap("chatMessage", chatMessage);
 			req.putMap(
 					"recipient",

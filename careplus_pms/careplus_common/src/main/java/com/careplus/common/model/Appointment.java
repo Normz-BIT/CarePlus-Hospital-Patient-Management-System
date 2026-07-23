@@ -15,9 +15,6 @@ import jakarta.persistence.*;
  * client screens could be built and demonstrated while the matching service was
  * still being written. It travels between client and server as a serialized
  * object and gains its JPA mapping when AppointmentService is completed.
- *
- * TODO: add the JPA annotations, plus the patient and doctor references the
- * booking screens need in order to show who an appointment is with.
  */
 @Entity
 @Table(name = "appointment")

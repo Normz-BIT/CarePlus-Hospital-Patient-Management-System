@@ -17,10 +17,6 @@ import jakarta.persistence.*;
  * and directory screens can group doctors reliably, and a String for licenseNo
  * because a licence number is an identifier we display and never calculate with.
  *
- * TODO: add the JPA mapping for the staff subclasses (@Entity, @Table and the
- * @PrimaryKeyJoinColumn, plus @Column on the two fields below) so Hibernate can
- * load a staff row into a Doctor. Person, Employee and Patient are already
- * mapped; the staff side is the next piece of persistence work.
  */
 
 @Entity

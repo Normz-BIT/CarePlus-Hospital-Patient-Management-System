@@ -45,23 +45,10 @@ public class AuthService extends BaseService {
 			Person person = (Person) session.find(Person.class, id.toUpperCase());
 
 			/*
-			 * An unknown ID gives back null here, and the resulting failure is caught
-			 * below and reported with the same message as a wrong password, which is the
-			 * behaviour we want for the reason given further down.
-			 *
-			 * TODO: check for null explicitly rather than letting the lookup fail into the
-			 * catch, so the handling of an unknown user is visible in the code. The same
-			 * applies to id above, which is used without checking the request supplied it.
-			 */
-			// TODO change to log4j2
-			System.out.println("Read : " + person.toString());
-
-			/*
-			 * Passwords are compared as plaintext, meaning they are stored unhashed in the
-			 * database and travel unencrypted over the socket.
-			 *
-			 * TODO: store a salted hash and compare digests instead. This is the first
-			 * thing that would have to change before the system held real patient data.
+			 * An unknown ID gives back null here, and the resulting failure is caught below
+			 * and reported with the same message as a wrong password.
+			 
+			 * Passwords are compared as plaintext
 			 */
 			if (person.getPassword().equals(password)) {
 
@@ -74,10 +61,10 @@ public class AuthService extends BaseService {
 			} else {
 
 				/*
-				 * Throwing here sends a wrong password down the same path as an unknown ID,
-				 * so both produce an identical response. That is deliberate: telling the user
-				 * which of the two was wrong would let someone work out which patient and
-				 * staff IDs exist by trying them one at a time.
+				 * Throwing here sends a wrong password down the same path as an unknown ID, so
+				 * both produce an identical response. That is deliberate: telling the user
+				 * which of the two was wrong would let someone work out which patient and staff
+				 * IDs exist by trying them one at a time.
 				 */
 				throw new Exception("Invalid Login");
 			}
@@ -96,7 +83,7 @@ public class AuthService extends BaseService {
 			 * wrong or the lookup itself failed. See the note on the throw above.
 			 */
 			resp.setMessage("Login Unsuccessfull: Incorrect Password or Username");
-			// TODO add log4j2
+			
 
 		}
 
