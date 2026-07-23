@@ -5,13 +5,6 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
 
-/*
- * Chat messages for all users.
- *
- * A single message in a conversation between a patient and a staff member,
- * carrying who sent it, who received it, what was said, when it was sent,
- * and whether it has been read.
- */
 @Entity
 @Table(name = "chat_message")
 public class ChatMessage implements Serializable {
@@ -36,7 +29,7 @@ public class ChatMessage implements Serializable {
     private String content;
 
     @Column(name = "sent_at", nullable = false)
-    private LocalDateTime sentAt;
+    private LocalDateTime sentAt = LocalDateTime.now();
 
     @Column(name = "is_read", nullable = false)
     private Boolean isRead = false;
@@ -114,7 +107,6 @@ public class ChatMessage implements Serializable {
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (!(obj instanceof ChatMessage)) return false;
-        if (getClass() != obj.getClass()) return false;
         ChatMessage other = (ChatMessage) obj;
         return messageId != null && messageId.equals(other.messageId);
     }
