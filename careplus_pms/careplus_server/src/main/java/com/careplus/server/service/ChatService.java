@@ -2,7 +2,7 @@ package com.careplus.server.service;
 
 import java.util.List;
 
-import com.careplus.common.model.ChatMessages;
+import com.careplus.common.model.ChatMessage;
 import com.careplus.common.net.Response;
 
 /*
@@ -21,7 +21,7 @@ import com.careplus.common.net.Response;
  */
 public class ChatService {
 
-	public Response send(ChatMessages message) {
+	public Response send(ChatMessage message) {
 		return null;
 
 	}
@@ -36,7 +36,7 @@ public class ChatService {
 	 * in the system, so this signature will need reconciling before it can be wired
 	 * up.
 	 */
-	public List<ChatMessages> poll(int userId){
+	public List<ChatMessage> poll(int userId){
 		return null;
 	}
 

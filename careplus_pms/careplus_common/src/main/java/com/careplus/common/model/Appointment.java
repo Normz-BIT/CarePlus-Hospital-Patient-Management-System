@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import com.careplus.common.enums.AppointmentStatus;
-
+import jakarta.persistence.*;
 
 /*
  * Patient Books Appointments
@@ -18,21 +18,32 @@ import com.careplus.common.enums.AppointmentStatus;
  * TODO: add the JPA annotations, plus the patient and doctor references the
  * booking screens need in order to show who an appointment is with.
  */
+@Entity
+@Table(name = "appointment")
 public class Appointment implements Serializable{
+	@Transient
 	private static final long serialVersionUID = 1L;
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "appointment_id", nullable = false)
 	private int appointmentId;
 	/*
 	 * LocalDateTime carries no zone or offset, so every appointment is implicitly in
 	 * the hospital's local time. Safe for a single site, but it would become
 	 * ambiguous across time zones or over a daylight saving transition.
 	 */
+	@Column(name = "appointment_date", nullable = false)
 	private LocalDateTime appointmentDate;
+	
+	@Column(name = "reason", length = 200)
 	private String reason;
 	/*
 	 * Lifecycle is SCHEDULED, then either COMPLETED or CANCELLED. Bookings start at
 	 * SCHEDULED, and the terminal states are intended to be final.
 	 */
+	@Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
 	private AppointmentStatus status;
 	
 	public Appointment() {
