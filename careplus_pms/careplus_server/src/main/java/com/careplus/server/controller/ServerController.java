@@ -1,8 +1,9 @@
 package com.careplus.server.controller;
 
 
-import com.careplus.server.net.Server;
+//import com.careplus.server.net.Server;
 import com.careplus.server.util.HibernateUtil;
+import com.careplus.server.view.ServerView;
 
 public class ServerController {
 
@@ -10,7 +11,8 @@ public class ServerController {
 
 		new HibernateUtil();
 
-		new Server();
+		new ServerView();
+		//new Server();
 
 	}
 

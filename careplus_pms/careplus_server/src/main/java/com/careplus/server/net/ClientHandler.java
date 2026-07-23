@@ -6,22 +6,30 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
+//import com.careplus.server.net.Server;
 import com.careplus.server.service.AuthService;
 import com.careplus.server.service.PaymentService;
 
 public class ClientHandler extends Thread {
+	private static final Logger logger = LogManager.getLogger(ClientHandler.class);
 	private Socket socket;
 	private ObjectOutputStream outputStream;
 	private ObjectInputStream inputStream;
 
 	private AuthService authservice;
 	private PaymentService paymentService;
+	private Server server;
 
-	public ClientHandler(Socket socket) {
+	public ClientHandler(Socket socket, Server server) {
 		this.socket = socket;
+		this.server = server;
+		
 		authservice = new AuthService();
 		paymentService = new PaymentService();
 
@@ -41,10 +49,10 @@ public class ClientHandler extends Thread {
 		try {
 			if (socket != null && !socket.isClosed()) {
 				socket.close();
-				System.out.println("Socket closed. Thread terminating.");
+				logger.info("Socket closed. Thread terminating.");
 			}
 		} catch (IOException e) {
-			System.out.println("Failed to close socket: " + e.getMessage());
+			logger.error("Failed to close socket: " + e.getMessage());
 		}
 
 	}
@@ -56,8 +64,9 @@ public class ClientHandler extends Thread {
 			this.getStreams();
 
 			while (true) {
-
-				System.out.println("Waiting for input..");
+				
+				server.logMessage("Waiting for input from " + socket.getInetAddress());
+				//logger.info("Waiting for input..");
 				Request req = (Request) inputStream.readObject();
 
 				RequestType reqtype = req.getType();
@@ -89,12 +98,12 @@ public class ClientHandler extends Thread {
 			}
 
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			System.out.println("Class not found Exception:" + e.getMessage());
+			
+			logger.error("Class not found Exception:" + e.getMessage());
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.out.println("Error:" + e.getMessage());
+			
+			logger.error("Error:" + e.getMessage());
 		}
 
 		finally {
