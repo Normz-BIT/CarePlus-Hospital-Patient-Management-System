@@ -102,6 +102,7 @@ public class ClientHandler extends Thread {
 	 * Server.stop() brings handler threads down without needing a shared flag.
 	 */
 	@Override
+	
 	public void run() {
 		try {
 
@@ -139,6 +140,9 @@ public class ClientHandler extends Thread {
 
 					resp = paymentService.getPayments(req);
 					break;
+				
+					
+					
 
 				default:
 					/*

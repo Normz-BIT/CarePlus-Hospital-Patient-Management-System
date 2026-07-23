@@ -121,9 +121,10 @@ public class DiagnosisController {
 			logger.info("Medical record created: {}", medicalRecord.toString());
 
 			req.putMap("medicalRecord", medicalRecord);
-			req.putMap("patientId", view.getTxtPatientId().getText().trim());
-
+			
 			Response res = Client.send(req);
+			
+			
 
 			view.showMessage(res == null ? "No response from server." : res.getMessage());
 
