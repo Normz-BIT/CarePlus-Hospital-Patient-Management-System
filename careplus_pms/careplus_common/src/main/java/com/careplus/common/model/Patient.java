@@ -1,54 +1,38 @@
 package com.careplus.common.model;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.careplus.common.enums.Gender;
 import com.careplus.common.enums.UserRole;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 
-/* *
- * Child of the Person class
- * 	can make Payments
- * 	can make Complaints
- * 	can set Appointments
- *  has Vital Signs
- *  has Medical Records
- *    
+/*
+ * Notes:
+ * 
  */
 
-/*
- * Unlike the three staff subclasses, this one is fully mapped, which is why
- * patient login and patient lookups work while staff equivalents do not. It sits
- * one level below Person rather than under Employee, so a patient read costs a
- * single join instead of two.
- */
 @Entity
 @Table(name = "patient")
 @PrimaryKeyJoinColumn(name = "person_id")
 public class Patient extends Person {
 
-	@Transient
-	private static final long serialVersionUID = 1L;
+    @Transient
+    private static final long serialVersionUID = 1L;
 
-	/*
-	 * LocalDate rather than LocalDateTime, since a birth date has no meaningful
-	 * time component. We store the date and work age out when it is needed, because
-	 * a stored age would be wrong from the patient's next birthday onwards.
-	 */
-	@Column(name = "date_of_birth")
-	private LocalDate dateOfBirth;
+    @Column(name = "date_of_birth")
+    private LocalDate dateOfBirth;
 
-    /*
-     * Stored by name rather than ordinal, for the same reason as role on Person:
-     * reordering the Gender constants must not change what rows already in the
-     * database mean.
-     */
     @Enumerated(EnumType.STRING)
     @Column(name = "gender", nullable = false)
     private Gender gender;
@@ -56,55 +40,103 @@ public class Patient extends Person {
     @Column(name = "address", length = 200)
     private String address;
 
-    /*
-     * TEXT rather than a bounded VARCHAR because clinical history is free form and
-     * accumulates over time, so any column limit would eventually truncate a
-     * patient's record.
-     */
     @Column(name = "medical_history", columnDefinition = "TEXT")
     private String medicalHistory;
 
-	public Patient() {
-		super();
-		setRole(UserRole.PATIENT);
-	}
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = false)
+    private List<Complaint> complaints = new ArrayList<>();
 
-	public Patient(String personId, String firstName, String lastName, String email, String phone, String password) {
-		super(personId, firstName, lastName, email, phone, password, UserRole.PATIENT);
-	}
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = false)
+    private List<Appointment> appointments = new ArrayList<>();
 
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = false)
+    private List<MedicalRecord> medicalRecords = new ArrayList<>();
 
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = false)
+    private List<VitalSigns> vitalSigns = new ArrayList<>();
 
-	public LocalDate getDateOfBirth() {
-		return dateOfBirth;
-	}
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = false)
+    private List<Payment> payments = new ArrayList<>();
 
-	public void setDateOfBirth(LocalDate dateOfBirth) {
-		this.dateOfBirth = dateOfBirth;
-	}
+    public Patient() {
+        super();
+        setRole(UserRole.PATIENT);
+    }
 
-	public Gender getGender() {
-		return gender;
-	}
+    public Patient(String personId, String firstName, String lastName,
+                   String email, String phone, String password) {
+        super(personId, firstName, lastName, email, phone, password, UserRole.PATIENT);
+    }
 
-	public void setGender(Gender gender) {
-		this.gender = gender;
-	}
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
+    }
 
-	public String getAddress() {
-		return address;
-	}
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
 
-	public void setAddress(String address) {
-		this.address = address;
-	}
+    public Gender getGender() {
+        return gender;
+    }
 
-	public String getMedicalHistory() {
-		return medicalHistory;
-	}
+    public void setGender(Gender gender) {
+        this.gender = gender;
+    }
 
-	public void setMedicalHistory(String medicalHistory) {
-		this.medicalHistory = medicalHistory;
-	}
+    public String getAddress() {
+        return address;
+    }
 
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getMedicalHistory() {
+        return medicalHistory;
+    }
+
+    public void setMedicalHistory(String medicalHistory) {
+        this.medicalHistory = medicalHistory;
+    }
+
+    public List<Complaint> getComplaints() {
+        return complaints;
+    }
+
+    public void setComplaints(List<Complaint> complaints) {
+        this.complaints = complaints;
+    }
+
+    public List<Appointment> getAppointments() {
+        return appointments;
+    }
+
+    public void setAppointments(List<Appointment> appointments) {
+        this.appointments = appointments;
+    }
+
+    public List<MedicalRecord> getMedicalRecords() {
+        return medicalRecords;
+    }
+
+    public void setMedicalRecords(List<MedicalRecord> medicalRecords) {
+        this.medicalRecords = medicalRecords;
+    }
+
+    public List<VitalSigns> getVitalSigns() {
+        return vitalSigns;
+    }
+
+    public void setVitalSigns(List<VitalSigns> vitalSigns) {
+        this.vitalSigns = vitalSigns;
+    }
+
+    public List<Payment> getPayments() {
+        return payments;
+    }
+
+    public void setPayments(List<Payment> payments) {
+        this.payments = payments;
+    }
 }
