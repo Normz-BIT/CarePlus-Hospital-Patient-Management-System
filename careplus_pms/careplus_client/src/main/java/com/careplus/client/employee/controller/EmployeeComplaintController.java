@@ -2,17 +2,24 @@ package com.careplus.client.employee.controller;
 
 import java.util.ArrayList;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import java.time.LocalDateTime;
 >>>>>>> stash
+=======
+import java.time.LocalDateTime;
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import com.careplus.client.employee.view.EmployeeComplaint;
 =======
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 import javax.swing.JComboBox;
 
 import org.apache.logging.log4j.LogManager;
@@ -59,7 +66,10 @@ public class EmployeeComplaintController {
 	 * Filtering therefore rebuilds the table from this list rather than discarding
 	 * rows it would need again.
 	 */
+<<<<<<< HEAD
 >>>>>>> stash
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	private final List<Object[]> allComplaints = new ArrayList<>();
 
 	public EmployeeComplaintController(EmployeeComplaint view) {
@@ -71,12 +81,16 @@ public class EmployeeComplaintController {
 
 	private void loadCombos() {
 <<<<<<< HEAD
+<<<<<<< HEAD
 		add(view.getCboCategory(), "Medical", "Billing", "Appointment", "Staff", "Other");
 		add(view.getCboPriority(), "Low", "Medium", "High");
 		add(view.getCboStatus(), "Pending", "Assigned", "In Progress", "Resolved", "Closed");
 =======
 		fill(view.getCboStatus(), ComplaintStatus.values());
 >>>>>>> stash
+=======
+		fill(view.getCboStatus(), ComplaintStatus.values());
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	}
 
 	private void fill(JComboBox<String> box, Enum<?>[] values) {
@@ -87,8 +101,11 @@ public class EmployeeComplaintController {
 	}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	private void assign() {
 =======
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	public void assign() {
 		if (view.getTxtComplaintId().getText().trim().isEmpty()) {
 			view.showMessage("Complaint ID is required.");
@@ -106,8 +123,11 @@ public class EmployeeComplaintController {
 	}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	private void resolve() {
 =======
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	public void resolve() {
 		if (view.getTxtComplaintId().getText().trim().isEmpty()) {
 			view.showMessage("Complaint ID is required.");
@@ -173,10 +193,13 @@ public class EmployeeComplaintController {
 
 	@SuppressWarnings("unchecked")
 <<<<<<< HEAD
+<<<<<<< HEAD
 	private void refresh() {
 		Response res = new Client().send(new Request(RequestType.GET_ALL_COMPLAINTS, "all", true));
 		if (res == null || !Boolean.TRUE.equals(res.getSuccess()))
 =======
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	public void refresh() {
 		Response res = Client.send(new Request(RequestType.GET_ALL_COMPLAINTS, "all", true));
 
@@ -187,13 +210,33 @@ public class EmployeeComplaintController {
 			return;
 		allComplaints.clear();
 <<<<<<< HEAD
+<<<<<<< HEAD
 		if (res.getData() instanceof List<?>) {
 			for (Object row : (List<Object>) res.getData()) {
 				if (row instanceof Object[])
 					allComplaints.add((Object[]) row);
 			}
 =======
+=======
 
+		for (Complaint row : (List<Complaint>) res.getData()) {
+
+			Object[] viewRow = new Object[] {
+					row.getComplaintId(),
+					row.getComplaintParentId(),
+					row.getCategory(),
+					row.getDescription(),
+					row.getDateSubmitted(),
+					row.getResponse(),
+					row.getResponseDate(),
+					row.getStatus()
+			};
+
+			allComplaints.add(viewRow);
+		}
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
+
+<<<<<<< HEAD
 		for (Complaint row : (List<Complaint>) res.getData()) {
 
 			Object[] viewRow = new Object[] {
@@ -219,6 +262,13 @@ public class EmployeeComplaintController {
 		 * computed. Summarising earlier would count against the previous load.
 		 */
 >>>>>>> stash
+=======
+		/*
+		 * Order matters: the filter options are rebuilt from the new data first, then
+		 * the table is rendered through that filter, and only then are the totals
+		 * computed. Summarising earlier would count against the previous load.
+		 */
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 		populateFilter();
 		applyFilter();
 		updateSummary();

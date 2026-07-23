@@ -126,10 +126,13 @@ public class PaymentController {
 	 */
 	@SuppressWarnings("unchecked")
 <<<<<<< HEAD
+<<<<<<< HEAD
 	private void refresh() {
 		Response res = new Client().send(new Request(RequestType.GET_MY_PAYMENTS, "patientId", "current"));
 		if (res == null || !Boolean.TRUE.equals(res.getSuccess()))
 =======
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	public void refresh() {
 		Response res = Client
 				.send(new Request(RequestType.GET_MY_PAYMENTS, "patientId", MainDashboard.getCurrentUser().getPersonId()));
@@ -152,7 +155,10 @@ public class PaymentController {
 		 * Cleared only after the response is known to be good, so a failed refresh
 		 * leaves the previous rows on screen rather than blanking the table.
 		 */
+<<<<<<< HEAD
 >>>>>>> stash
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 		view.clearTable();
 		if (res.getData() instanceof List<?>)
 			for (Object row : (List<Object>) res.getData())

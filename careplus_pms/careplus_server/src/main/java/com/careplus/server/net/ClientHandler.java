@@ -29,8 +29,11 @@ public class ClientHandler extends Thread {
 	private ObjectInputStream inputStream;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	public ClientHandler(Socket socket) {
 =======
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	/*
 	 * Services are instantiated per handler rather than shared or static, which is
 	 * what keeps BaseService's session and transaction fields safe. Those fields are
@@ -100,7 +103,10 @@ public class ClientHandler extends Thread {
 	 * readObject() throw and passes control to the finally block below. That is how
 	 * Server.stop() brings handler threads down without needing a shared flag.
 	 */
+<<<<<<< HEAD
 >>>>>>> stash
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	@Override
 	public void run() {
 		try {
@@ -186,6 +192,7 @@ public class ClientHandler extends Thread {
 
 		} catch (ClassNotFoundException e) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 =======
@@ -194,6 +201,8 @@ public class ClientHandler extends Thread {
 			logger.error("Class not found Exception:" + e.getMessage());
 >>>>>>> stash
 
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 			/*
 			 * The client sent a class this server cannot resolve, which in practice means
 			 * the two sides were built against different versions of careplus_common.
@@ -202,6 +211,7 @@ public class ClientHandler extends Thread {
 
 
 		} catch (IOException e) {
+<<<<<<< HEAD
 <<<<<<< HEAD
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -220,6 +230,8 @@ public class ClientHandler extends Thread {
 			
 			logger.error("Error:" + e.getMessage());
 
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 			/*
 			 * Normal termination path as well as the error path: this is what a client
 			 * disconnecting, or Server.stop() closing the socket, looks like from inside

@@ -3,11 +3,14 @@ package com.careplus.server.service;
 import com.careplus.common.net.Response;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 public class AuthService {
 	
 	public Response login(int id, String pwd) {
 		return null;	
 =======
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 /*
  * AuthService
  * Handles the single LOGIN request for both patients and staff.

@@ -59,6 +59,7 @@ public class ClientApp {
 				// Patient features
 				new DashboardFeature("Patient", "Appointments", Set.of(UserRole.PATIENT), () -> {
 <<<<<<< HEAD
+<<<<<<< HEAD
 					Appointment view = new Appointment();
 					new AppointmentController(view);
 =======
@@ -66,8 +67,14 @@ public class ClientApp {
 					AppointmentController controller = new AppointmentController(view);
 					view.registerActionListener(controller);
 >>>>>>> stash
+=======
+					AppointmentView view = new AppointmentView();
+					AppointmentController controller = new AppointmentController(view);
+					view.registerActionListener(controller);
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 					return view;
 				}), new DashboardFeature("Patient", "Complaints", Set.of(UserRole.PATIENT), () -> {
+<<<<<<< HEAD
 <<<<<<< HEAD
 					Complaint view = new Complaint();
 					new ComplaintController(view);
@@ -76,8 +83,14 @@ public class ClientApp {
 					ComplaintController controller = new ComplaintController(view);
 					view.registerActionListener(controller);
 >>>>>>> stash
+=======
+					ComplaintView view = new ComplaintView();
+					ComplaintController controller = new ComplaintController(view);
+					view.registerActionListener(controller);
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 					return view;
 				}), new DashboardFeature("Patient", "Medical Records", Set.of(UserRole.PATIENT), () -> {
+<<<<<<< HEAD
 <<<<<<< HEAD
 					MedicalRecord view = new MedicalRecord();
 					new MedicalRecordController(view);
@@ -86,8 +99,14 @@ public class ClientApp {
 					MedicalRecordController controller = new MedicalRecordController(view);
 					view.registerActionListener(controller);
 >>>>>>> stash
+=======
+					MedicalRecordView view = new MedicalRecordView();
+					MedicalRecordController controller = new MedicalRecordController(view);
+					view.registerActionListener(controller);
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 					return view;
 				}), new DashboardFeature("Patient", "Payments", Set.of(UserRole.PATIENT), () -> {
+<<<<<<< HEAD
 <<<<<<< HEAD
 					Payment view = new Payment();
 					new PaymentController(view);
@@ -96,8 +115,14 @@ public class ClientApp {
 					PaymentController controller = new PaymentController(view);
 					view.registerActionListener(controller);
 >>>>>>> stash
+=======
+					PaymentView view = new PaymentView();
+					PaymentController controller = new PaymentController(view);
+					view.registerActionListener(controller);
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 					return view;
 				}), new DashboardFeature("Patient", "Chat", Set.of(UserRole.PATIENT), () -> {
+<<<<<<< HEAD
 <<<<<<< HEAD
 					Chat view = new Chat();
 					new ChatController(view);
@@ -106,11 +131,17 @@ public class ClientApp {
 					ChatController controller = new ChatController(view);
 					view.registerActionListener(controller);
 >>>>>>> stash
+=======
+					ChatView view = new ChatView();
+					ChatController controller = new ChatController(view);
+					view.registerActionListener(controller);
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 					return view;
 				}),
 
 				// Employee features
 				new DashboardFeature("Employee", "Diagnosis", Set.of(UserRole.DOCTOR), () -> {
+<<<<<<< HEAD
 <<<<<<< HEAD
 					Diagnosis view = new Diagnosis();
 					new DiagnosisController(view);
@@ -119,8 +150,14 @@ public class ClientApp {
 					DiagnosisController controller = new DiagnosisController(view);
 					view.registerActionListener(controller);
 >>>>>>> stash
+=======
+					DiagnosisView view = new DiagnosisView();
+					DiagnosisController controller = new DiagnosisController(view);
+					view.registerActionListener(controller);
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 					return view;
 				}), new DashboardFeature("Employee", "Complaint Manager", Set.of(UserRole.RECEPTIONIST), () -> {
+<<<<<<< HEAD
 <<<<<<< HEAD
 					EmployeeComplaint view = new EmployeeComplaint();
 					new EmployeeComplaintController(view);
@@ -129,8 +166,14 @@ public class ClientApp {
 					EmployeeComplaintController controller = new EmployeeComplaintController(view);
 					view.registerActionListener(controller);
 >>>>>>> stash
+=======
+					EmployeeComplaintView view = new EmployeeComplaintView();
+					EmployeeComplaintController controller = new EmployeeComplaintController(view);
+					view.registerActionListener(controller);
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 					return view;
 				}), new DashboardFeature("Employee", "Staff Assignment", Set.of(UserRole.RECEPTIONIST), () -> {
+<<<<<<< HEAD
 <<<<<<< HEAD
 					StaffAssignment view = new StaffAssignment();
 					new StaffAssignmentController(view);
@@ -139,8 +182,14 @@ public class ClientApp {
 					StaffAssignmentController controller = new StaffAssignmentController(view);
 					view.registerActionListener(controller);
 >>>>>>> stash
+=======
+					StaffAssignmentView view = new StaffAssignmentView();
+					StaffAssignmentController controller = new StaffAssignmentController(view);
+					view.registerActionListener(controller);
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 					return view;
 				}), new DashboardFeature("Employee", "My Patients", Set.of(UserRole.DOCTOR), () -> {
+<<<<<<< HEAD
 <<<<<<< HEAD
 					Patients view = new Patients();
 					new PatientsController(view);
@@ -149,8 +198,14 @@ public class ClientApp {
 					PatientsController controller = new PatientsController(view);
 					view.registerActionListener(controller);
 >>>>>>> stash
+=======
+					PatientsView view = new PatientsView();
+					PatientsController controller = new PatientsController(view);
+					view.registerActionListener(controller);
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 					return view;
 				}), new DashboardFeature("Employee", "Doctors", Set.of(UserRole.DOCTOR, UserRole.RECEPTIONIST), () -> {
+<<<<<<< HEAD
 <<<<<<< HEAD
 					Doctors view = new Doctors();
 					new DoctorsController(view);
@@ -159,8 +214,14 @@ public class ClientApp {
 					DoctorsController controller = new DoctorsController(view);
 					view.registerActionListener(controller);
 >>>>>>> stash
+=======
+					DoctorsView view = new DoctorsView();
+					DoctorsController controller = new DoctorsController(view);
+					view.registerActionListener(controller);
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 					return view;
 				}), new DashboardFeature("Employee", "Nurse Station", Set.of(UserRole.NURSE), () -> {
+<<<<<<< HEAD
 <<<<<<< HEAD
 					Vitals view = new Vitals();
 					new VitalsController(view);
@@ -169,9 +230,15 @@ public class ClientApp {
 					VitalsController controller = new VitalsController(view);
 					view.registerActionListener(controller);
 >>>>>>> stash
+=======
+					VitalsView view = new VitalsView();
+					VitalsController controller = new VitalsController(view);
+					view.registerActionListener(controller);
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 					return view;
 				}), new DashboardFeature("Employee", "Staff Chat",
 						Set.of(UserRole.DOCTOR, UserRole.NURSE, UserRole.RECEPTIONIST), () -> {
+<<<<<<< HEAD
 <<<<<<< HEAD
 							StaffChat view = new StaffChat();
 							new StaffChatController(view);
@@ -180,6 +247,11 @@ public class ClientApp {
 							StaffChatController controller = new StaffChatController(view);
 							view.registerActionListener(controller);
 >>>>>>> stash
+=======
+							StaffChatView view = new StaffChatView();
+							StaffChatController controller = new StaffChatController(view);
+							view.registerActionListener(controller);
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 							return view;
 						}));
 

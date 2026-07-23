@@ -33,10 +33,13 @@ public class DoctorsController {
 
     @SuppressWarnings("unchecked")
 <<<<<<< HEAD
+<<<<<<< HEAD
     private void refresh() {
         Response res = new Client().send(new Request(RequestType.GET_DOCTORS, "all", true));
         if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 =======
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
     public void refresh() {
         Response res = Client.send(
                 new Request(
@@ -52,12 +55,38 @@ public class DoctorsController {
         }
         view.clearTable();
 <<<<<<< HEAD
+<<<<<<< HEAD
         
         if (res.getData() instanceof List<?>) {
             for (Object element : (List<Object>) res.getData()) {
                 view.addDoctor(element instanceof Object[] ? (Object[]) element : new Object[]{element});
             }
 =======
+=======
+
+        /*
+         * Casting straight to Doctor rather than Person, so the specialization and
+         * licence columns below are reachable. This only holds because the request asks
+         * specifically for doctors: a response carrying any other Person subclass would
+         * fail here with a ClassCastException.
+         */
+        for (Doctor row : (List<Doctor>) res.getData()) {
+
+            Object[] viewRow = new Object[] {
+                    row.getPersonId(),
+                    row.getFirstName(),
+                    row.getLastName(),
+                    row.getEmail(),
+                    row.getPhone(),
+                    row.getDepartment(),
+                    row.getHireDate(),
+                    row.getSpecialization(),
+                    row.getLicenseNo()
+            };
+
+            view.addDoctor(viewRow);
+        }
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
         /*
          * Casting straight to Doctor rather than Person, so the specialization and

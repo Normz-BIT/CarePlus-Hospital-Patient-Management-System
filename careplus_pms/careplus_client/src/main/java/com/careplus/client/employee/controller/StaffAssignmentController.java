@@ -23,8 +23,11 @@ import com.careplus.common.net.Response;
 >>>>>>> stash
 public class StaffAssignmentController {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	private final StaffAssignment view;
 =======
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
 	/*
 	 * The four departments a member of staff can be assigned to. These are listed
@@ -48,6 +51,7 @@ public class StaffAssignmentController {
 	}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	private void init() {
 		view.getBtnAssign().addActionListener(e -> save(RequestType.ASSIGN_STAFF));
 		view.getBtnUpdate().addActionListener(e -> save(RequestType.ASSIGN_STAFF));
@@ -56,6 +60,8 @@ public class StaffAssignmentController {
 	}
 
 =======
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	/*
 	 * Load Department and Complaint Status
 	 *
@@ -67,13 +73,18 @@ public class StaffAssignmentController {
 >>>>>>> stash
 	private void loadCombos() {
 <<<<<<< HEAD
+<<<<<<< HEAD
 		add(view.getCboDepartment(), "Medical", "Billing", "Reception", "Administration");
 		add(view.getCboPriority(), "Low", "Medium", "High", "Urgent");
 	}
 =======
 		view.getCboDepartment().removeAllItems();
 >>>>>>> stash
+=======
+		view.getCboDepartment().removeAllItems();
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 	private void add(javax.swing.JComboBox<String> box, String... items) {
 		box.removeAllItems();
@@ -88,6 +99,15 @@ public class StaffAssignmentController {
 		for (ComplaintStatus status : ComplaintStatus.values())
 			view.getCboStatus().addItem(status.name());
 >>>>>>> stash
+=======
+		for (String department : DEPARTMENTS)
+			view.getCboDepartment().addItem(department);
+
+		view.getCboStatus().removeAllItems();
+
+		for (ComplaintStatus status : ComplaintStatus.values())
+			view.getCboStatus().addItem(status.name());
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	}
 
 <<<<<<< HEAD
@@ -105,10 +125,16 @@ public class StaffAssignmentController {
 		save(RequestType.ASSIGN_STAFF);
 	}
 
+<<<<<<< HEAD
 >>>>>>> stash
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	private void save(RequestType type) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 		if (view.getTxtComplaintId().getText().trim().isEmpty() || view.getTxtStaffId().getText().trim().isEmpty()) {
 
 			view.showMessage("Complaint ID and employee ID are required.");
@@ -169,10 +195,13 @@ public class StaffAssignmentController {
 
 	@SuppressWarnings("unchecked")
 <<<<<<< HEAD
+<<<<<<< HEAD
 	private void refresh() {
 		Response res = new Client().send(new Request(RequestType.GET_STAFF_ASSIGNMENTS, "all", true));
 		if (res == null || !Boolean.TRUE.equals(res.getSuccess()))
 =======
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	public void refresh() {
 		Response res = Client.send(new Request(RequestType.GET_STAFF_ASSIGNMENTS, "all", true));
 

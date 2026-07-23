@@ -1,9 +1,13 @@
 package com.careplus.client.employee.controller;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import java.time.LocalDateTime;
 >>>>>>> stash
+=======
+import java.time.LocalDateTime;
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 import java.util.List;
 
 import com.careplus.client.employee.view.Vitals;
@@ -36,6 +40,7 @@ public class VitalsController {
 	}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	private void init() {
 		view.getBtnRecord().addActionListener(e -> record());
 		view.getBtnRefresh().addActionListener(e -> refresh());
@@ -48,6 +53,8 @@ public class VitalsController {
 
 	private void record() {
 =======
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	/*
 	 * Record Patient Vital Signs
 	 */
@@ -56,15 +63,21 @@ public class VitalsController {
 		 * TODO: take the patient from the case table selection rather than a typed ID,
 		 * so a reading cannot be filed against the wrong patient.
 		 */
+<<<<<<< HEAD
 >>>>>>> stash
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 		String patientId = view.getTxtPatientId().getText().trim();
 		if (patientId.isEmpty()) {
+<<<<<<< HEAD
 <<<<<<< HEAD
 			patientId = selectedPatientId();
 		}
 		if (patientId.isEmpty()) {
 			view.showMessage("Enter or select a patient before recording vitals.");
 =======
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 			view.showMessage("Enter a patient ID before recording vitals.");
 			logger.warn("Vital signs rejected because no patient was selected");
 
@@ -163,6 +176,7 @@ public class VitalsController {
 	}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	/** Patient id of the currently selected assigned-case row, or "". */
 	private String selectedPatientId() {
 		int row = view.getTblCases().getSelectedRow();
@@ -174,16 +188,21 @@ public class VitalsController {
 	}
 
 =======
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	/*
 	 * View Patient Vital Signs
 	 */
 >>>>>>> stash
 	@SuppressWarnings("unchecked")
 <<<<<<< HEAD
+<<<<<<< HEAD
 	private void refresh() {
 		Response res = send(new Request(RequestType.GET_ASSIGNED_CASES, "nurse", "current"));
 		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 =======
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	public void refresh() {
 		Response res = Client.send(
 				new Request(
@@ -198,6 +217,7 @@ public class VitalsController {
 			return;
 		}
 		view.clearTable();
+<<<<<<< HEAD
 <<<<<<< HEAD
 		if (res.getData() instanceof List<?>) {
 			for (Object row : (List<Object>) res.getData()) {
@@ -220,6 +240,23 @@ public class VitalsController {
 
 			view.addCase(viewRow);
 >>>>>>> stash
+=======
+
+		for (VitalSigns row : (List<VitalSigns>) res.getData()) {
+
+			Object[] viewRow = new Object[] {
+					row.getVitalId(),
+					row.getTemperature(),
+					row.getBloodPressure(),
+					row.getHeartRate(),
+					row.getRespiratoryRate(),
+					row.getObservations(),
+					row.getNursingNotes(),
+					row.getRecordedAt()
+			};
+
+			view.addCase(viewRow);
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 		}
 	}
 }

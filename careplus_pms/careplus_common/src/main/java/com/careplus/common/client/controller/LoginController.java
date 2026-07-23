@@ -15,10 +15,14 @@ public class LoginController {
 	private final LoginView view;
 	private final List<DashboardFeature> features;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	public LoginController(LoginView view, List<DashboardFeature> features) {
 		this.view = view;
 		this.features = features;
+<<<<<<< HEAD
 <<<<<<< HEAD
 		init();
 	}
@@ -27,6 +31,8 @@ public class LoginController {
 		view.getBtnLogin().addActionListener(e -> login());
 =======
 >>>>>>> stash
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	}
 
 <<<<<<< HEAD
@@ -46,7 +52,10 @@ public class LoginController {
 		 * the String pool. Converting it here gives that protection up, and the value
 		 * then travels to the server as plaintext anyway.
 		 */
+<<<<<<< HEAD
 >>>>>>> stash
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 		String id = view.getTxtId().getText().trim();
 		String password = String.valueOf(view.getTxtPassword().getPassword());
 

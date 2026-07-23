@@ -1,9 +1,13 @@
 package com.careplus.client.patient.controller;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import java.time.LocalDateTime;
 >>>>>>> stash
+=======
+import java.time.LocalDateTime;
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 import java.util.List;
 
 import com.careplus.client.patient.view.Chat;
@@ -32,11 +36,14 @@ public class ChatController {
 	public ChatController(Chat view) {
 		this.view = view;
 <<<<<<< HEAD
+<<<<<<< HEAD
 		view.getBtnSend().addActionListener(e -> sendMessage());
 		view.getBtnRefresh().addActionListener(e -> refresh());
 		view.getBtnClear().addActionListener(e -> view.clearConversation());
 =======
 >>>>>>> stash
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 		refresh();
 	}
 
@@ -128,10 +135,13 @@ public class ChatController {
 	 */
 	@SuppressWarnings("unchecked")
 <<<<<<< HEAD
+<<<<<<< HEAD
 	private void refresh() {
 		Response res = new Client().send(new Request(RequestType.CHAT_POLL, "user", "current"));
 		if (res == null || !Boolean.TRUE.equals(res.getSuccess()))
 =======
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	public void refresh() {
 		Response res = Client.send(
 				new Request(

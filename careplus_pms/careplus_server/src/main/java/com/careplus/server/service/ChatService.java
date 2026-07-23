@@ -2,7 +2,7 @@ package com.careplus.server.service;
 
 import java.util.List;
 
-import com.careplus.common.model.ChatMessages;
+import com.careplus.common.model.ChatMessage;
 import com.careplus.common.net.Response;
 
 /*
@@ -21,7 +21,11 @@ import com.careplus.common.net.Response;
  */
 public class ChatService {
 
+<<<<<<< HEAD
 	public Response send(ChatMessages message) {
+=======
+	public Response send(ChatMessage message) {
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 		return null;
 
 	}
@@ -36,7 +40,11 @@ public class ChatService {
 	 * in the system, so this signature will need reconciling before it can be wired
 	 * up.
 	 */
+<<<<<<< HEAD
 	public List<ChatMessages> poll(int userId){
+=======
+	public List<ChatMessage> poll(int userId){
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 		return null;
 	}
 

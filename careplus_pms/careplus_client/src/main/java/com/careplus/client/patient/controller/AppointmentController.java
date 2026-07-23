@@ -1,15 +1,23 @@
 package com.careplus.client.patient.controller;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 >>>>>>> stash
+=======
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 import java.util.List;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import com.careplus.client.patient.view.Appointment;
 =======
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 import javax.swing.JComboBox;
 
 import org.apache.logging.log4j.LogManager;
@@ -55,6 +63,7 @@ public class AppointmentController {
 >>>>>>> stash
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     private void init() {
         view.getBtnSchedule().addActionListener(e -> schedule());
         view.getBtnRefresh().addActionListener(e -> refresh());
@@ -64,7 +73,10 @@ public class AppointmentController {
     }
 =======
 >>>>>>> stash
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     private Response send(Request request) { return new Client().send(request); }
 
@@ -75,6 +87,8 @@ public class AppointmentController {
         if (departments != null && Boolean.TRUE.equals(departments.getSuccess())) fillCombo(view.getCboDepartment(), departments.getData());
     }
 =======
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	/*
 	 * Combo contents come from the server rather than from a local enum, so the
 	 * doctor list reflects who is actually on staff. Failures are silent by design:
@@ -83,7 +97,10 @@ public class AppointmentController {
 	 */
 	private void loadLookups() {
 		Response doctors = Client.send(new Request(RequestType.GET_DOCTORS, "role", "doctor"));
+<<<<<<< HEAD
 >>>>>>> stash
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
     @SuppressWarnings("unchecked")
     private void fillCombo(javax.swing.JComboBox<String> combo, Object data) {
@@ -91,6 +108,7 @@ public class AppointmentController {
         if (data instanceof List<?>) for (Object value : (List<Object>) data) combo.addItem(String.valueOf(value));
     }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     private void schedule() {
         if (view.getTxtDate().getText().trim().isEmpty() || view.getTxtTime().getText().trim().isEmpty()) {
@@ -110,6 +128,9 @@ public class AppointmentController {
 =======
 		Response departments = Client.send(new Request(RequestType.GET_DEPARTMENTS, "type", "appointment"));
 >>>>>>> stash
+=======
+		Response departments = Client.send(new Request(RequestType.GET_DEPARTMENTS, "type", "appointment"));
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
     private void cancel() {
         int row = view.getTblAppointments().getSelectedRow();

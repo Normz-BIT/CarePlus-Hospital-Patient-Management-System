@@ -2,6 +2,7 @@ package com.careplus.common.model;
 
 import java.io.Serializable;
 
+<<<<<<< HEAD
 /*
  * Payment class
  * Patient has Payments
@@ -14,10 +15,13 @@ import java.io.Serializable;
  * It is both persisted by PaymentService and sent over the socket, so it must stay
  * Serializable as well as annotated.
  */
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 @Entity
 @Table(name = "payment")
 >>>>>>> stash
 public class Payment implements Serializable {
+<<<<<<< HEAD
 	private static final long serialVersionUID = 1L;
 <<<<<<< HEAD
 =======
@@ -67,50 +71,86 @@ public class Payment implements Serializable {
 	@Column(name = "patient_id")
 	private String patientId;
 >>>>>>> stash
+=======
 
-	public Payment() {
+    @Transient
+    private static final long serialVersionUID = 1L;
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
-	}
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "payment_id", nullable = false)
+    private Integer paymentId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "patient_id", nullable = false)
+    private Patient patient;
+
+<<<<<<< HEAD
 	public Payment(int paymentId, double amountPaid, double outstandingBalance, String description) {
 		this.paymentId = paymentId;
 		this.amountPaid = amountPaid;
 		this.outstandingBalance = outstandingBalance;
 		this.description = description;
 	}
+=======
+    @Column(name = "amount_paid", nullable = false, precision = 10, scale = 2)
+    private double amountPaid;
 
-	public int getPaymentId() {
-		return paymentId;
-	}
+    @Column(name = "payment_date", nullable = false)
+    private LocalDateTime paymentDate;
 
-	public void setPaymentId(int paymentId) {
-		this.paymentId = paymentId;
-	}
+    @Column(name = "outstanding_balance", nullable = false, precision = 10, scale = 2)
+    private double outstandingBalance;
 
-	public double getAmountPaid() {
-		return amountPaid;
-	}
+    @Column(name = "description", length = 200)
+    private String description;
 
-	public void setAmountPaid(double amountPaid) {
-		this.amountPaid = amountPaid;
-	}
+    public Payment() {
+    }
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
-	public double getOutstandingBalance() {
-		return outstandingBalance;
-	}
+    public Payment(Patient patient, double amountPaid, LocalDateTime paymentDate,
+                   double outstandingBalance, String description) {
+        this.patient = patient;
+        this.amountPaid = amountPaid;
+        this.paymentDate = paymentDate;
+        this.outstandingBalance = outstandingBalance;
+        this.description = description;
+    }
 
-	public void setOutstandingBalance(double outstandingBalance) {
-		this.outstandingBalance = outstandingBalance;
-	}
+    @PrePersist
+    protected void onCreate() {
+        if (paymentDate == null) {
+            paymentDate = LocalDateTime.now();
+        }
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public Integer getPaymentId() {
+        return paymentId;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public void setPaymentId(Integer paymentId) {
+        this.paymentId = paymentId;
+    }
 
+    public Patient getPatient() {
+        return patient;
+    }
+
+    public void setPatient(Patient patient) {
+        this.patient = patient;
+    }
+
+    public double getAmountPaid() {
+        return amountPaid;
+    }
+
+    public void setAmountPaid(double amountPaid) {
+        this.amountPaid = amountPaid;
+    }
+
+<<<<<<< HEAD
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -125,10 +165,53 @@ public class Payment implements Serializable {
 		Payment other = (Payment) obj;
 		return paymentId == other.paymentId;
 	}
+=======
+    public LocalDateTime getPaymentDate() {
+        return paymentDate;
+    }
 
-	@Override
-	public int hashCode() {
-		return Integer.hashCode(paymentId);
-	}
+    public void setPaymentDate(LocalDateTime paymentDate) {
+        this.paymentDate = paymentDate;
+    }
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
+    public double getOutstandingBalance() {
+        return outstandingBalance;
+    }
+
+    public void setOutstandingBalance(double outstandingBalance) {
+        this.outstandingBalance = outstandingBalance;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    @Override
+    public String toString() {
+        return "Payment [paymentId=" + paymentId
+                + ", patient=" + (patient != null ? patient.getPersonId() : null)
+                + ", amountPaid=" + amountPaid
+                + ", paymentDate=" + paymentDate
+                + ", outstandingBalance=" + outstandingBalance
+                + ", description=" + description + "]";
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof Payment)) return false;
+        if (getClass() != obj.getClass()) return false;
+        Payment other = (Payment) obj;
+        return paymentId != null && paymentId.equals(other.paymentId);
+    }
+
+    @Override
+    public int hashCode() {
+        return paymentId == null ? 0 : paymentId.hashCode();
+    }
 }

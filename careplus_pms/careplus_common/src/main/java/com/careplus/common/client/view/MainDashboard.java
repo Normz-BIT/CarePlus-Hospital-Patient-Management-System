@@ -3,7 +3,10 @@ package com.careplus.common.client.view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 import java.awt.Image;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -16,7 +19,10 @@ import java.util.Map;
 =======
 import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
+<<<<<<< HEAD
 >>>>>>> stash
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
@@ -38,9 +44,12 @@ public class MainDashboard extends JFrame {
     private static final long serialVersionUID = 1L;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     /** Client property that tags an open internal frame with its feature label. */
     private static final String FEATURE_KEY = "careplus.feature";
 =======
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	/**
 	 * Client property that tags an open internal frame with its feature label.
 	 *
@@ -52,10 +61,13 @@ public class MainDashboard extends JFrame {
 >>>>>>> stash
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     private final Person currentUser;
     private final List<DashboardFeature> features;
     private final JDesktopPane desktopPane = new JDesktopPane();
 =======
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	/*
 	 * Static so any controller can reach the signed in user through
 	 * getCurrentUser() without it being passed down through every view
@@ -153,9 +165,12 @@ public class MainDashboard extends JFrame {
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     /** Opens the feature's frame, or focuses it if it is already open. */
     private void openFeature(DashboardFeature feature) {
 =======
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 		/*
 		 * LinkedHashMap rather than HashMap so menus appear in the order features were
 		 * registered in ClientApp, giving a stable menu bar instead of one that
@@ -386,5 +401,8 @@ public class MainDashboard extends JFrame {
 		this.setIconImages(icons);
 	}
 	
+<<<<<<< HEAD
 >>>>>>> stash
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 }

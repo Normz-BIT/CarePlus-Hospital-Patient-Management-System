@@ -1,9 +1,13 @@
 package com.careplus.client.employee.controller;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import java.time.LocalDateTime;
 >>>>>>> stash
+=======
+import java.time.LocalDateTime;
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 import java.util.List;
 
 import com.careplus.client.employee.view.StaffChat;
@@ -34,11 +38,14 @@ public class StaffChatController {
 	public StaffChatController(StaffChat view) {
 		this.view = view;
 <<<<<<< HEAD
+<<<<<<< HEAD
 		view.getBtnSend().addActionListener(e -> sendMessage());
 		view.getBtnRefresh().addActionListener(e -> refresh());
 		view.getBtnClear().addActionListener(e -> view.clearConversation());
 =======
 >>>>>>> stash
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 		refresh();
 	}
 
@@ -49,7 +56,10 @@ public class StaffChatController {
 	 * Send Message to Patient
 	 */
 	public void sendMessage() {
+<<<<<<< HEAD
 >>>>>>> stash
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 		String message = view.getTxtMessage().getText().trim();
 		String patient = view.getTxtPatient().getText().trim();
 		if (message.isEmpty())

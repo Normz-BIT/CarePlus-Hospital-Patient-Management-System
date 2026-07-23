@@ -1,11 +1,17 @@
 package com.careplus.client.employee.controller;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 >>>>>>> stash
+=======
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 import java.util.List;
 
 import com.careplus.client.employee.view.Patients;
@@ -34,6 +40,7 @@ public class PatientsController {
 	}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	private void init() {
 		view.getBtnFollowUp().addActionListener(e -> scheduleFollowUp());
 		view.getBtnRefresh().addActionListener(e -> refresh());
@@ -46,11 +53,16 @@ public class PatientsController {
 
 	private void scheduleFollowUp() {
 =======
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	/*
 	 * Schedule Patient Follow-up
 	 */
 	public void scheduleFollowUp() {
+<<<<<<< HEAD
 >>>>>>> stash
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 		String patientId = view.getTxtPatientId().getText().trim();
 <<<<<<< HEAD
 =======
@@ -60,7 +72,10 @@ public class PatientsController {
 		 * the one screen offering both routes, which spares the doctor retyping an ID
 		 * for a patient already highlighted while still allowing a direct entry.
 		 */
+<<<<<<< HEAD
 >>>>>>> stash
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 		if (patientId.isEmpty()) {
 			patientId = selectedPatientId();
 		}
@@ -148,10 +163,13 @@ public class PatientsController {
 
 	@SuppressWarnings("unchecked")
 <<<<<<< HEAD
+<<<<<<< HEAD
 	private void refresh() {
 		Response res = send(new Request(RequestType.GET_ASSIGNED_PATIENTS, "doctor", "current"));
 		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 =======
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	public void refresh() {
 		Response res = Client.send(
 				new Request(

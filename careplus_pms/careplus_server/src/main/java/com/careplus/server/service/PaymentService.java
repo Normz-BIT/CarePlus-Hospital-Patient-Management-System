@@ -5,12 +5,15 @@ import java.util.List;
 import com.careplus.common.model.Payment;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 public class PaymentService {
 	
 	public List<Payment> forPatient(int pid)
 	{
 		return null;
 =======
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 /*
  * PaymentService
  * Records payments and serves a patient's payment history.

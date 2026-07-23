@@ -1,12 +1,17 @@
 package com.careplus.common.model;
 
 import java.io.Serializable;
+<<<<<<< HEAD
 import java.util.List;
+=======
+import java.time.LocalDateTime;
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
 import com.careplus.common.enums.UserRole;
 
 import jakarta.persistence.*;
 
+<<<<<<< HEAD
 /**
  * Root of the person inheritance hierarchy
  *
@@ -24,10 +29,13 @@ import jakarta.persistence.*;
  * entity and a wire type. That dual role is why serialVersionUID below is marked
  * @Transient.
  */
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 @Entity
 @Table(name = "person")
 
 public abstract class Person implements Serializable {
+<<<<<<< HEAD
 	/*
 	 * @Transient keeps Hibernate from trying to map this serialization bookkeeping
 	 * field to a column. Without it, Hibernate would look for a matching column and
@@ -76,7 +84,10 @@ public abstract class Person implements Serializable {
 	@Column(name = "password", nullable = false)
 >>>>>>> stash
 	protected String password;
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 	/*
@@ -92,7 +103,12 @@ public abstract class Person implements Serializable {
 	protected UserRole role;
 	@Transient
 	transient protected List<ChatMessages> complaint;
+=======
+    @Transient
+    private static final long serialVersionUID = 1L;
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
+<<<<<<< HEAD
 	/*
 	 * Required by both Hibernate and Java serialization to instantiate before
 	 * populating fields. Protected rather than public so application code is pushed
@@ -100,9 +116,19 @@ public abstract class Person implements Serializable {
 	 * built.
 	 */
 	protected Person() {
+=======
+    @Id
+    @Column(name = "person_id", length = 10, nullable = false)
+    protected String personId;
 
-	}
+    @Column(name = "first_name", length = 50, nullable = false)
+    protected String firstName;
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
+    @Column(name = "last_name", length = 50, nullable = false)
+    protected String lastName;
+
+<<<<<<< HEAD
 	protected Person(String personId, String firstName, String lastName, String email, String phone, String password,
 			UserRole role, List<ChatMessages> complaint) {
 		this.personId = personId;
@@ -114,63 +140,74 @@ public abstract class Person implements Serializable {
 		this.role = role;
 		this.complaint = complaint;
 	}
+=======
+    @Column(name = "email", length = 120, nullable = false, unique = true)
+    protected String email;
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
-	public UserRole getRole() {
-		return this.role;
-	}
+    @Column(name = "phone", length = 20)
+    protected String phone;
 
-	public void setRole(UserRole role) {
-		this.role = role;
-	}
+    @Column(name = "password", length = 255, nullable = false)
+    protected String password;
 
-	public String getFullName() {
-		return firstName + " " + lastName;
-	}
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    protected UserRole role;
 
-	public String getPersonId() {
-		return personId;
-	}
+    @Column(name = "created_at", nullable = false, updatable = false)
+    protected LocalDateTime createdAt;
 
-	public void setPersonId(String personId) {
-		this.personId = personId;
-	}
+    protected Person() {
+    }
 
-	public String getFirstName() {
-		return firstName;
-	}
+    protected Person(String personId, String firstName, String lastName,
+                     String email, String phone, String password, UserRole role) {
+        this.personId = personId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.phone = phone;
+        this.password = password;
+        this.role = role;
+    }
 
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+    }
 
-	public String getLastName() {
-		return lastName;
-	}
+    public String getPersonId() {
+        return personId;
+    }
 
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
+    public void setPersonId(String personId) {
+        this.personId = personId;
+    }
 
-	public String getEmail() {
-		return email;
-	}
+    public String getFirstName() {
+        return firstName;
+    }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
 
-	public String getPhone() {
-		return phone;
-	}
+    public String getLastName() {
+        return lastName;
+    }
 
-	public void setPhone(String phone) {
-		this.phone = phone;
-	}
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
 
-	public String getPassword() {
-		return password;
-	}
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
 
+<<<<<<< HEAD
 	public void setPassword(String password) {
 		this.password = password;
 	}
@@ -182,24 +219,70 @@ public abstract class Person implements Serializable {
 	public void setComplaint(List<ChatMessages> complaint) {
 		this.complaint = complaint;
 	}
+=======
+    public String getEmail() {
+        return email;
+    }
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
-	@Override
-	public boolean equals(Object obj) {// allows us to compare object instances
-		if (this == obj) {
-			return true;
-		}
-		if (!(obj instanceof Person)) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		Person other = (Person) obj;
-		return personId != null && personId.equals(other.personId);
-	}
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-	@Override
-	public int hashCode() {// use string id hash code
-		return (personId == null) ? 0 : personId.hashCode();
-	}
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public UserRole getRole() {
+        return role;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    @Override
+    public String toString() {
+        return "Person [personId=" + personId
+                + ", firstName=" + firstName
+                + ", lastName=" + lastName
+                + ", email=" + email
+                + ", phone=" + phone
+                + ", role=" + role
+                + ", createdAt=" + createdAt + "]";
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof Person)) return false;
+        if (getClass() != obj.getClass()) return false;
+        Person other = (Person) obj;
+        return personId != null && personId.equals(other.personId);
+    }
+
+    @Override
+    public int hashCode() {
+        return personId == null ? 0 : personId.hashCode();
+    }
 }

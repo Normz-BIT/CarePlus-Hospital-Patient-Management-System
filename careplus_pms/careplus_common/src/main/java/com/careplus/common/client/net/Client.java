@@ -15,11 +15,14 @@ import java.io.ObjectOutputStream;
 
 public class Client {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	// client socket
 	private Socket socket;
 	private ObjectInputStream inputStream;
 	private ObjectOutputStream outputStream;
 =======
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	/*
 	 * The connection state is static so the whole client process shares one socket
 	 * to the server. That suits a desktop application where a single user is signed
@@ -32,10 +35,14 @@ public class Client {
 >>>>>>> stash
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	private Response response;
 =======
 >>>>>>> stash
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 	// right now we only running locally so set static
 =======
@@ -46,6 +53,14 @@ public class Client {
 	 * in step with the value hardcoded in the server's Server class.
 	 */
 >>>>>>> stash
+=======
+
+	/*
+	 * Server location is compiled in rather than read from config, so pointing the
+	 * client at a non local server currently requires a rebuild. The port must stay
+	 * in step with the value hardcoded in the server's Server class.
+	 */
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	private final static String host = "localhost";
 	private final static int port = 8888;
 
@@ -91,8 +106,11 @@ public class Client {
 	}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	public Response send(Request request) {
 =======
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	/*
 	 * The single entry point every controller uses to reach the server. Keeping all
 	 * traffic behind one method means the request and response format is defined in
@@ -111,8 +129,11 @@ public class Client {
 >>>>>>> stash
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 		response = null;
 =======
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 		Response response = new Response();
 
 		/*
@@ -165,9 +186,12 @@ public class Client {
 	}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	public boolean isConnected() {
 		return socket != null  && !socket.isClosed();
 =======
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	/*
 	 * Reports on the local end of the socket, which is what send() uses to decide
 	 * whether it needs to reconnect before writing.
@@ -177,7 +201,10 @@ public class Client {
 		return socket != null && !socket.isClosed();
 
 
+<<<<<<< HEAD
 >>>>>>> stash
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	}
 
 	public void disconnect(){

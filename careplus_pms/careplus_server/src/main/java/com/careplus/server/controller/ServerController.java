@@ -1,6 +1,7 @@
 package com.careplus.server.controller;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import com.careplus.server.net.Server;
 =======
 import javax.swing.SwingUtilities;
@@ -10,13 +11,25 @@ import org.apache.logging.log4j.Logger;
 
 
 //import com.careplus.server.net.Server;
+=======
+import javax.swing.SwingUtilities;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
 import com.careplus.server.net.Server;
 import com.careplus.server.service.DatabaseResetService;
+<<<<<<< HEAD
 
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 import com.careplus.server.util.HibernateUtil;
 import com.careplus.server.view.ServerView;
+<<<<<<< HEAD
 >>>>>>> stash
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
 /*
  * Server Controller
@@ -197,10 +210,19 @@ public class ServerController {
 	 */
 	public static void main(String[] args) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	
 		new Server();
 =======
+=======
 
+		SwingUtilities.invokeLater(() -> {
+
+			ServerView view = new ServerView();
+			ServerController controller = new ServerController(view);
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
+
+<<<<<<< HEAD
 		SwingUtilities.invokeLater(() -> {
 
 		new ServerView();
@@ -211,6 +233,10 @@ public class ServerController {
 			view.registerActionListener(controller);
 		});
 >>>>>>> stash
+=======
+			view.registerActionListener(controller);
+		});
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	}
 
 }

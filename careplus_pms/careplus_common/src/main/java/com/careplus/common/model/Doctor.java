@@ -5,6 +5,7 @@ import java.util.List;
 import com.careplus.common.enums.DoctorSpecialization;
 import com.careplus.common.enums.UserRole;
 
+<<<<<<< HEAD
 /*
  * Doctor is one of the three staff types in our Person hierarchy, alongside
  * Nurse and Receptionist. Doctors are the clinical decision makers in the
@@ -19,14 +20,32 @@ import com.careplus.common.enums.UserRole;
  * load a staff row into a Doctor. Person, Employee and Patient are already
  * mapped; the staff side is the next piece of persistence work.
  */
-public class Doctor extends Employee {
-	private static final long serialVersionUID = 1L;
+=======
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.PrimaryKeyJoinColumn;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
+@Entity
+@Table(name = "doctor")
+@PrimaryKeyJoinColumn(name = "person_id")
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
+public class Doctor extends Employee {
+
+<<<<<<< HEAD
 	private DoctorSpecialization specialization;
 	private String licenseNo;
 	private List<Appointment> appointmentsList;
 	private List<MedicalRecord> medicalRecordsList;
+=======
+    @Transient
+    private static final long serialVersionUID = 1L;
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
+<<<<<<< HEAD
 	/*
 	 * We fix the role inside the constructor rather than accepting it as a
 	 * parameter, so a Doctor can never be built carrying the wrong UserRole. This
@@ -37,7 +56,16 @@ public class Doctor extends Employee {
 		super();
 		setRole(UserRole.DOCTOR);
 	}
+=======
+    @Enumerated(EnumType.STRING)
+    @Column(name = "specialization", nullable = false)
+    private DoctorSpecialization specialization;
 
+    @Column(name = "license_no", length = 40, unique = true)
+    private String licenseNo;
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
+
+<<<<<<< HEAD
 <<<<<<< HEAD
 	public Doctor(String personId, String firstName, String lastName, String email, String phone, String password,
 			List<ChatMessages> complaint) {
@@ -52,25 +80,35 @@ public class Doctor extends Employee {
 	public Doctor(String personId, String firstName, String lastName, String email, String phone, String password) {
 		super(personId, firstName, lastName, email, phone, password, UserRole.DOCTOR);
 >>>>>>> stash
+=======
+    public Doctor() {
+        super();
+        setRole(UserRole.DOCTOR);
+    }
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
-	}
+    public Doctor(String personId, String firstName, String lastName,
+                  String email, String phone, String password) {
+        super(personId, firstName, lastName, email, phone, password, UserRole.DOCTOR);
+    }
 
-	public DoctorSpecialization getSpecialization() {
-		return specialization;
-	}
+    public DoctorSpecialization getSpecialization() {
+        return specialization;
+    }
 
-	public void setSpecialization(DoctorSpecialization specialization) {
-		this.specialization = specialization;
-	}
+    public void setSpecialization(DoctorSpecialization specialization) {
+        this.specialization = specialization;
+    }
 
-	public String getLicenseNo() {
-		return licenseNo;
-	}
+    public String getLicenseNo() {
+        return licenseNo;
+    }
 
-	public void setLicenseNo(String licenseNo) {
-		this.licenseNo = licenseNo;
-	}
+    public void setLicenseNo(String licenseNo) {
+        this.licenseNo = licenseNo;
+    }
 
+<<<<<<< HEAD
 	public List<Appointment> getAppointmentsList() {
 		return appointmentsList;
 	}
@@ -87,4 +125,19 @@ public class Doctor extends Employee {
 		this.medicalRecordsList = medicalRecordsList;
 	}
 
+=======
+    @Override
+    public String toString() {
+        return "Doctor [personId=" + personId
+                + ", firstName=" + firstName
+                + ", lastName=" + lastName
+                + ", email=" + email
+                + ", phone=" + phone
+                + ", role=" + role
+                + ", department=" + department
+                + ", hireDate=" + hireDate
+                + ", specialization=" + specialization
+                + ", licenseNo=" + licenseNo + "]";
+    }
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 }

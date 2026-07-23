@@ -1,9 +1,13 @@
 package com.careplus.client.patient.controller;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import java.time.LocalDateTime;
 >>>>>>> stash
+=======
+import java.time.LocalDateTime;
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 import java.util.List;
 
 import com.careplus.client.patient.view.Complaint;
@@ -46,6 +50,7 @@ public class ComplaintController {
 	}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	private Response send(Request request) {
 		return new Client().send(request);
 	}
@@ -54,6 +59,9 @@ public class ComplaintController {
 =======
 	public void submit() {
 >>>>>>> stash
+=======
+	public void submit() {
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 		String desc = view.getTxtDescription().getText().trim();
 		if (desc.isEmpty()) {
 			view.showMessage("Complaint description is required.");
@@ -152,10 +160,13 @@ public class ComplaintController {
 
 	@SuppressWarnings("unchecked")
 <<<<<<< HEAD
+<<<<<<< HEAD
 	private void refresh() {
 		Response res = send(new Request(RequestType.GET_MY_COMPLAINTS, "patientId", "current"));
 		if (res == null || !Boolean.TRUE.equals(res.getSuccess()))
 =======
+=======
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	public void refresh() {
 		Response res = Client.send(
 				new Request(

@@ -1,8 +1,13 @@
 package com.careplus.common.model;
 
 import java.io.Serializable;
+<<<<<<< HEAD
+=======
+import java.math.BigDecimal;
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 import java.time.LocalDateTime;
 
+<<<<<<< HEAD
 /*
  * Patient has Vital Records
  * Nurse records Vital signs
@@ -17,9 +22,24 @@ import java.time.LocalDateTime;
  * TODO: add the JPA annotations and a patient reference, so a reading can be
  * stored against the patient it belongs to.
  */
+=======
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
+@Entity
+@Table(name = "vital_signs")
 public class VitalSigns implements Serializable {
 
+<<<<<<< HEAD
 	private static final long serialVersionUID = 1L;
 	private int vitalId;
 	/*
@@ -50,11 +70,21 @@ public class VitalSigns implements Serializable {
 	 * the server's.
 	 */
 	private LocalDateTime recordedAt;
+=======
+    @Transient
+    private static final long serialVersionUID = 1L;
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
-	public VitalSigns() {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "vital_id", nullable = false)
+    private int vitalId;
 
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "patient_id", nullable = false)
+    private Patient patient;
 
+<<<<<<< HEAD
 	public VitalSigns(int vitalId, double temperature, String bloodPressure, int heartRate, int respiratoryRate,
 			String observations, String nursingNotes, LocalDateTime recordedAt) {
 		this.vitalId = vitalId;
@@ -70,67 +100,88 @@ public class VitalSigns implements Serializable {
 	public int getVitalId() {
 		return vitalId;
 	}
+=======
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "nurse_id", nullable = false)
+    private Nurse nurse;
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
-	public void setVitalId(int vitalId) {
-		this.vitalId = vitalId;
-	}
+    @Column(name = "temperature", precision = 4, scale = 1)
+    private BigDecimal temperature;
 
-	public double getTemperature() {
-		return temperature;
-	}
+    @Column(name = "blood_pressure", length = 10)
+    private String bloodPressure;
 
-	public void setTemperature(double temperature) {
-		this.temperature = temperature;
-	}
+    @Column(name = "heart_rate")
+    private Integer heartRate;
 
-	public String getBloodPressure() {
-		return bloodPressure;
-	}
+    @Column(name = "respiratory_rate")
+    private Integer respiratoryRate;
 
-	public void setBloodPressure(String bloodPressure) {
-		this.bloodPressure = bloodPressure;
-	}
+    @Column(name = "observations", columnDefinition = "TEXT")
+    private String observations;
 
-	public int getHeartRate() {
-		return heartRate;
-	}
+    @Column(name = "nursing_notes", columnDefinition = "TEXT")
+    private String nursingNotes;
 
-	public void setHeartRate(int heartRate) {
-		this.heartRate = heartRate;
-	}
+    @Column(name = "recorded_at", nullable = false)
+    private LocalDateTime recordedAt = LocalDateTime.now();
 
-	public int getRespiratoryRate() {
-		return respiratoryRate;
-	}
+    public VitalSigns() {
+    }
 
-	public void setRespiratoryRate(int respiratoryRate) {
-		this.respiratoryRate = respiratoryRate;
-	}
+    public VitalSigns(int vitalId, Patient patient, Nurse nurse, BigDecimal temperature,
+                      String bloodPressure, Integer heartRate, Integer respiratoryRate,
+                      String observations, String nursingNotes, LocalDateTime recordedAt) {
+        this.vitalId = vitalId;
+        this.patient = patient;
+        this.nurse = nurse;
+        this.temperature = temperature;
+        this.bloodPressure = bloodPressure;
+        this.heartRate = heartRate;
+        this.respiratoryRate = respiratoryRate;
+        this.observations = observations;
+        this.nursingNotes = nursingNotes;
+        this.recordedAt = recordedAt;
+    }
 
-	public String getObservations() {
-		return observations;
-	}
+    public int getVitalId() {
+        return vitalId;
+    }
 
-	public void setObservations(String observations) {
-		this.observations = observations;
-	}
+    public void setVitalId(int vitalId) {
+        this.vitalId = vitalId;
+    }
 
-	public String getNursingNotes() {
-		return nursingNotes;
-	}
+    public Patient getPatient() {
+        return patient;
+    }
 
-	public void setNursingNotes(String nursingNotes) {
-		this.nursingNotes = nursingNotes;
-	}
+    public void setPatient(Patient patient) {
+        this.patient = patient;
+    }
 
+<<<<<<< HEAD
 	public LocalDateTime getRecordedAt() {
 		return recordedAt;
 	}
+=======
+    public Nurse getNurse() {
+        return nurse;
+    }
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
+<<<<<<< HEAD
 	public void setRecordedAt(LocalDateTime recordedAt) {
 		this.recordedAt = recordedAt;
 	}
+=======
+    public void setNurse(Nurse nurse) {
+        this.nurse = nurse;
+    }
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
+<<<<<<< HEAD
 	@Override
 	public String toString() {
 		return "VitalSigns [vitalId=" + vitalId + ", temperature=" + temperature + ", bloodPressure=" + bloodPressure
@@ -142,22 +193,92 @@ public class VitalSigns implements Serializable {
 	public int hashCode() {
 		return Integer.hashCode(vitalId);
 	}
+=======
+    public BigDecimal getTemperature() {
+        return temperature;
+    }
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (!(obj instanceof VitalSigns)) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		VitalSigns other = (VitalSigns) obj;
-		return vitalId == other.vitalId;
-	}
+    public void setTemperature(BigDecimal temperature) {
+        this.temperature = temperature;
+    }
 
-	
-	
+    public String getBloodPressure() {
+        return bloodPressure;
+    }
+
+    public void setBloodPressure(String bloodPressure) {
+        this.bloodPressure = bloodPressure;
+    }
+
+    public Integer getHeartRate() {
+        return heartRate;
+    }
+
+    public void setHeartRate(Integer heartRate) {
+        this.heartRate = heartRate;
+    }
+
+    public Integer getRespiratoryRate() {
+        return respiratoryRate;
+    }
+
+    public void setRespiratoryRate(Integer respiratoryRate) {
+        this.respiratoryRate = respiratoryRate;
+    }
+
+    public String getObservations() {
+        return observations;
+    }
+
+    public void setObservations(String observations) {
+        this.observations = observations;
+    }
+
+    public String getNursingNotes() {
+        return nursingNotes;
+    }
+
+    public void setNursingNotes(String nursingNotes) {
+        this.nursingNotes = nursingNotes;
+    }
+
+    public LocalDateTime getRecordedAt() {
+        return recordedAt;
+    }
+
+    public void setRecordedAt(LocalDateTime recordedAt) {
+        this.recordedAt = recordedAt;
+    }
+
+    @Override
+    public String toString() {
+        return "VitalSigns [vitalId=" + vitalId
+                + ", patient=" + (patient != null ? patient.getPersonId() : null)
+                + ", nurse=" + (nurse != null ? nurse.getPersonId() : null)
+                + ", temperature=" + temperature
+                + ", bloodPressure=" + bloodPressure
+                + ", heartRate=" + heartRate
+                + ", respiratoryRate=" + respiratoryRate
+                + ", observations=" + observations
+                + ", nursingNotes=" + nursingNotes
+                + ", recordedAt=" + recordedAt + "]";
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(vitalId);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof VitalSigns)) {
+            return false;
+        }
+        VitalSigns other = (VitalSigns) obj;
+        return vitalId == other.vitalId;
+    }
 }

@@ -1,21 +1,34 @@
 package com.careplus.common.model;
 
+<<<<<<< HEAD
 import java.util.Date;
+=======
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
 
 import java.util.List;
 
 import com.careplus.common.enums.UserRole;
 
+<<<<<<< HEAD
+=======
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrimaryKeyJoinColumn;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
-/* *
- * Child of the Person class
- * 	can make Payments
- * 	can make Complaints
- * 	can set Appointments
- *  has Vital Signs
- *  has Medical Records
- *    
+/*
+ * Notes:
+ * 
  */
 <<<<<<< HEAD
 =======
@@ -31,6 +44,7 @@ import com.careplus.common.enums.UserRole;
 @PrimaryKeyJoinColumn(name = "person_id")
 >>>>>>> stash
 public class Patient extends Person {
+<<<<<<< HEAD
 	private static final long serialVersionUID = 1L;
 <<<<<<< HEAD
 =======
@@ -48,6 +62,15 @@ public class Patient extends Person {
      * reordering the Gender constants must not change what rows already in the
      * database mean.
      */
+=======
+
+    @Transient
+    private static final long serialVersionUID = 1L;
+
+    @Column(name = "date_of_birth")
+    private LocalDate dateOfBirth;
+
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
     @Enumerated(EnumType.STRING)
     @Column(name = "gender", nullable = false)
     private Gender gender;
@@ -77,16 +100,20 @@ public class Patient extends Person {
     private String medicalHistory;
 >>>>>>> stash
 
-	public Patient() {
-		super();
-		setRole(UserRole.PATIENT);
-	}
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = false)
+    private List<Complaint> complaints = new ArrayList<>();
 
+<<<<<<< HEAD
 	public Patient(String personId, String firstName, String lastName, String email, String phone, String password,
 			List<ChatMessages> complaint) {
 		super(personId, firstName, lastName, email, phone, password, UserRole.PATIENT, complaint);
 	}
+=======
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = false)
+    private List<Appointment> appointments = new ArrayList<>();
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 	public List<Payment> getPaymentList() {
 		return paymentList;
@@ -97,7 +124,12 @@ public class Patient extends Person {
 		return dateOfBirth;
 >>>>>>> stash
 	}
+=======
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = false)
+    private List<MedicalRecord> medicalRecords = new ArrayList<>();
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 	public void setPaymentList(List<Payment> paymentList) {
 		this.paymentList = paymentList;
@@ -161,21 +193,93 @@ public class Patient extends Person {
 >>>>>>> stash
 		this.gender = gender;
 	}
+=======
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = false)
+    private List<VitalSigns> vitalSigns = new ArrayList<>();
+>>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
-	public String getAddress() {
-		return address;
-	}
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = false)
+    private List<Payment> payments = new ArrayList<>();
 
-	public void setAddress(String address) {
-		this.address = address;
-	}
+    public Patient() {
+        super();
+        setRole(UserRole.PATIENT);
+    }
 
-	public String getMedicalHistory() {
-		return medicalHistory;
-	}
+    public Patient(String personId, String firstName, String lastName,
+                   String email, String phone, String password) {
+        super(personId, firstName, lastName, email, phone, password, UserRole.PATIENT);
+    }
 
-	public void setMedicalHistory(String medicalHistory) {
-		this.medicalHistory = medicalHistory;
-	}
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
+    }
 
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    public Gender getGender() {
+        return gender;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getMedicalHistory() {
+        return medicalHistory;
+    }
+
+    public void setMedicalHistory(String medicalHistory) {
+        this.medicalHistory = medicalHistory;
+    }
+
+    public List<Complaint> getComplaints() {
+        return complaints;
+    }
+
+    public void setComplaints(List<Complaint> complaints) {
+        this.complaints = complaints;
+    }
+
+    public List<Appointment> getAppointments() {
+        return appointments;
+    }
+
+    public void setAppointments(List<Appointment> appointments) {
+        this.appointments = appointments;
+    }
+
+    public List<MedicalRecord> getMedicalRecords() {
+        return medicalRecords;
+    }
+
+    public void setMedicalRecords(List<MedicalRecord> medicalRecords) {
+        this.medicalRecords = medicalRecords;
+    }
+
+    public List<VitalSigns> getVitalSigns() {
+        return vitalSigns;
+    }
+
+    public void setVitalSigns(List<VitalSigns> vitalSigns) {
+        this.vitalSigns = vitalSigns;
+    }
+
+    public List<Payment> getPayments() {
+        return payments;
+    }
+
+    public void setPayments(List<Payment> payments) {
+        this.payments = payments;
+    }
 }
