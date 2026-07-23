@@ -18,9 +18,17 @@ import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.table.DefaultTableModel;
 
+import com.careplus.client.employee.controller.DoctorsController;
 /**
  * Read-only directory of doctors (used by receptionists when assigning staff
  * and by doctors for reference).
+ *
+ * The only feature visible to two roles, and the only one with no form: it is a
+ * table and a refresh button, so DoctorsController exposes just a refresh method.
+ *
+ * Read only is an intent rather than an enforced property. The underlying
+ * DefaultTableModel reports every cell as editable, so the directory can be typed
+ * into; those edits are never sent anywhere and disappear on the next refresh.
  */
 public class DoctorsView extends JInternalFrame {
 
@@ -118,19 +126,20 @@ public class DoctorsView extends JInternalFrame {
 		tableModel.addRow(row);
 	}
 
+	/*
+	 * Attaches this view's controls to the controller that handles them.
+	 */
+	public void registerActionListener(DoctorsController controller) {
+
+		btnRefresh.addActionListener(e -> controller.refresh());
+
+	}
+
 	public void showMessage(String message) {
 		JOptionPane.showMessageDialog(this, message);
 	}
 
-	public JTable getTblDoctors() {
-		return tblDoctors;
-	}
-
 	public DefaultTableModel getTableModel() {
 		return tableModel;
-	}
-
-	public JButton getBtnRefresh() {
-		return btnRefresh;
 	}
 }

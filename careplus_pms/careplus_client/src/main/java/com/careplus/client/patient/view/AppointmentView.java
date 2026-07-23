@@ -24,6 +24,21 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.table.DefaultTableModel;
 
+import com.careplus.client.patient.controller.AppointmentController;
+
+/**
+ * Patient appointment workspace: book a consultation, cancel one, and review
+ * upcoming appointments with their date, assigned doctor and status.
+ *
+ * An MDI child window like every feature screen. The view owns the widgets and
+ * exposes helpers such as clearTable and addAppointment, while every decision and
+ * server call lives in AppointmentController.
+ *
+ * The doctor and department combos are filled from the server rather than from
+ * local enums, so they are empty until that lookup succeeds. Date and time are
+ * plain text fields, which is why the controller has to parse and validate them
+ * by hand against a fixed yyyy-MM-dd HH:mm:ss pattern.
+ */
 public class AppointmentView extends JInternalFrame {
 
 	private static final long serialVersionUID = 1L;
@@ -35,7 +50,6 @@ public class AppointmentView extends JInternalFrame {
 	private JLabel lblDate;
 	private JLabel lblTime;
 	private JLabel lblReason;
-	private JLabel lblStatus;
 
 	// Fields
 	private JComboBox<String> cboDoctor;
@@ -43,7 +57,6 @@ public class AppointmentView extends JInternalFrame {
 	private JTextField txtDate;
 	private JTextField txtTime;
 	private JTextField txtReason;
-	private JTextField txtStatus;
 
 	// Buttons
 	private JButton btnSchedule;
@@ -79,7 +92,6 @@ public class AppointmentView extends JInternalFrame {
 		lblDate = new JLabel("Appointment Date");
 		lblTime = new JLabel("Appointment Time");
 		lblReason = new JLabel("Reason");
-		lblStatus = new JLabel("Status");
 
 		cboDoctor = new JComboBox<>();
 		cboDepartment = new JComboBox<>();
@@ -87,8 +99,6 @@ public class AppointmentView extends JInternalFrame {
 		txtDate = new JTextField(15);
 		txtTime = new JTextField(15);
 		txtReason = new JTextField(15);
-		txtStatus = new JTextField(15);
-		txtStatus.setEditable(false);
 
 		lblDoctor.setDisplayedMnemonic(KeyEvent.VK_D);
 		lblDoctor.setLabelFor(cboDoctor);
@@ -105,15 +115,11 @@ public class AppointmentView extends JInternalFrame {
 		lblReason.setDisplayedMnemonic(KeyEvent.VK_E);
 		lblReason.setLabelFor(txtReason);
 
-		lblStatus.setDisplayedMnemonic(KeyEvent.VK_S);
-		lblStatus.setLabelFor(txtStatus);
-
 		cboDoctor.setToolTipText("Select the doctor for the appointment. Shortcut: Alt+D.");
 		cboDepartment.setToolTipText("Select the hospital department. Shortcut: Alt+P.");
 		txtDate.setToolTipText("Enter the appointment date. Shortcut: Alt+A.");
 		txtTime.setToolTipText("Enter the appointment time. Shortcut: Alt+T.");
 		txtReason.setToolTipText("Enter the reason for the appointment. Shortcut: Alt+E.");
-		txtStatus.setToolTipText("Displays the current appointment status.");
 
 		btnSchedule = new JButton("Schedule");
 		btnUpdate = new JButton("Update");
@@ -136,7 +142,7 @@ public class AppointmentView extends JInternalFrame {
 		tableModel = new DefaultTableModel();
 
 		tableModel.setColumnIdentifiers(
-				new Object[] { "Appointment ID", "Doctor", "Department", "Date", "Time", "Reason", "Status" });
+				new Object[] { "Appointment ID", "Date", "Reason", "Status" });
 
 		tblAppointments = new JTable(tableModel);
 		tblAppointments.setRowHeight(25);
@@ -198,13 +204,6 @@ public class AppointmentView extends JInternalFrame {
 
 		gbc.gridx = 1;
 		formPanel.add(txtReason, gbc);
-
-		gbc.gridx = 0;
-		gbc.gridy = 6;
-		formPanel.add(lblStatus, gbc);
-
-		gbc.gridx = 1;
-		formPanel.add(txtStatus, gbc);
 
 		JPanel buttonPanel = new JPanel(new FlowLayout());
 
@@ -299,6 +298,19 @@ public class AppointmentView extends JInternalFrame {
 		tableModel.addRow(row);
 	}
 
+	/*
+	 * Attaches this view's controls to the controller that handles them.
+	 */
+	public void registerActionListener(AppointmentController controller) {
+
+		btnSchedule.addActionListener(e -> controller.schedule());
+		btnUpdate.addActionListener(e -> controller.schedule());
+		btnCancel.addActionListener(e -> controller.cancel());
+		btnRefresh.addActionListener(e -> controller.refresh());
+		btnClear.addActionListener(e -> clearFields());
+
+	}
+
 	public void clearFields() {
 
 		cboDoctor.removeAllItems();
@@ -307,7 +319,6 @@ public class AppointmentView extends JInternalFrame {
 		txtDate.setText("");
 		txtTime.setText("");
 		txtReason.setText("");
-		txtStatus.setText("");
 
 	}
 
@@ -335,36 +346,12 @@ public class AppointmentView extends JInternalFrame {
 		return txtReason;
 	}
 
-	public JTextField getTxtStatus() {
-		return txtStatus;
-	}
-
 	public JTable getTblAppointments() {
 		return tblAppointments;
 	}
 
 	public DefaultTableModel getTableModel() {
 		return tableModel;
-	}
-
-	public JButton getBtnSchedule() {
-		return btnSchedule;
-	}
-
-	public JButton getBtnUpdate() {
-		return btnUpdate;
-	}
-
-	public JButton getBtnCancel() {
-		return btnCancel;
-	}
-
-	public JButton getBtnRefresh() {
-		return btnRefresh;
-	}
-
-	public JButton getBtnClear() {
-		return btnClear;
 	}
 
 }

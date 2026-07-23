@@ -2,102 +2,218 @@ package com.careplus.common.client.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+<<<<<<< HEAD
+=======
+import java.awt.Image;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+>>>>>>> stash
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+<<<<<<< HEAD
+=======
 import javax.swing.AbstractButton;
+import javax.swing.ImageIcon;
+>>>>>>> stash
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.KeyStroke;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import com.careplus.common.client.controller.LoginController;
 import com.careplus.common.model.Person;
 
 /**
- * MDI main window. Shows a menu bar of the features the logged-in user's role
- * may use each menu item opens that feature's internal frame re-focuses it if
- * it is already open.
+ * MDI main window. 
+ * Shows a menu bar of the features the logged-in user's role may use
+ * each menu item opens that feature's internal frame
+ * re-focuses it if it is already open.
  */
 public class MainDashboard extends JFrame {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/** Client property that tags an open internal frame with its feature label. */
+<<<<<<< HEAD
+    /** Client property that tags an open internal frame with its feature label. */
+    private static final String FEATURE_KEY = "careplus.feature";
+=======
+	/**
+	 * Client property that tags an open internal frame with its feature label.
+	 *
+	 * Tagging the frame itself is what makes reopening a menu item re-focus the
+	 * existing window instead of stacking duplicates, without this class having to
+	 * maintain a separate registry of what is open.
+	 */
 	private static final String FEATURE_KEY = "careplus.feature";
+>>>>>>> stash
 
+<<<<<<< HEAD
+    private final Person currentUser;
+    private final List<DashboardFeature> features;
+    private final JDesktopPane desktopPane = new JDesktopPane();
+=======
+	/*
+	 * Static so any controller can reach the signed in user through
+	 * getCurrentUser() without it being passed down through every view
+	 * constructor. Nearly every feature needs the patient or staff ID to build its
+	 * requests, so threading it through by hand would add a parameter to most of
+	 * the classes in the client.
+	 *
+	 * This suits the application being a desktop client with one user signed in at
+	 * a time, which is the same assumption behind the single shared socket in
+	 * Client.
+	 */
 	private static Person currentUser;
 	private final List<DashboardFeature> features;
 	private final JDesktopPane desktopPane = new JDesktopPane();
+>>>>>>> stash
 
-	private static final Logger logger = LogManager.getLogger(MainDashboard.class);
+    public MainDashboard(Person currentUser) {
+        this(currentUser, List.of());
+    }
 
-	public MainDashboard(Person currentUser) {
-		this(currentUser, List.of());
-	}
+    public MainDashboard(Person currentUser, List<DashboardFeature> features) {
 
-	public MainDashboard(Person currentUser, List<DashboardFeature> features) {
+        this.currentUser = currentUser;
+        this.features = features;
 
-		MainDashboard.currentUser = currentUser;
-		this.features = features;
+        setTitle(currentUser == null ? "CarePlus Hospital Management System"
+                : "CarePlus - " + currentUser.getFullName());
 
-		setTitle(currentUser == null ? "CarePlus Hospital Management System"
-				: "CarePlus - " + currentUser.getFullName());
+        desktopPane.setBackground(new Color(225, 238, 250));
+        setLayout(new BorderLayout());
+        add(desktopPane, BorderLayout.CENTER);
 
-		desktopPane.setBackground(new Color(225, 238, 250));
-		desktopPane.setToolTipText("CarePlus workspace. Select a feature from the menu bar.");
+        setJMenuBar(buildMenuBar());
 
-		setLayout(new BorderLayout());
-		add(desktopPane, BorderLayout.CENTER);
+        setSize(1300, 750);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
 
-		setJMenuBar(buildMenuBar());
+    /** System menu plus one menu per feature group the current role may see. */
+    private JMenuBar buildMenuBar() {
 
-		setSize(1300, 750);
-		setLocationRelativeTo(null);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        JMenuBar menuBar = new JMenuBar();
+        menuBar.add(buildSystemMenu());
 
+<<<<<<< HEAD
+        Map<String, JMenu> menusByGroup = new LinkedHashMap<>();
+        for (DashboardFeature feature : features) {
+            if (currentUser != null && !feature.visibleFor(currentUser.getRole())) {
+                continue;
+            }
+            JMenu menu = menusByGroup.computeIfAbsent(feature.getMenu(), JMenu::new);
+            JMenuItem item = new JMenuItem(feature.getLabel());
+            item.addActionListener(e -> openFeature(feature));
+            menu.add(item);
+        }
+        
+        menusByGroup.values().forEach(menuBar::add);
+
+        return menuBar;
+    }
+=======
 		if (currentUser != null) {
 			logger.info(
 					"Main dashboard opened for user ID: {} with role: {}",
 					currentUser.getPersonId(),
 					currentUser.getRole());
 		}
+		
+		
 	}
-
+	
+	// Retrieve the details of the current logged in user
 	public static Person getCurrentUser() {
+>>>>>>> stash
 
-		return currentUser;
+    private JMenu buildSystemMenu() {
 
-	}
+        JMenuItem logout = new JMenuItem("Logout");
+        logout.addActionListener(e -> {
+            dispose();
+            Login login = new Login();
+            new LoginController(login, features);
+            login.setVisible(true);
+        });
 
-	/** System menu plus one menu per feature group the current role may see. */
-	private JMenuBar buildMenuBar() {
+        JMenuItem exit = new JMenuItem("Exit");
+        exit.addActionListener(e -> System.exit(0));
 
-		JMenuBar menuBar = new JMenuBar();
-		menuBar.add(buildSystemMenu());
+        JMenu menuSystem = new JMenu("System");
+        menuSystem.add(logout);
+        menuSystem.addSeparator();
+        menuSystem.add(exit);
+        return menuSystem;
+    }
 
+<<<<<<< HEAD
+    /** Opens the feature's frame, or focuses it if it is already open. */
+    private void openFeature(DashboardFeature feature) {
+=======
+		/*
+		 * LinkedHashMap rather than HashMap so menus appear in the order features were
+		 * registered in ClientApp, giving a stable menu bar instead of one that
+		 * reshuffles with hash ordering between runs.
+		 */
 		Map<String, JMenu> menusByGroup = new LinkedHashMap<>();
+>>>>>>> stash
 
+<<<<<<< HEAD
+        JInternalFrame open = findOpenFrame(feature.getLabel());
+        if (open != null) {
+            focus(open);
+            return;
+        }
+=======
 		for (DashboardFeature feature : features) {
+			/*
+			 * Role filtering happens once, here, at menu construction time. That is why no
+			 * individual view or controller contains a role check, and also why the menu
+			 * bar is not rebuilt on the fly: a role change would require a new dashboard.
+			 *
+			 * Note the null user case falls through and shows everything, so a dashboard
+			 * built without a signed in user is unfiltered.
+			 */
 			if (currentUser != null && !feature.visibleFor(currentUser.getRole())) {
 				continue;
 			}
+>>>>>>> stash
 
-			JMenu menu = menusByGroup.computeIfAbsent(feature.getMenu(), menuName -> {
+        JInternalFrame view = feature.createView();
+        view.putClientProperty(FEATURE_KEY, feature.getLabel());
+        desktopPane.add(view);
+        focus(view);
+    }
 
-				JMenu featureMenu = new JMenu(menuName);
-				setMnemonicFromText(featureMenu, menuName);
-				featureMenu.setToolTipText("Open " + menuName + " features.");
+    /** The open internal frame for this feature label, or null if none. */
+    private JInternalFrame findOpenFrame(String featureLabel) {
+        for (JInternalFrame frame : desktopPane.getAllFrames()) {
+            if (featureLabel.equals(frame.getClientProperty(FEATURE_KEY))) {
+                return frame;
+            }
+        }
+        return null;
+    }
 
+<<<<<<< HEAD
+    /** Makes a frame visible, restored, selected and on top. */
+    private void focus(JInternalFrame frame) {
+        try {
+            frame.setVisible(true);
+            frame.setIcon(false);
+            frame.setSelected(true);
+            frame.toFront();
+        } catch (Exception ex) {
+            
+        }
+    }
+=======
 				return featureMenu;
 			});
 
@@ -133,7 +249,7 @@ public class MainDashboard extends JFrame {
 			currentUser = null;
 			dispose();
 
-			Login login = new Login();
+			LoginView login = new LoginView();
 			new LoginController(login, features);
 			login.setVisible(true);
 		});
@@ -165,6 +281,12 @@ public class MainDashboard extends JFrame {
 
 	/*
 	 * Assign the first available character as the component mnemonic.
+	 *
+	 * Derived from the label rather than specified per feature, so adding a menu
+	 * item cannot forget its keyboard shortcut. The tradeoff is that two labels
+	 * starting with the same letter collide, and Swing resolves a collision by
+	 * cycling between them rather than reporting it. Hand picking mnemonics would be
+	 * the fix if the menu bar grows.
 	 */
 	private void setMnemonicFromText(AbstractButton component, String text) {
 
@@ -196,7 +318,18 @@ public class MainDashboard extends JFrame {
 
 		try {
 
+			/*
+			 * Constructing the view also constructs its controller, which performs a
+			 * blocking server round trip in its constructor. Since this runs on the Event
+			 * Dispatch Thread, the dashboard is frozen from the menu click until the data
+			 * arrives.
+			 */
 			JInternalFrame view = feature.createView();
+			/*
+			 * Tagged before being added so findOpenFrame can recognise it on the next
+			 * click. An untagged frame would be invisible to the duplicate check and the
+			 * user would accumulate identical windows.
+			 */
 			view.putClientProperty(FEATURE_KEY, feature.getLabel());
 			desktopPane.add(view);
 			focus(view);
@@ -204,6 +337,11 @@ public class MainDashboard extends JFrame {
 			logger.info("Feature opened: {}", feature.getLabel());
 
 		} catch (Exception ex) {
+			/*
+			 * Deliberately broad. A view that fails to build, most often because its server
+			 * request went unanswered, must not take the whole dashboard down with it: the
+			 * user keeps every other feature and the failure is confined to this frame.
+			 */
 
 			logger.error(
 					"Feature could not be opened: " + feature.getLabel(),
@@ -227,7 +365,10 @@ public class MainDashboard extends JFrame {
 
 			frame.setMaximum(true);
 			frame.setVisible(true);
+			// sets the icon image for the current open tab, rescaled as original is too large
+			frame.setFrameIcon(new ImageIcon(this.getIconImage().getScaledInstance(16, 16,Image.SCALE_SMOOTH)));;
 			frame.setIcon(false);
+			
 			frame.setSelected(true);
 			frame.toFront();
 
@@ -238,4 +379,12 @@ public class MainDashboard extends JFrame {
 					ex);
 		}
 	}
+	
+	
+	public void setIcons(List<Image> icons) {
+		
+		this.setIconImages(icons);
+	}
+	
+>>>>>>> stash
 }

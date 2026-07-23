@@ -24,9 +24,19 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.table.DefaultTableModel;
 
+import com.careplus.client.employee.controller.VitalsController;
 /**
  * Nurse workspace: view assigned cases and record vital signs, patient
  * observations, and nursing notes.
+ *
+ * Observations and nursing notes are kept as two separate fields rather than one
+ * free text box. Observations record what the nurse saw, nursing notes record
+ * the care that was given, and keeping them apart preserves that distinction for
+ * whoever reads the record later.
+ *
+ * The form sits above the table so a nurse enters a reading and immediately sees
+ * it join the history below, which is the order the task is actually performed
+ * in.
  */
 public class VitalsView extends JInternalFrame {
 
@@ -140,7 +150,6 @@ public class VitalsView extends JInternalFrame {
 		tableModel.setColumnIdentifiers(
 				new Object[] {
 						"Vital ID",
-						"Patient ID",
 						"Temperature",
 						"Blood Pressure",
 						"Heart Rate",
@@ -265,6 +274,17 @@ public class VitalsView extends JInternalFrame {
 		tableModel.addRow(row);
 	}
 
+	/*
+	 * Attaches this view's controls to the controller that handles them.
+	 */
+	public void registerActionListener(VitalsController controller) {
+
+		btnRecord.addActionListener(e -> controller.record());
+		btnRefresh.addActionListener(e -> controller.refresh());
+		btnClear.addActionListener(e -> clearFields());
+
+	}
+
 	public void clearFields() {
 		txtPatientId.setText("");
 		txtTemperature.setText("");
@@ -307,23 +327,7 @@ public class VitalsView extends JInternalFrame {
 		return txtNursingNotes;
 	}
 
-	public JTable getTblCases() {
-		return tblCases;
-	}
-
 	public DefaultTableModel getTableModel() {
 		return tableModel;
-	}
-
-	public JButton getBtnRecord() {
-		return btnRecord;
-	}
-
-	public JButton getBtnRefresh() {
-		return btnRefresh;
-	}
-
-	public JButton getBtnClear() {
-		return btnClear;
 	}
 }

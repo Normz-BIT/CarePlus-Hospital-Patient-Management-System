@@ -25,6 +25,20 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.table.DefaultTableModel;
 
+import com.careplus.client.employee.controller.StaffAssignmentController;
+
+/**
+ * Receptionist's staff assignment workspace: attach a complaint to an employee
+ * and review existing assignments.
+ *
+ * Works with untyped Object array rows rather than a typed model, because
+ * careplus_common has no StaffAssignment class to bind to. See the note on
+ * StaffAssignmentController.
+ *
+ * The department combo is filled from a hardcoded list in that controller rather
+ * than from the server, since department is free text on Employee rather than an
+ * enum.
+ */
 public class StaffAssignmentView extends JInternalFrame {
 
 	private static final long serialVersionUID = 1L;
@@ -33,13 +47,13 @@ public class StaffAssignmentView extends JInternalFrame {
 	private JLabel lblComplaintId;
 	private JLabel lblStaffId;
 	private JLabel lblDepartment;
-	private JLabel lblPriority;
+	private JLabel lblStatus;
 	private JLabel lblNotes;
 
 	private JTextField txtComplaintId;
 	private JTextField txtStaffId;
 	private JComboBox<String> cboDepartment;
-	private JComboBox<String> cboPriority;
+	private JComboBox<String> cboStatus;
 	private JTextArea txtNotes;
 
 	private JButton btnAssign;
@@ -68,14 +82,14 @@ public class StaffAssignmentView extends JInternalFrame {
 		lblComplaintId = new JLabel("Complaint ID");
 		lblStaffId = new JLabel("Employee ID");
 		lblDepartment = new JLabel("Employee Department");
-		lblPriority = new JLabel("Complaint Status");
+		lblStatus = new JLabel("Complaint Status");
 		lblNotes = new JLabel("Assignment Notes");
 
 		txtComplaintId = new JTextField(20);
 		txtStaffId = new JTextField(20);
 
 		cboDepartment = new JComboBox<>();
-		cboPriority = new JComboBox<>();
+		cboStatus = new JComboBox<>();
 
 		txtNotes = new JTextArea(4, 30);
 		txtNotes.setLineWrap(true);
@@ -90,8 +104,8 @@ public class StaffAssignmentView extends JInternalFrame {
 		lblDepartment.setDisplayedMnemonic(KeyEvent.VK_D);
 		lblDepartment.setLabelFor(cboDepartment);
 
-		lblPriority.setDisplayedMnemonic(KeyEvent.VK_S);
-		lblPriority.setLabelFor(cboPriority);
+		lblStatus.setDisplayedMnemonic(KeyEvent.VK_S);
+		lblStatus.setLabelFor(cboStatus);
 
 		lblNotes.setDisplayedMnemonic(KeyEvent.VK_N);
 		lblNotes.setLabelFor(txtNotes);
@@ -99,7 +113,7 @@ public class StaffAssignmentView extends JInternalFrame {
 		txtComplaintId.setToolTipText("Enter the complaint ID to be assigned. Shortcut: Alt+I.");
 		txtStaffId.setToolTipText("Enter the employee ID receiving the complaint. Shortcut: Alt+E.");
 		cboDepartment.setToolTipText("Select the employee's department. Shortcut: Alt+D.");
-		cboPriority.setToolTipText("Select the complaint status. Shortcut: Alt+S.");
+		cboStatus.setToolTipText("Select the complaint status. Shortcut: Alt+S.");
 		txtNotes.setToolTipText("Enter optional assignment notes. Shortcut: Alt+N.");
 
 		btnAssign = new JButton("Assign");
@@ -166,10 +180,10 @@ public class StaffAssignmentView extends JInternalFrame {
 
 		gbc.gridx = 0;
 		gbc.gridy = 4;
-		formPanel.add(lblPriority, gbc);
+		formPanel.add(lblStatus, gbc);
 
 		gbc.gridx = 1;
-		formPanel.add(cboPriority, gbc);
+		formPanel.add(cboStatus, gbc);
 
 		gbc.gridx = 0;
 		gbc.gridy = 5;
@@ -257,13 +271,25 @@ public class StaffAssignmentView extends JInternalFrame {
 		tableModel.addRow(row);
 	}
 
+	/*
+	 * Attaches this view's controls to the controller that handles them.
+	 */
+	public void registerActionListener(StaffAssignmentController controller) {
+
+		btnAssign.addActionListener(e -> controller.save());
+		btnUpdate.addActionListener(e -> controller.save());
+		btnRefresh.addActionListener(e -> controller.refresh());
+		btnClear.addActionListener(e -> clearFields());
+
+	}
+
 	public void clearFields() {
 		txtComplaintId.setText("");
 		txtStaffId.setText("");
 		txtNotes.setText("");
 
 		cboDepartment.removeAllItems();
-		cboPriority.removeAllItems();
+		cboStatus.removeAllItems();
 	}
 
 	public void showMessage(String message) {
@@ -282,35 +308,15 @@ public class StaffAssignmentView extends JInternalFrame {
 		return cboDepartment;
 	}
 
-	public JComboBox<String> getCboPriority() {
-		return cboPriority;
+	public JComboBox<String> getCboStatus() {
+		return cboStatus;
 	}
 
 	public JTextArea getTxtNotes() {
 		return txtNotes;
 	}
 
-	public JTable getTblAssignments() {
-		return tblAssignments;
-	}
-
 	public DefaultTableModel getTableModel() {
 		return tableModel;
-	}
-
-	public JButton getBtnAssign() {
-		return btnAssign;
-	}
-
-	public JButton getBtnUpdate() {
-		return btnUpdate;
-	}
-
-	public JButton getBtnRefresh() {
-		return btnRefresh;
-	}
-
-	public JButton getBtnClear() {
-		return btnClear;
 	}
 }

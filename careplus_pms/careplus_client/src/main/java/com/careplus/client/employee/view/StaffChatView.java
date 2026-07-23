@@ -19,9 +19,18 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
+import com.careplus.client.employee.controller.StaffChatController;
 /**
  * Employee side of the live chat staff pick a patient and exchange messages,
  * responding to and updating patients on their requests.
+ *
+ * Available to all three staff roles, since any of them may need to answer a
+ * patient directly. The conversation is a read only JTextArea rather than a
+ * table because a chat reads as continuous text, and making it non editable
+ * keeps the transcript a faithful record of what was actually sent.
+ *
+ * TODO: select the patient from a list rather than a typed ID, matching how the
+ * patient side chooses its recipient.
  */
 public class StaffChatView extends JInternalFrame {
 
@@ -174,6 +183,17 @@ public class StaffChatView extends JInternalFrame {
 		txtConversation.setText("");
 	}
 
+	/*
+	 * Attaches this view's controls to the controller that handles them.
+	 */
+	public void registerActionListener(StaffChatController controller) {
+
+		btnSend.addActionListener(e -> controller.sendMessage());
+		btnRefresh.addActionListener(e -> controller.refresh());
+		btnClear.addActionListener(e -> clearMessageField());
+
+	}
+
 	public void clearMessageField() {
 		txtMessage.setText("");
 	}
@@ -186,23 +206,7 @@ public class StaffChatView extends JInternalFrame {
 		return txtPatient;
 	}
 
-	public JTextArea getTxtConversation() {
-		return txtConversation;
-	}
-
 	public JTextField getTxtMessage() {
 		return txtMessage;
-	}
-
-	public JButton getBtnSend() {
-		return btnSend;
-	}
-
-	public JButton getBtnRefresh() {
-		return btnRefresh;
-	}
-
-	public JButton getBtnClear() {
-		return btnClear;
 	}
 }

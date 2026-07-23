@@ -25,6 +25,20 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.table.DefaultTableModel;
 
+import com.careplus.client.employee.controller.EmployeeComplaintController;
+
+/**
+ * Receptionist's complaint queue: review every complaint, filter by category,
+ * assign staff, respond, and read the dashboard totals.
+ *
+ * The largest view in the project, and the only one with a summary label and a
+ * filter combo. Both are driven from a cache held by EmployeeComplaintController
+ * rather than from the table model, because the model only ever holds the
+ * currently visible subset while the totals must describe every loaded complaint.
+ *
+ * The filter combo is repopulated from the data on each refresh, so its options
+ * reflect the categories actually present rather than the full enum.
+ */
 public class EmployeeComplaintView extends JInternalFrame {
 
 	private static final long serialVersionUID = 1L;
@@ -32,24 +46,17 @@ public class EmployeeComplaintView extends JInternalFrame {
 	// Labels
 	private JLabel lblTitle;
 	private JLabel lblComplaintId;
-	private JLabel lblCategory;
 	private JLabel lblStatus;
 	private JLabel lblRemarks;
 	private JLabel lblParentId;
 	private JLabel lblDescription;
-	private JLabel lblDateSubmitted;
-	private JLabel lblResponseDate;
 
 	// Components
 	private JTextField txtComplaintId;
-	private JComboBox<String> cboCategory;
-	private JComboBox<String> cboPriority;
 	private JComboBox<String> cboStatus;
 	private JTextArea txtRemarks;
 	private JTextField txtParentId;
 	private JTextArea txtDescription;
-	private JTextField txtDateSubmitted;
-	private JTextField txtResponseDate;
 
 	// Buttons
 	private JButton btnAssign;
@@ -85,19 +92,14 @@ public class EmployeeComplaintView extends JInternalFrame {
 		lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
 
 		lblComplaintId = new JLabel("Complaint ID");
-		lblCategory = new JLabel("Category");
 		lblStatus = new JLabel("Status");
 		lblRemarks = new JLabel("Response");
 		lblParentId = new JLabel("Parent Complaint ID");
 		lblDescription = new JLabel("Description");
-		lblDateSubmitted = new JLabel("Date Submitted");
-		lblResponseDate = new JLabel("Response Date");
 
 		txtComplaintId = new JTextField(20);
 		txtComplaintId.setEditable(false);
 
-		cboCategory = new JComboBox<>();
-		cboPriority = new JComboBox<>();
 		cboStatus = new JComboBox<>();
 
 		txtRemarks = new JTextArea(4, 30);
@@ -112,17 +114,10 @@ public class EmployeeComplaintView extends JInternalFrame {
 		txtDescription.setLineWrap(true);
 		txtDescription.setWrapStyleWord(true);
 
-		txtDateSubmitted = new JTextField(20);
-		txtDateSubmitted.setEditable(false);
 
-		txtResponseDate = new JTextField(20);
-		txtResponseDate.setEditable(false);
 
 		lblComplaintId.setDisplayedMnemonic(KeyEvent.VK_I);
 		lblComplaintId.setLabelFor(txtComplaintId);
-
-		lblCategory.setDisplayedMnemonic(KeyEvent.VK_G);
-		lblCategory.setLabelFor(cboCategory);
 
 		lblStatus.setDisplayedMnemonic(KeyEvent.VK_S);
 		lblStatus.setLabelFor(cboStatus);
@@ -136,20 +131,11 @@ public class EmployeeComplaintView extends JInternalFrame {
 		lblDescription.setDisplayedMnemonic(KeyEvent.VK_D);
 		lblDescription.setLabelFor(txtDescription);
 
-		lblDateSubmitted.setDisplayedMnemonic(KeyEvent.VK_A);
-		lblDateSubmitted.setLabelFor(txtDateSubmitted);
-
-		lblResponseDate.setDisplayedMnemonic(KeyEvent.VK_E);
-		lblResponseDate.setLabelFor(txtResponseDate);
-
 		txtComplaintId.setToolTipText("Displays the selected complaint ID.");
-		cboCategory.setToolTipText("Displays the complaint category. Shortcut: Alt+G.");
 		cboStatus.setToolTipText("Select the complaint status. Shortcut: Alt+S.");
 		txtRemarks.setToolTipText("Enter the employee response. Shortcut: Alt+O.");
 		txtParentId.setToolTipText("Displays the ID of the original complaint.");
 		txtDescription.setToolTipText("Displays the patient's complaint description.");
-		txtDateSubmitted.setToolTipText("Displays the date the complaint was submitted.");
-		txtResponseDate.setToolTipText("Displays the date the response was submitted.");
 
 		btnAssign = new JButton("Assign");
 		btnResolve = new JButton("Resolve");
@@ -177,8 +163,7 @@ public class EmployeeComplaintView extends JInternalFrame {
 						"Date Submitted",
 						"Response",
 						"Response Date",
-						"Status",
-						"Patient"
+						"Status"
 				});
 
 		tblComplaints = new JTable(tableModel);
@@ -229,13 +214,6 @@ public class EmployeeComplaintView extends JInternalFrame {
 		formPanel.add(txtParentId, gbc);
 
 		gbc.gridx = 0;
-		gbc.gridy = 3;
-		formPanel.add(lblCategory, gbc);
-
-		gbc.gridx = 1;
-		formPanel.add(cboCategory, gbc);
-
-		gbc.gridx = 0;
 		gbc.gridy = 4;
 		formPanel.add(lblStatus, gbc);
 
@@ -252,24 +230,10 @@ public class EmployeeComplaintView extends JInternalFrame {
 
 		gbc.gridx = 0;
 		gbc.gridy = 6;
-		formPanel.add(lblDateSubmitted, gbc);
-
-		gbc.gridx = 1;
-		formPanel.add(txtDateSubmitted, gbc);
-
-		gbc.gridx = 0;
-		gbc.gridy = 7;
 		formPanel.add(lblRemarks, gbc);
 
 		gbc.gridx = 1;
 		formPanel.add(new JScrollPane(txtRemarks), gbc);
-
-		gbc.gridx = 0;
-		gbc.gridy = 8;
-		formPanel.add(lblResponseDate, gbc);
-
-		gbc.gridx = 1;
-		formPanel.add(txtResponseDate, gbc);
 
 		JPanel buttonPanel = new JPanel(new FlowLayout());
 
@@ -376,17 +340,26 @@ public class EmployeeComplaintView extends JInternalFrame {
 		tableModel.addRow(row);
 	}
 
+	/*
+	 * Attaches this view's controls to the controller that handles them.
+	 */
+	public void registerActionListener(EmployeeComplaintController controller) {
+
+		btnAssign.addActionListener(e -> controller.assign());
+		btnResolve.addActionListener(e -> controller.resolve());
+		btnRefresh.addActionListener(e -> controller.refresh());
+		btnClear.addActionListener(e -> clearFields());
+		btnSearch.addActionListener(e -> controller.applyFilter());
+
+	}
+
 	public void clearFields() {
 
 		txtComplaintId.setText("");
 		txtRemarks.setText("");
 		txtParentId.setText("");
 		txtDescription.setText("");
-		txtDateSubmitted.setText("");
-		txtResponseDate.setText("");
 
-		cboCategory.removeAllItems();
-		cboPriority.removeAllItems();
 		cboStatus.removeAllItems();
 
 	}
@@ -400,28 +373,12 @@ public class EmployeeComplaintView extends JInternalFrame {
 		lblSummary.setText(text);
 	}
 
-	public JLabel getLblSummary() {
-		return lblSummary;
-	}
-
 	public JComboBox<String> getCboFilter() {
 		return cboFilter;
 	}
 
-	public JButton getBtnSearch() {
-		return btnSearch;
-	}
-
 	public JTextField getTxtComplaintId() {
 		return txtComplaintId;
-	}
-
-	public JComboBox<String> getCboCategory() {
-		return cboCategory;
-	}
-
-	public JComboBox<String> getCboPriority() {
-		return cboPriority;
 	}
 
 	public JComboBox<String> getCboStatus() {
@@ -440,36 +397,12 @@ public class EmployeeComplaintView extends JInternalFrame {
 		return txtDescription;
 	}
 
-	public JTextField getTxtDateSubmitted() {
-		return txtDateSubmitted;
-	}
-
-	public JTextField getTxtResponseDate() {
-		return txtResponseDate;
-	}
-
 	public JTable getTblComplaints() {
 		return tblComplaints;
 	}
 
 	public DefaultTableModel getTableModel() {
 		return tableModel;
-	}
-
-	public JButton getBtnAssign() {
-		return btnAssign;
-	}
-
-	public JButton getBtnResolve() {
-		return btnResolve;
-	}
-
-	public JButton getBtnRefresh() {
-		return btnRefresh;
-	}
-
-	public JButton getBtnClear() {
-		return btnClear;
 	}
 
 }

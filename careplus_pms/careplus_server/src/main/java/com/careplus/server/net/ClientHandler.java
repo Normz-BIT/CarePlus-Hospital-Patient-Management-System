@@ -5,45 +5,69 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+import com.careplus.common.model.Patient;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
-//import com.careplus.server.net.Server;
-import com.careplus.server.service.AuthService;
-import com.careplus.server.service.PaymentService;
 
+/*
+ * ClientHandler
+ * One instance per connected client, each running on its own thread.
+ *
+ * This is the server side entry point of the wire protocol: it reads Request
+ * objects in a loop, routes them to a service by RequestType, and writes back a
+ * Response. Because every client gets a dedicated instance, nothing in this class
+ * is shared across connections, and the services it owns hold per request state
+ * only. The single piece of genuinely shared state in the request path is the
+ * Hibernate SessionFactory reached through HibernateUtil.
+ */
 public class ClientHandler extends Thread {
-	private static final Logger logger = LogManager.getLogger(ClientHandler.class);
 	private Socket socket;
 	private ObjectOutputStream outputStream;
 	private ObjectInputStream inputStream;
 
+<<<<<<< HEAD
+	public ClientHandler(Socket socket) {
+=======
+	/*
+	 * Services are instantiated per handler rather than shared or static, which is
+	 * what keeps BaseService's session and transaction fields safe. Those fields are
+	 * plain instance state with no locking, so a single shared service instance
+	 * across client threads would let one request commit or close another's
+	 * transaction.
+	 */
 	private AuthService authservice;
 	private PaymentService paymentService;
 	private Server server;
 
 	public ClientHandler(Socket socket, Server server) {
+>>>>>>> stash
 		this.socket = socket;
-		this.server = server;
-		
-		authservice = new AuthService();
-		paymentService = new PaymentService();
-
 	}
 
-	private void getStreams() {
+	public void getStreams() {
 		try {
+			/*
+			 * Output before input, mirroring the client. Both ends must agree on this order:
+			 * an ObjectInputStream constructor blocks waiting for the header that the peer's
+			 * ObjectOutputStream constructor emits, so if both sides built their input
+			 * stream first the connection would deadlock on handshake.
+			 */
 			outputStream = new ObjectOutputStream(socket.getOutputStream());
 			inputStream = new ObjectInputStream(socket.getInputStream());
 		} catch (IOException ex) {
+			/*
+			 * TODO: report the handshake failure to the caller instead of only printing
+			 * it, so run() does not continue with unset streams.
+			 */
 			ex.printStackTrace();
 		}
 	}
 
+<<<<<<< HEAD
+=======
 	private void closeConnection() {
 
 		try {
@@ -57,22 +81,63 @@ public class ClientHandler extends Thread {
 
 	}
 
+	/*
+	 * Closes this client's socket so the blocked read in run() unblocks and the
+	 * thread finishes. Called by Server.stop().
+	 */
+	public void disconnect() {
+		closeConnection();
+	}
+
+	/*
+	 * The protocol is strictly one Response per Request, in order. Our client
+	 * blocks on its own read after every write, so this loop answers every request
+	 * exactly once: missing a write would leave that client waiting, and writing
+	 * twice would put the stream out of step so later replies arrived against the
+	 * wrong request.
+	 *
+	 * The loop is infinite by design. It ends when the socket closes, which makes
+	 * readObject() throw and passes control to the finally block below. That is how
+	 * Server.stop() brings handler threads down without needing a shared flag.
+	 */
+>>>>>>> stash
 	@Override
 	public void run() {
 		try {
 
-			this.getStreams();
+			Request req = (Request) inputStream.readObject();
 
-			while (true) {
+			RequestType reqtype = req.getType();
+
+			Response resp = new Response();
+
+			switch (reqtype) {
+
+			case LOGIN:
 				
-				server.logMessage("Waiting for input from " + socket.getInetAddress());
-				//logger.info("Waiting for input..");
-				Request req = (Request) inputStream.readObject();
+				resp.setSuccess(true);
 
+<<<<<<< HEAD
+				Patient test1 = new Patient("PT1001","Dave","Brown","DBrowan@email.com","12312312","Here I AM",List.of());
+				resp.setData(test1);
+				
+				break;
+			default:
+				break;
+=======
 				RequestType reqtype = req.getType();
 
 				Response resp = new Response();
 
+				/*
+				 * Routing by RequestType keeps the protocol open to extension: adding a
+				 * feature means adding an enum value and a case here, without touching the
+				 * read and write loop around it.
+				 *
+				 * Login and the two payment operations are the paths we completed first,
+				 * because together they exercise the whole stack end to end: a read query, a
+				 * write that generates a key, and the authentication that guards both.
+				 */
 				switch (reqtype) {
 
 				case LOGIN:
@@ -89,27 +154,94 @@ public class ClientHandler extends Thread {
 					break;
 
 				default:
+					/*
+					 * The remaining request types fall through to the empty Response built
+					 * above. The appointment, chat, complaint, medical record and vitals
+					 * services are written as stubs so far, so their cases are added here as
+					 * each one is finished.
+					 *
+					 * TODO: route the remaining RequestType values to their services as those
+					 * services are completed, working through appointments, medical records,
+					 * complaints, vitals and chat.
+					 */
 					break;
 
 				}
 
+				/*
+				 * A fresh Response is built on every pass of the loop rather than reusing one
+				 * instance. That is deliberate: ObjectOutputStream remembers objects by
+				 * identity, so writing the same instance twice would send the client the
+				 * first version again even after we changed its contents.
+				 *
+				 * TODO: call flush() after this write, matching what the client does, so a
+				 * Response cannot sit in the buffer while the client waits on its read.
+				 */
 				outputStream.writeObject(resp);
+>>>>>>> stash
 
 			}
 
+			outputStream.writeObject(resp);
+
 		} catch (ClassNotFoundException e) {
+<<<<<<< HEAD
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+=======
+
 			
 			logger.error("Class not found Exception:" + e.getMessage());
+>>>>>>> stash
+
+			/*
+			 * The client sent a class this server cannot resolve, which in practice means
+			 * the two sides were built against different versions of careplus_common.
+			 */
+			System.out.println("Class not found Exception:" + e.getMessage());
+
 
 		} catch (IOException e) {
+<<<<<<< HEAD
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+
+		} finally {
+			try {
+				if (socket != null && !socket.isClosed()) {
+					socket.close();
+					System.out.println("Socket closed. Thread terminating.");
+				}
+			} catch (IOException e) {
+				System.out.println("Failed to close socket: " + e.getMessage());
+			}
+=======
+
 			
 			logger.error("Error:" + e.getMessage());
+
+			/*
+			 * Normal termination path as well as the error path: this is what a client
+			 * disconnecting, or Server.stop() closing the socket, looks like from inside
+			 * the blocked read. It is not necessarily a fault.
+			 */
+			System.out.println("Error:" + e.getMessage());
+
+>>>>>>> stash
 		}
+<<<<<<< HEAD
+=======
 
 		finally {
 
+			/*
+			 * Runs even when the socket is already closed, since closeConnection guards on
+			 * isClosed(). Closing twice is harmless and guarantees the descriptor is
+			 * released no matter which path ended the loop.
+			 */
 			closeConnection();
 		}
 
+>>>>>>> stash
 	}
 }

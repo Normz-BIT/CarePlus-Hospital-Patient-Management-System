@@ -12,7 +12,6 @@ import java.awt.event.KeyEvent;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
@@ -25,6 +24,20 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.table.DefaultTableModel;
 
+import com.careplus.client.employee.controller.DiagnosisController;
+
+/**
+ * Doctor's clinical workspace: record a diagnosis and treatment note against a
+ * patient, and schedule a follow up.
+ *
+ * Offers both a create and an update action, which is why the table selection
+ * matters here: an update needs the record ID of the highlighted row, while a
+ * create does not.
+ *
+ * The follow up date field takes a date only value, unlike the appointment
+ * screens which expect a full date and time. That difference lives in
+ * DiagnosisController's parsing and is not signalled by the form itself.
+ */
 public class DiagnosisView extends JInternalFrame {
 
 	private static final long serialVersionUID = 1L;
@@ -34,15 +47,13 @@ public class DiagnosisView extends JInternalFrame {
 	private JLabel lblPatientId;
 	private JLabel lblDiagnosis;
 	private JLabel lblTreatment;
-	private JLabel lblPrescription;
-	private JLabel lblStatus;
+	private JLabel lblFollowUpDate;
 
 	// Components
 	private JTextField txtPatientId;
 	private JTextField txtDiagnosis;
 	private JTextArea txtTreatment;
-	private JTextArea txtPrescription;
-	private JComboBox<String> cboStatus;
+	private JTextField txtFollowUpDate;
 
 	// Buttons
 	private JButton btnSave;
@@ -75,8 +86,7 @@ public class DiagnosisView extends JInternalFrame {
 		lblPatientId = new JLabel("Patient ID");
 		lblDiagnosis = new JLabel("Diagnosis");
 		lblTreatment = new JLabel("Treatment Note");
-		lblPrescription = new JLabel("Follow-up Date");
-		lblStatus = new JLabel("Created Date");
+		lblFollowUpDate = new JLabel("Follow-up Date (yyyy-MM-dd)");
 
 		txtPatientId = new JTextField(20);
 		txtDiagnosis = new JTextField(20);
@@ -85,12 +95,7 @@ public class DiagnosisView extends JInternalFrame {
 		txtTreatment.setLineWrap(true);
 		txtTreatment.setWrapStyleWord(true);
 
-		txtPrescription = new JTextArea(1, 30);
-		txtPrescription.setLineWrap(true);
-		txtPrescription.setWrapStyleWord(true);
-
-		cboStatus = new JComboBox<>();
-		cboStatus.setEnabled(false);
+		txtFollowUpDate = new JTextField(20);
 
 		lblPatientId.setDisplayedMnemonic(KeyEvent.VK_P);
 		lblPatientId.setLabelFor(txtPatientId);
@@ -101,17 +106,13 @@ public class DiagnosisView extends JInternalFrame {
 		lblTreatment.setDisplayedMnemonic(KeyEvent.VK_T);
 		lblTreatment.setLabelFor(txtTreatment);
 
-		lblPrescription.setDisplayedMnemonic(KeyEvent.VK_F);
-		lblPrescription.setLabelFor(txtPrescription);
-
-		lblStatus.setDisplayedMnemonic(KeyEvent.VK_A);
-		lblStatus.setLabelFor(cboStatus);
+		lblFollowUpDate.setDisplayedMnemonic(KeyEvent.VK_F);
+		lblFollowUpDate.setLabelFor(txtFollowUpDate);
 
 		txtPatientId.setToolTipText("Enter the patient's unique ID. Shortcut: Alt+P.");
 		txtDiagnosis.setToolTipText("Enter the patient's diagnosis. Shortcut: Alt+D.");
 		txtTreatment.setToolTipText("Enter the doctor's treatment note. Shortcut: Alt+T.");
-		txtPrescription.setToolTipText("Enter the follow-up date using yyyy-MM-dd. Shortcut: Alt+F.");
-		cboStatus.setToolTipText("Displays the date the medical record was created.");
+		txtFollowUpDate.setToolTipText("Enter the follow-up date using yyyy-MM-dd. Shortcut: Alt+F.");
 
 		btnSave = new JButton("Save");
 		btnUpdate = new JButton("Update");
@@ -133,7 +134,6 @@ public class DiagnosisView extends JInternalFrame {
 		tableModel.setColumnIdentifiers(
 				new Object[] {
 						"Record ID",
-						"Patient ID",
 						"Diagnosis",
 						"Treatment Note",
 						"Follow-up Date",
@@ -190,17 +190,10 @@ public class DiagnosisView extends JInternalFrame {
 
 		gbc.gridx = 0;
 		gbc.gridy = 4;
-		formPanel.add(lblPrescription, gbc);
+		formPanel.add(lblFollowUpDate, gbc);
 
 		gbc.gridx = 1;
-		formPanel.add(new JScrollPane(txtPrescription), gbc);
-
-		gbc.gridx = 0;
-		gbc.gridy = 5;
-		formPanel.add(lblStatus, gbc);
-
-		gbc.gridx = 1;
-		formPanel.add(cboStatus, gbc);
+		formPanel.add(txtFollowUpDate, gbc);
 
 		JPanel buttonPanel = new JPanel(new FlowLayout());
 
@@ -281,14 +274,24 @@ public class DiagnosisView extends JInternalFrame {
 		tableModel.addRow(row);
 	}
 
+	/*
+	 * Attaches this view's controls to the controller that handles them.
+	 */
+	public void registerActionListener(DiagnosisController controller) {
+
+		btnSave.addActionListener(e -> controller.saveNew());
+		btnUpdate.addActionListener(e -> controller.saveUpdate());
+		btnRefresh.addActionListener(e -> controller.refresh());
+		btnClear.addActionListener(e -> clearFields());
+
+	}
+
 	public void clearFields() {
 
 		txtPatientId.setText("");
 		txtDiagnosis.setText("");
 		txtTreatment.setText("");
-		txtPrescription.setText("");
-
-		cboStatus.removeAllItems();
+		txtFollowUpDate.setText("");
 
 	}
 
@@ -308,12 +311,8 @@ public class DiagnosisView extends JInternalFrame {
 		return txtTreatment;
 	}
 
-	public JTextArea getTxtPrescription() {
-		return txtPrescription;
-	}
-
-	public JComboBox<String> getCboStatus() {
-		return cboStatus;
+	public JTextField getTxtFollowUpDate() {
+		return txtFollowUpDate;
 	}
 
 	public JTable getTblDiagnosis() {
@@ -322,22 +321,6 @@ public class DiagnosisView extends JInternalFrame {
 
 	public DefaultTableModel getTableModel() {
 		return tableModel;
-	}
-
-	public JButton getBtnSave() {
-		return btnSave;
-	}
-
-	public JButton getBtnUpdate() {
-		return btnUpdate;
-	}
-
-	public JButton getBtnRefresh() {
-		return btnRefresh;
-	}
-
-	public JButton getBtnClear() {
-		return btnClear;
 	}
 
 }

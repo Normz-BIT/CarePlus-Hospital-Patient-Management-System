@@ -1,58 +1,74 @@
 package com.careplus.client.employee.controller;
 
-import java.util.Date;
+<<<<<<< HEAD
+=======
+import java.time.LocalDateTime;
+>>>>>>> stash
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.careplus.client.employee.view.StaffChatView;
+import com.careplus.client.employee.view.StaffChat;
 import com.careplus.common.client.net.Client;
-import com.careplus.common.client.view.MainDashboard;
-import com.careplus.common.model.ChatMessages;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
 
+<<<<<<< HEAD
+=======
 /*
  * Staff Chat Controller
  * Allows employees to exchange messages with patients
+ *
+ * The employee counterpart to the patient side ChatController, available to all
+ * three staff roles because any of them may need to answer a patient. It follows
+ * the same poll based design described there.
+ *
+ * TODO: choose the patient from a list rather than a typed ID, matching how the
+ * patient side selects its recipient.
+ *
+ * TODO: apply the operating hours rule here too, once ChatService enforces it.
  */
+>>>>>>> stash
 public class StaffChatController {
-	private final StaffChatView view;
-	private static final Logger logger = LogManager.getLogger(StaffChatController.class);
+	private final StaffChat view;
 
-	public StaffChatController(StaffChatView view) {
+	public StaffChatController(StaffChat view) {
 		this.view = view;
+<<<<<<< HEAD
 		view.getBtnSend().addActionListener(e -> sendMessage());
 		view.getBtnRefresh().addActionListener(e -> refresh());
-		view.getBtnClear().addActionListener(e -> view.clearMessageField());
+		view.getBtnClear().addActionListener(e -> view.clearConversation());
+=======
+>>>>>>> stash
 		refresh();
 	}
 
+<<<<<<< HEAD
+	private void sendMessage() {
+=======
 	/*
 	 * Send Message to Patient
 	 */
-	private void sendMessage() {
+	public void sendMessage() {
+>>>>>>> stash
 		String message = view.getTxtMessage().getText().trim();
 		String patient = view.getTxtPatient().getText().trim();
-
-		if (message.isEmpty()) {
-			view.showMessage("Message is required.");
-			logger.warn("Staff chat message rejected because the message was empty");
-
+		if (message.isEmpty())
 			return;
-		}
-
 		if (patient.isEmpty()) {
 			view.showMessage("Enter the patient ID to chat with.");
-			logger.warn("Staff chat message rejected because the patient ID was empty");
-
 			return;
 		}
 
 		Request req = new Request();
 		req.setType(RequestType.CHAT_SEND);
+<<<<<<< HEAD
+		req.putMap("sender", "Staff");
+		req.putMap("recipient", patient);
+		req.putMap("message", message);
+		Response res = new Client().send(req);
+		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
+			view.showMessage(res == null ? "No response from server." : res.getMessage());
+=======
 
 		ChatMessages chatMessage = new ChatMessages();
 
@@ -63,11 +79,10 @@ public class StaffChatController {
 
 			chatMessage.setContent(message);
 
-			chatMessage.setTimeStamp(new Date());
+			chatMessage.setTimeStamp(LocalDateTime.now());
 
 			chatMessage.setIsRead(false);
 
-			//TODO log4j2
 			logger.info(
 					"Staff chat message created for patient ID: {}",
 					patient);
@@ -77,7 +92,7 @@ public class StaffChatController {
 
 			Response res = Client.send(req);
 
-			if (res == null || !res.getSuccess()) {
+			if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 				view.showMessage(
 						res == null
 								? "No response from server."
@@ -93,21 +108,28 @@ public class StaffChatController {
 
 		} catch (Exception e) {
 
-			// TODO
 			logger.error("An error occurred while sending staff chat message", e);
 			view.showMessage("Unable to send message: " + e.getMessage());
+>>>>>>> stash
 		}
+<<<<<<< HEAD
+		view.clearMessageField();
+		refresh();
+=======
 
-		//refresh();
+		refresh();
 
+>>>>>>> stash
 	}
 
-	/*
-	 * View Patient Conversation
-	 */
 	@SuppressWarnings("unchecked")
-	private void refresh() {
+	public void refresh() {
 		String patient = view.getTxtPatient().getText().trim();
+<<<<<<< HEAD
+		Response res = new Client()
+				.send(new Request(RequestType.CHAT_POLL, "user", patient.isEmpty() ? "current" : patient));
+		if (res == null || !Boolean.TRUE.equals(res.getSuccess()))
+=======
 
 		Response res = Client.send(
 				new Request(
@@ -117,28 +139,16 @@ public class StaffChatController {
 								? MainDashboard.getCurrentUser().getPersonId()
 								: patient));
 
-		if (res == null || !res.getSuccess()) {
+		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 
 			logger.warn("Staff chat messages could not be retrieved");
+>>>>>>> stash
 			return;
-		}
-
 		view.clearConversation();
-
-		for (ChatMessages msg : (List<ChatMessages>) res.getData()) {
-
-			String viewMessage =
-					"Message ID: " + msg.getMessageId()
-					+ "\nSender: " + msg.getSenderId()
-					+ "\nMessage: " + msg.getContent()
-					+ "\nTime: " + msg.getTimeStamp()
-					+ "\nRead: " + msg.getIsRead()
-					+ "\n";
-
-			view.appendMessage(viewMessage);
+		if (res.getData() instanceof List<?>) {
+			for (Object msg : (List<Object>) res.getData()) {
+				view.appendMessage(String.valueOf(msg));
+			}
 		}
-
-		logger.info("Staff chat messages refreshed successfully");
-
 	}
 }

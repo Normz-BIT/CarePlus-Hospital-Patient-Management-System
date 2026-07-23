@@ -60,7 +60,7 @@ CREATE TABLE doctor (
 -- Nurse
 CREATE TABLE nurse (
     person_id VARCHAR(10) NOT NULL,
-    ward      ENUM('PEDIATRIC', 'NEONATAL', 'ONCOLOGY', 'EMERGENCY') NOT NULL,
+    ward      ENUM('GENERAL', 'PEDIATRIC', 'NEONATAL', 'ONCOLOGY', 'EMERGENCY') NOT NULL,
     CONSTRAINT pk_nurse PRIMARY KEY (person_id),
     CONSTRAINT fk_nurse_employee FOREIGN KEY (person_id)
         REFERENCES employee (person_id) ON DELETE CASCADE
@@ -83,7 +83,7 @@ CREATE TABLE complaint (
     category          ENUM('GENERAL_HEALTH', 'MEDICATION_CONCERN', 'APPOINTMENT_ISSUE') NOT NULL, 
     description       TEXT         NOT NULL,
     date_submitted    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    status            ENUM('SUBMITTED', 'ASSIGNED', 'IN_PROGRESS', 'RESOLVED') NOT NULL DEFAULT 'SUBMITTED',
+    status            ENUM('SUBMITTED', 'ASSIGNED', 'IN_PROGRESS', 'RESOLVED', 'REOPENED') NOT NULL DEFAULT 'SUBMITTED',
     response          TEXT,
     response_date     DATETIME,
     responded_by      VARCHAR(10),                  
@@ -188,9 +188,6 @@ CREATE INDEX idx_complaint_category ON complaint (category);
 CREATE INDEX idx_appt_date          ON appointment (appointment_date);
 CREATE INDEX idx_chat_inbox         ON chat_message (receiver_id, is_read);
 
-
--- SAMPLE DATA  (load before presentation)
-
 -- People: patients
 INSERT INTO person (person_id, first_name, last_name, email, phone, password, role) VALUES
  ('PAT0001', 'Andre',    'Campbell', 'andre.campbell@example.com',  '876-555-0101', 'pat123','PATIENT'),
@@ -200,7 +197,7 @@ INSERT INTO person (person_id, first_name, last_name, email, phone, password, ro
 
 INSERT INTO patient (person_id, date_of_birth, gender, address, medical_history) VALUES
  ('PAT0001', '1990-04-12', 'MALE',   '12 Hope Road, Kingston',      'Hypertension (controlled).'),
- ('PAT0002', '1985-11-23', 'FEMALE', '5 Constant Spring, Kingston', 'Type 2 diabetes; penicillin allergy.'),
+ ('PAT0002', '1985-11-23', 'FEMALE', '5 Constant Spring, Kingston', 'Type 2 diabetes, penicillin allergy.'),
  ('PAT0003', '2001-07-08', 'MALE',   '88 Red Hills Road, Kingston', 'No significant history.'),
  ('PAT0004', '1978-02-19', 'FEMALE', '3 Mona Heights, Kingston',    'Asthma.');
 
@@ -220,19 +217,19 @@ INSERT INTO employee (person_id, department, hire_date) VALUES
  ('STF0005', 'Front Desk',        '2022-05-05');
 
 INSERT INTO doctor (person_id, specialization, license_no) VALUES
- ('STF0001', 'General Practice', 'MD-JM-1001'),
- ('STF0002', 'Cardiology',       'MD-JM-1002');
+ ('STF0001', 'GENERAL',    'MD-JM-1001'),
+ ('STF0002', 'CARDIOLOGY', 'MD-JM-1002');
 
 INSERT INTO nurse (person_id, ward) VALUES
- ('STF0003', 'General Ward'),
- ('STF0004', 'Emergency Ward');
+ ('STF0003', 'GENERAL'),
+ ('STF0004', 'EMERGENCY');
 
 INSERT INTO receptionist (person_id, desk_no) VALUES
  ('STF0005', 'D-01');
 
 -- Complaints
 INSERT INTO complaint (patient_id, category, description, date_submitted, status, response, response_date, responded_by, assigned_to) VALUES
- ('PAT0001', 'GENERAL_HEALTH',     'Persistent headaches for the past week.',         '2026-06-10 09:15:00', 'RESOLVED',    'Assigned to Dr. Reid; please book a consultation.', '2026-06-10 11:00:00', 'STF0005', 'STF0001'),
+ ('PAT0001', 'GENERAL_HEALTH',     'Persistent headaches for the past week.',         '2026-06-10 09:15:00', 'RESOLVED',    'Assigned to Dr. Reid. Please book a consultation.', '2026-06-10 11:00:00', 'STF0005', 'STF0001'),
  ('PAT0002', 'MEDICATION_CONCERN', 'Unsure about my new diabetes medication dosage.', '2026-06-12 14:30:00', 'IN_PROGRESS', 'Dr. Henry will review and respond shortly.',        '2026-06-12 15:10:00', 'STF0005', 'STF0002'),
  ('PAT0003', 'APPOINTMENT_ISSUE',  'I need to reschedule my appointment.',            '2026-06-15 10:05:00', 'ASSIGNED',    NULL, NULL, 'STF0005', 'STF0005'),
  ('PAT0004', 'GENERAL_HEALTH',     'Shortness of breath after exercise.',             '2026-06-18 08:45:00', 'SUBMITTED',   NULL, NULL, NULL, NULL);
@@ -247,7 +244,7 @@ INSERT INTO appointment (patient_id, doctor_id, appointment_date, reason, status
 -- Medical records
 INSERT INTO medical_record (patient_id, doctor_id, diagnosis, treatment_notes, follow_up_date) VALUES
  ('PAT0001', 'STF0001', 'Tension headache',       'Advised rest, hydration, OTC analgesics.',      '2026-06-25'),
- ('PAT0002', 'STF0002', 'Stable type 2 diabetes', 'Continue current medication; monitor glucose.', '2026-07-10');
+ ('PAT0002', 'STF0002', 'Stable type 2 diabetes', 'Continue current medication, monitor glucose.', '2026-07-10');
 
 -- Vital signs
 INSERT INTO vital_signs (patient_id, nurse_id, temperature, blood_pressure, heart_rate, respiratory_rate, observations, nursing_notes) VALUES

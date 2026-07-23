@@ -1,55 +1,74 @@
 package com.careplus.client.patient.controller;
 
-import java.util.Date;
+<<<<<<< HEAD
+=======
+import java.time.LocalDateTime;
+>>>>>>> stash
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.careplus.client.patient.view.ComplaintView;
+import com.careplus.client.patient.view.Complaint;
 import com.careplus.common.client.net.Client;
-import com.careplus.common.client.view.MainDashboard;
-import com.careplus.common.enums.ComplaintCategory;
-import com.careplus.common.enums.ComplaintStatus;
-import com.careplus.common.model.Complaint;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
 
+/*
+ * Complaint Controller
+ * Lets a patient file a complaint and review previous ones with their responses
+ *
+ * SUBMIT_COMPLAINT, DELETE_COMPLAINT and GET_MY_COMPLAINTS are all unrouted on
+ * the server, so every call below currently returns an empty Response.
+ */
 public class ComplaintController {
-	private final ComplaintView view;
-	private static final Logger logger = LogManager.getLogger(ComplaintController.class);
+	private final Complaint view;
 
-	public ComplaintController(ComplaintView view) {
+	public ComplaintController(Complaint view) {
 		this.view = view;
-		init();
+		loadCategories();
 		refresh();
 	}
 
-	private void init() {
-		view.getBtnSubmit().addActionListener(e -> submit());
-		view.getBtnUpdate().addActionListener(e -> submit());
-		view.getBtnDelete().addActionListener(e -> delete());
-		view.getBtnRefresh().addActionListener(e -> refresh());
-		view.getBtnClear().addActionListener(e -> view.clearFields());
+
+	/*
+	 * Load the complaint categories straight from the enum
+	 *
+	 * Read locally rather than fetched from the server, unlike the doctor and
+	 * department combos in AppointmentController. Categories are a fixed part of the
+	 * domain rather than data, so this costs no round trip and cannot drift out of
+	 * step with the enum. The tradeoff is that adding a category needs a client
+	 * rebuild.
+	 */
+	private void loadCategories() {
+		view.getCboCategory().removeAllItems();
+
+		for (ComplaintCategory category : ComplaintCategory.values())
+			view.getCboCategory().addItem(category.name());
 	}
 
+<<<<<<< HEAD
 	private Response send(Request request) {
-		return Client.send(request);
+		return new Client().send(request);
 	}
 
 	private void submit() {
+=======
+	public void submit() {
+>>>>>>> stash
 		String desc = view.getTxtDescription().getText().trim();
-
 		if (desc.isEmpty()) {
 			view.showMessage("Complaint description is required.");
-			logger.warn("Complaint rejected because the description was empty");
-
 			return;
 		}
-
 		Request req = new Request();
 		req.setType(RequestType.SUBMIT_COMPLAINT);
+<<<<<<< HEAD
+		req.putMap("category", String.valueOf(view.getCboCategory().getSelectedItem()));
+		req.putMap("priority", String.valueOf(view.getCboPriority().getSelectedItem()));
+		req.putMap("description", desc);
+		Response res = send(req);
+		view.showMessage(res == null ? "No response from server." : res.getMessage());
+		refresh();
+=======
 
 		Complaint complaint = new Complaint();
 
@@ -61,22 +80,33 @@ public class ComplaintController {
 					ComplaintCategory.valueOf(
 							String.valueOf(view.getCboCategory().getSelectedItem())));
 
+			/*
+			 * Every complaint enters at SUBMITTED, the only valid entry point of the
+			 * lifecycle. A receptionist moves it onward from there.
+			 */
 			complaint.setStatus(ComplaintStatus.SUBMITTED);
 
-			complaint.setDateSubmitteDate(new Date());
+			complaint.setDateSubmitted(LocalDateTime.now());
 
+			/*
+			 * An optional parent ID is what turns this complaint into a follow up on an
+			 * earlier one rather than a new case. Left unset it stays zero, since the
+			 * field is a primitive int, and zero is what marks an original complaint.
+			 *
+			 * The ID is typed by hand with no validation that it exists or belongs to this
+			 * patient, so the server would need to verify ownership before linking.
+			 */
 			if (!view.getTxtParentId().getText().trim().isEmpty()) {
 				complaint.setComplaintParentId(
 						Integer.parseInt(view.getTxtParentId().getText().trim()));
 			}
 
-			//TODO log4j2
 			logger.info("Complaint created: {}", complaint.toString());
 
 			req.putMap("complaint", complaint);
 			req.putMap("patientId", MainDashboard.getCurrentUser().getPersonId());
 
-			Response res = send(req);
+			Response res = Client.send(req);
 
 			view.showMessage(res == null ? "No response from server." : res.getMessage());
 
@@ -88,58 +118,62 @@ public class ComplaintController {
 
 		} catch (Exception e) {
 
-			// TODO
 			logger.error("An error occurred while submitting complaint", e);
 			view.showMessage("Unable to submit complaint: " + e.getMessage());
 		}
 
-		//refresh();
+		refresh();
 
+>>>>>>> stash
 	}
 
-	private void delete() {
+	public void delete() {
 		int row = view.getTblComplaints().getSelectedRow();
-
 		if (row < 0) {
 			view.showMessage("Select a complaint to delete.");
-			logger.warn("Complaint deletion attempted without selecting a record");
-
 			return;
 		}
+<<<<<<< HEAD
+		Request req = new Request(RequestType.DELETE_COMPLAINT, "complaintId", view.getTableModel().getValueAt(row, 0));
+		Response res = send(req);
+=======
 
 		Request req = new Request(
 				RequestType.DELETE_COMPLAINT,
 				"complaintId",
 				view.getTableModel().getValueAt(row, 0));
 
-		Response res = send(req);
+		Response res = Client.send(req);
 
+>>>>>>> stash
 		view.showMessage(res == null ? "No response from server." : res.getMessage());
-
-		if (res == null) {
-			logger.error("No response received from server while deleting complaint");
-		} else {
-			logger.info("Complaint deletion response: {}", res.getMessage());
-		}
-
 		refresh();
 	}
 
 	@SuppressWarnings("unchecked")
+<<<<<<< HEAD
 	private void refresh() {
-		Response res = send(
+		Response res = send(new Request(RequestType.GET_MY_COMPLAINTS, "patientId", "current"));
+		if (res == null || !Boolean.TRUE.equals(res.getSuccess()))
+=======
+	public void refresh() {
+		Response res = Client.send(
 				new Request(
 						RequestType.GET_MY_COMPLAINTS,
 						"patientId",
 						MainDashboard.getCurrentUser().getPersonId()));
 
-		if (res == null || !res.getSuccess()) {
+		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 
 			logger.warn("Complaint records could not be retrieved");
+>>>>>>> stash
 			return;
-		}
-
 		view.clearTable();
+<<<<<<< HEAD
+		if (res.getData() instanceof List<?>)
+			for (Object row : (List<Object>) res.getData())
+				view.addComplaint((Object[]) row);
+=======
 
 		for (Complaint row : (List<Complaint>) res.getData()) {
 
@@ -148,7 +182,7 @@ public class ComplaintController {
 					row.getComplaintParentId(),
 					row.getCategory(),
 					row.getDescription(),
-					row.getDateSubmitteDate(),
+					row.getDateSubmitted(),
 					row.getResponse(),
 					row.getResponseDate(),
 					row.getStatus()
@@ -159,5 +193,6 @@ public class ComplaintController {
 
 		logger.info("Complaint records refreshed successfully");
 
+>>>>>>> stash
 	}
 }

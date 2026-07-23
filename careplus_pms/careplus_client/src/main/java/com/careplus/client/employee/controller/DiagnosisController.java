@@ -1,55 +1,83 @@
 package com.careplus.client.employee.controller;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+<<<<<<< HEAD
+=======
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+>>>>>>> stash
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.careplus.client.employee.view.DiagnosisView;
+import com.careplus.client.employee.view.Diagnosis;
 import com.careplus.common.client.net.Client;
-import com.careplus.common.model.MedicalRecord;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
 
+/*
+ * Diagnosis Controller
+ * Lets a doctor record a diagnosis, treatment note and follow up date
+ *
+ * ADD_DIAGNOSIS, UPDATE_DIAGNOSIS and GET_DIAGNOSIS_RECORDS are all unrouted on
+ * the server, so nothing written here is persisted yet.
+ */
 public class DiagnosisController {
-	private final DiagnosisView view;
-	private static final Logger logger = LogManager.getLogger(DiagnosisController.class);
+	private final Diagnosis view;
 
-	public DiagnosisController(DiagnosisView view) {
+	public DiagnosisController(Diagnosis view) {
 		this.view = view;
-		init();
-		loadStatus();
 		refresh();
 	}
 
-	private void init() {
-		view.getBtnSave().addActionListener(e -> save(RequestType.ADD_DIAGNOSIS));
-		view.getBtnUpdate().addActionListener(e -> save(RequestType.UPDATE_DIAGNOSIS));
-		view.getBtnRefresh().addActionListener(e -> refresh());
-		view.getBtnClear().addActionListener(e -> view.clearFields());
+
+	/*
+	 * Save a new medical record
+	 */
+	public void saveNew() {
+		save(RequestType.ADD_DIAGNOSIS);
 	}
 
+<<<<<<< HEAD
 	private void loadStatus() {
 		view.getCboStatus().removeAllItems();
-		view.getCboStatus().addItem(
-				new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+		view.getCboStatus().addItem("Active");
+		view.getCboStatus().addItem("Follow-up Required");
+		view.getCboStatus().addItem("Closed");
+=======
+	/*
+	 * Update the selected medical record
+	 */
+	public void saveUpdate() {
+		save(RequestType.UPDATE_DIAGNOSIS);
+>>>>>>> stash
 	}
 
+	/*
+	 * Create and update share one implementation because the payload is identical
+	 * and only the RequestType and the need for a selected row differ. The type
+	 * parameter is what the two public entry points above vary.
+	 *
+	 * Worth noting against the append only intent described on MedicalRecord: an
+	 * update path overwrites an existing clinical record rather than superseding it,
+	 * which loses the previous diagnosis. Whether that is acceptable is a decision
+	 * for the server side service.
+	 */
 	private void save(RequestType type) {
-		if (view.getTxtPatientId().getText().trim().isEmpty()
-				|| view.getTxtDiagnosis().getText().trim().isEmpty()) {
-
+		if (view.getTxtPatientId().getText().trim().isEmpty() || view.getTxtDiagnosis().getText().trim().isEmpty()) {
 			view.showMessage("Patient ID and diagnosis are required.");
-			logger.warn("Medical record rejected because the patient ID or diagnosis was empty");
-
 			return;
 		}
-
 		Request req = new Request();
 		req.setType(type);
+<<<<<<< HEAD
+		req.putMap("patientId", view.getTxtPatientId().getText().trim());
+		req.putMap("diagnosis", view.getTxtDiagnosis().getText().trim());
+		req.putMap("treatment", view.getTxtTreatment().getText().trim());
+		req.putMap("prescription", view.getTxtPrescription().getText().trim());
+		req.putMap("status", String.valueOf(view.getCboStatus().getSelectedItem()));
+		Response res = new Client().send(req);
+		view.showMessage(res == null ? "No response from server." : res.getMessage());
+		refresh();
+=======
 
 		MedicalRecord medicalRecord = new MedicalRecord();
 
@@ -61,14 +89,30 @@ public class DiagnosisController {
 			medicalRecord.setTreatmentNote(
 					view.getTxtTreatment().getText().trim());
 
-			if (!view.getTxtPrescription().getText().trim().isEmpty()) {
+			/*
+			 * Follow up is optional, and left blank the field stays null, which is what
+			 * distinguishes a record needing no return visit from one that does.
+			 *
+			 * Parsed as a date only value, unlike AppointmentController and
+			 * PatientsController which both expect yyyy-MM-dd HH:mm:ss. This is the third
+			 * distinct date convention in the client, so the expected input differs from
+			 * screen to screen with nothing shared between them. atStartOfDay then pads
+			 * the value to midnight, so the time component here carries no meaning and
+			 * must not be read as an appointment time.
+			 */
+			if (!view.getTxtFollowUpDate().getText().trim().isEmpty()) {
 				medicalRecord.setFollowUpDate(
-						new SimpleDateFormat("yyyy-MM-dd").parse(
-								view.getTxtPrescription().getText().trim()));
+						LocalDate.parse(view.getTxtFollowUpDate().getText().trim())
+								.atStartOfDay());
 			}
 
-			medicalRecord.setCreatedDate(new Date());
+			medicalRecord.setCreatedDate(LocalDateTime.now());
 
+			/*
+			 * An update needs the ID of the row being changed, which only exists once
+			 * something is selected. A create has no such requirement, which is why this
+			 * guard is inside the type check rather than applying to both paths.
+			 */
 			if (type == RequestType.UPDATE_DIAGNOSIS) {
 				int row = view.getTblDiagnosis().getSelectedRow();
 
@@ -85,7 +129,6 @@ public class DiagnosisController {
 										view.getTableModel().getValueAt(row, 0))));
 			}
 
-			//TODO log4j2
 			logger.info("Medical record created: {}", medicalRecord.toString());
 
 			req.putMap("medicalRecord", medicalRecord);
@@ -103,36 +146,44 @@ public class DiagnosisController {
 
 		} catch (Exception e) {
 
-			// TODO
 			logger.error("An error occurred while saving medical record", e);
 			view.showMessage("Use the follow-up date format: yyyy-MM-dd");
 		}
 
-		//refresh();
+		refresh();
 
+>>>>>>> stash
 	}
 
 	@SuppressWarnings("unchecked")
+<<<<<<< HEAD
 	private void refresh() {
+		Response res = new Client().send(new Request(RequestType.GET_DIAGNOSIS_RECORDS, "all", true));
+		if (res == null || !Boolean.TRUE.equals(res.getSuccess()))
+=======
+	public void refresh() {
 		Response res = Client.send(
 				new Request(
 						RequestType.GET_DIAGNOSIS_RECORDS,
 						"all",
 						true));
 
-		if (res == null || !res.getSuccess()) {
+		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 
 			logger.warn("Medical records could not be retrieved");
+>>>>>>> stash
 			return;
-		}
-
 		view.clearTable();
+<<<<<<< HEAD
+		if (res.getData() instanceof List<?>)
+			for (Object row : (List<Object>) res.getData())
+				view.addDiagnosis((Object[]) row);
+=======
 
 		for (MedicalRecord row : (List<MedicalRecord>) res.getData()) {
 
 			Object[] viewRow = new Object[] {
 					row.getRecordId(),
-					"",
 					row.getDiagnosis(),
 					row.getTreatmentNote(),
 					row.getFollowUpDate(),
@@ -142,9 +193,8 @@ public class DiagnosisController {
 			view.addDiagnosis(viewRow);
 		}
 
-		loadStatus();
-
 		logger.info("Medical records refreshed successfully");
 
+>>>>>>> stash
 	}
 }

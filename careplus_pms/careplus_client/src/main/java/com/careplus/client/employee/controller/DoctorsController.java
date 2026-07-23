@@ -2,75 +2,85 @@ package com.careplus.client.employee.controller;
 
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.careplus.client.employee.view.DoctorsView;
+import com.careplus.client.employee.view.Doctors;
 import com.careplus.common.client.net.Client;
-import com.careplus.common.model.Doctor;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
 
+<<<<<<< HEAD
+=======
 /*
  * Doctors Controller
  * Retrieves and displays the doctors directory
+ *
+ * The only read only feature on the employee side, and the only one visible to
+ * two roles: doctors browse colleagues, receptionists need the list when
+ * assigning staff to a complaint.
+ *
+ * GET_DOCTORS is unrouted on the server, so the directory is currently empty.
+ * Note this also depends on Doctor being a mapped entity, which it is not yet, so
+ * this table cannot populate until those annotations are added.
  */
+>>>>>>> stash
 public class DoctorsController {
-    private final DoctorsView view;
-    private static final Logger logger = LogManager.getLogger(DoctorsController.class);
+    private final Doctors view;
 
-    public DoctorsController(DoctorsView view) {
+    public DoctorsController(Doctors view) {
         this.view = view;
-        view.getBtnRefresh().addActionListener(e -> refresh());
         refresh();
     }
 
-    /*
-     * View All Doctors
-     */
     @SuppressWarnings("unchecked")
+<<<<<<< HEAD
     private void refresh() {
+        Response res = new Client().send(new Request(RequestType.GET_DOCTORS, "all", true));
+        if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
+=======
+    public void refresh() {
         Response res = Client.send(
                 new Request(
                         RequestType.GET_DOCTORS,
                         "all",
                         true));
 
-        if (res == null || !res.getSuccess()) {
+        if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 
             logger.warn("Doctor records could not be retrieved");
+>>>>>>> stash
             return;
         }
-
         view.clearTable();
+<<<<<<< HEAD
         
         if (res.getData() instanceof List<?>) {
             for (Object element : (List<Object>) res.getData()) {
-
-                if (element instanceof Doctor) {
-                    Doctor doctor = (Doctor) element;
-
-                    Object[] viewRow = new Object[] {
-                            doctor.getPersonId(),
-                            doctor.getFirstName(),
-                            doctor.getLastName(),
-                            doctor.getEmail(),
-                            doctor.getPhone(),
-                            doctor.getDepartment(),
-                            doctor.getHireDate(),
-                            doctor.getSpecialization(),
-                            doctor.getLicenseNo()
-                    };
-
-                    view.addDoctor(viewRow);
-
-                } else if (element instanceof Object[]) {
-                    view.addDoctor((Object[]) element);
-                }
+                view.addDoctor(element instanceof Object[] ? (Object[]) element : new Object[]{element});
             }
-        }
+=======
 
-        logger.info("Doctor records refreshed successfully");
+        /*
+         * Casting straight to Doctor rather than Person, so the specialization and
+         * licence columns below are reachable. This only holds because the request asks
+         * specifically for doctors: a response carrying any other Person subclass would
+         * fail here with a ClassCastException.
+         */
+        for (Doctor row : (List<Doctor>) res.getData()) {
+
+            Object[] viewRow = new Object[] {
+                    row.getPersonId(),
+                    row.getFirstName(),
+                    row.getLastName(),
+                    row.getEmail(),
+                    row.getPhone(),
+                    row.getDepartment(),
+                    row.getHireDate(),
+                    row.getSpecialization(),
+                    row.getLicenseNo()
+            };
+
+            view.addDoctor(viewRow);
+>>>>>>> stash
+        }
     }
 }
