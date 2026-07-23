@@ -37,13 +37,9 @@ public class Response implements Serializable {
 	private Object data;
 
 	public Response() {
-<<<<<<< HEAD
-
-=======
 		success = null;
 		message = null;
 		data = null;
->>>>>>> stash
 	}
 
 	public Response(Boolean success, String message, Object data) {

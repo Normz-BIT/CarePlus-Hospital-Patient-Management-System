@@ -1,17 +1,12 @@
 package com.careplus.common.model;
 
 import java.io.Serializable;
-<<<<<<< HEAD
-import java.util.List;
-=======
 import java.time.LocalDateTime;
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
 import com.careplus.common.enums.UserRole;
 
 import jakarta.persistence.*;
 
-<<<<<<< HEAD
 /**
  * Root of the person inheritance hierarchy
  *
@@ -22,20 +17,17 @@ import jakarta.persistence.*;
  * patient-only column to be nullable in one wide table.
  *
  * The practical payoff is in AuthService: one lookup against Person resolves a
- * patient or any staff member without the caller knowing which, and the concrete
- * subclass comes back with its role attached.
+ * patient or any staff member without the caller knowing which, and the
+ * concrete subclass comes back with its role attached.
  *
  * This is also a Serializable object sent over the socket, so it is both a JPA
- * entity and a wire type. That dual role is why serialVersionUID below is marked
- * @Transient.
+ * entity and a wire type. That dual role is why serialVersionUID below is
+ * marked @Transient.
  */
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 @Entity
 @Table(name = "person")
-
+@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Person implements Serializable {
-<<<<<<< HEAD
 	/*
 	 * @Transient keeps Hibernate from trying to map this serialization bookkeeping
 	 * field to a column. Without it, Hibernate would look for a matching column and
@@ -50,15 +42,12 @@ public abstract class Person implements Serializable {
 	 * stored here is the canonical uppercase form.
 	 */
 	@Id
-	@Column(name = "person_id", length = 10)
+	@Column(name = "person_id")
 	protected String personId;
-	@Column(name = "first_name", nullable = false, length = 50)
+	@Column(name = "first_name", nullable = false)
 	protected String firstName;
-	@Column(name = "last_name", nullable = false, length = 50)
+	@Column(name = "last_name", nullable = false)
 	protected String lastName;
-<<<<<<< HEAD
-	@Column(name = "email", nullable = false, unique = true, length = 120)
-=======
 	/*
 	 * Email is unique because it is how a person is identified when registering, so
 	 * the constraint lives in the database where it holds regardless of which part
@@ -69,27 +58,17 @@ public abstract class Person implements Serializable {
 	 * violation on commit.
 	 */
 	@Column(name = "email", nullable = false, unique = true)
->>>>>>> stash
 	protected String email;
 	@Column(name = "phone", length = 20)
 	protected String phone;
-<<<<<<< HEAD
-	@Column(name = "password", nullable = false, length = 255)
-=======
 	/*
 	 * Stored as plaintext, which is what lets AuthService compare with equals. This
 	 * is the field that would need to hold a salted hash before the system could
 	 * handle real patient data.
 	 */
-	@Column(name = "password", nullable = false)
->>>>>>> stash
+	@Column(name = "password", length = 255, nullable = false)
 	protected String password;
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 	/*
 	 * We use EnumType.STRING rather than the ORDINAL default so the database holds
 	 * "DOCTOR" instead of a positional number. With ORDINAL, reordering the
@@ -99,16 +78,11 @@ public abstract class Person implements Serializable {
 	 */
 	@Enumerated(EnumType.STRING)
 	@Column(name = "role", nullable = false)
->>>>>>> stash
 	protected UserRole role;
-	@Transient
-	transient protected List<ChatMessages> complaint;
-=======
-    @Transient
-    private static final long serialVersionUID = 1L;
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
-<<<<<<< HEAD
+	@Column(name = "created_at", nullable = false, updatable = false)
+	protected LocalDateTime createdAt;
+
 	/*
 	 * Required by both Hibernate and Java serialization to instantiate before
 	 * populating fields. Protected rather than public so application code is pushed
@@ -116,21 +90,11 @@ public abstract class Person implements Serializable {
 	 * built.
 	 */
 	protected Person() {
-=======
-    @Id
-    @Column(name = "person_id", length = 10, nullable = false)
-    protected String personId;
 
-    @Column(name = "first_name", length = 50, nullable = false)
-    protected String firstName;
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
+	}
 
-    @Column(name = "last_name", length = 50, nullable = false)
-    protected String lastName;
-
-<<<<<<< HEAD
-	protected Person(String personId, String firstName, String lastName, String email, String phone, String password,
-			UserRole role, List<ChatMessages> complaint) {
+	public Person(String personId, String firstName, String lastName, String email, String phone, String password,
+			UserRole role, LocalDateTime createdAt) {
 		this.personId = personId;
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -138,151 +102,100 @@ public abstract class Person implements Serializable {
 		this.phone = phone;
 		this.password = password;
 		this.role = role;
-		this.complaint = complaint;
+		this.createdAt = createdAt;
 	}
-=======
-    @Column(name = "email", length = 120, nullable = false, unique = true)
-    protected String email;
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
-    @Column(name = "phone", length = 20)
-    protected String phone;
+	@PrePersist
+	protected void onCreate() {
+		if (createdAt == null) {
+			createdAt = LocalDateTime.now();
+		}
+	}
 
-    @Column(name = "password", length = 255, nullable = false)
-    protected String password;
+	public UserRole getRole() {
+		return this.role;
+	}
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false)
-    protected UserRole role;
+	public void setRole(UserRole role) {
+		this.role = role;
+	}
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    protected LocalDateTime createdAt;
+	public String getFullName() {
+		return firstName + " " + lastName;
+	}
 
-    protected Person() {
-    }
+	public String getPersonId() {
+		return personId;
+	}
 
-    protected Person(String personId, String firstName, String lastName,
-                     String email, String phone, String password, UserRole role) {
-        this.personId = personId;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.phone = phone;
-        this.password = password;
-        this.role = role;
-    }
+	public void setPersonId(String personId) {
+		this.personId = personId;
+	}
 
-    @PrePersist
-    protected void onCreate() {
-        if (createdAt == null) {
-            createdAt = LocalDateTime.now();
-        }
-    }
+	public String getFirstName() {
+		return firstName;
+	}
 
-    public String getPersonId() {
-        return personId;
-    }
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
 
-    public void setPersonId(String personId) {
-        this.personId = personId;
-    }
+	public String getLastName() {
+		return lastName;
+	}
 
-    public String getFirstName() {
-        return firstName;
-    }
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
+	public String getEmail() {
+		return email;
+	}
 
-    public String getLastName() {
-        return lastName;
-    }
+	public void setEmail(String email) {
+		this.email = email;
+	}
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
+	public String getPhone() {
+		return phone;
+	}
 
-    public String getFullName() {
-        return firstName + " " + lastName;
-    }
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
 
-<<<<<<< HEAD
+	public String getPassword() {
+		return password;
+	}
+
 	public void setPassword(String password) {
 		this.password = password;
 	}
 
-	public List<ChatMessages> getComplaint() {
-		return complaint;
+	@Override
+	public String toString() {
+		return "Person [personId=" + personId + ", firstName=" + firstName + ", lastName=" + lastName + ", email="
+				+ email + ", phone=" + phone + ", password=" + password + ", role=" + role + ", createdAt=" + createdAt
+				+ "]";
 	}
 
-	public void setComplaint(List<ChatMessages> complaint) {
-		this.complaint = complaint;
+	@Override
+	public boolean equals(Object obj) {// allows us to compare object instances
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof Person)) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		Person other = (Person) obj;
+		return personId != null && personId.equals(other.personId);
 	}
-=======
-    public String getEmail() {
-        return email;
-    }
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public UserRole getRole() {
-        return role;
-    }
-
-    public void setRole(UserRole role) {
-        this.role = role;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    @Override
-    public String toString() {
-        return "Person [personId=" + personId
-                + ", firstName=" + firstName
-                + ", lastName=" + lastName
-                + ", email=" + email
-                + ", phone=" + phone
-                + ", role=" + role
-                + ", createdAt=" + createdAt + "]";
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (!(obj instanceof Person)) return false;
-        if (getClass() != obj.getClass()) return false;
-        Person other = (Person) obj;
-        return personId != null && personId.equals(other.personId);
-    }
-
-    @Override
-    public int hashCode() {
-        return personId == null ? 0 : personId.hashCode();
-    }
+	@Override
+	public int hashCode() {// use string id hash code
+		return (personId == null) ? 0 : personId.hashCode();
+	}
 }

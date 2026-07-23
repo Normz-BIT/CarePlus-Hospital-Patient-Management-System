@@ -1,31 +1,19 @@
 package com.careplus.client.patient.controller;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
->>>>>>> stash
-=======
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 import java.util.List;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-import com.careplus.client.patient.view.Appointment;
-=======
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 import javax.swing.JComboBox;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.careplus.client.patient.view.AppointmentView;
->>>>>>> stash
 import com.careplus.common.client.net.Client;
+import com.careplus.common.client.view.MainDashboard;
+import com.careplus.common.enums.AppointmentStatus;
+import com.careplus.common.model.Appointment;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
@@ -40,16 +28,9 @@ import com.careplus.common.net.Response;
  * and will work once AppointmentService is implemented.
  */
 public class AppointmentController {
-    private final Appointment view;
+	private final AppointmentView view;
+	private static final Logger logger = LogManager.getLogger(AppointmentController.class);
 
-<<<<<<< HEAD
-    public AppointmentController(Appointment view) {
-        this.view = view;
-        init();
-        loadLookups();
-        refresh();
-    }
-=======
 	public AppointmentController(AppointmentView view) {
 		this.view = view;
 		/*
@@ -60,35 +41,8 @@ public class AppointmentController {
 		loadLookups();
 		refresh();
 	}
->>>>>>> stash
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    private void init() {
-        view.getBtnSchedule().addActionListener(e -> schedule());
-        view.getBtnRefresh().addActionListener(e -> refresh());
-        view.getBtnClear().addActionListener(e -> view.clearFields());
-        view.getBtnCancel().addActionListener(e -> cancel());
-        view.getBtnUpdate().addActionListener(e -> schedule());
-    }
-=======
->>>>>>> stash
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    private Response send(Request request) { return new Client().send(request); }
-
-    private void loadLookups() {
-        Response doctors = send(new Request(RequestType.GET_DOCTORS, "role", "doctor"));
-        if (doctors != null && Boolean.TRUE.equals(doctors.getSuccess())) fillCombo(view.getCboDoctor(), doctors.getData());
-        Response departments = send(new Request(RequestType.GET_DEPARTMENTS, "type", "appointment"));
-        if (departments != null && Boolean.TRUE.equals(departments.getSuccess())) fillCombo(view.getCboDepartment(), departments.getData());
-    }
-=======
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	/*
 	 * Combo contents come from the server rather than from a local enum, so the
 	 * doctor list reflects who is actually on staff. Failures are silent by design:
@@ -97,68 +51,22 @@ public class AppointmentController {
 	 */
 	private void loadLookups() {
 		Response doctors = Client.send(new Request(RequestType.GET_DOCTORS, "role", "doctor"));
-<<<<<<< HEAD
->>>>>>> stash
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
-    @SuppressWarnings("unchecked")
-    private void fillCombo(javax.swing.JComboBox<String> combo, Object data) {
-        combo.removeAllItems();
-        if (data instanceof List<?>) for (Object value : (List<Object>) data) combo.addItem(String.valueOf(value));
-    }
+		if (doctors != null && Boolean.TRUE.equals(doctors.getSuccess())) {
+			fillCombo(view.getCboDoctor(), doctors.getData());
+		}
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    private void schedule() {
-        if (view.getTxtDate().getText().trim().isEmpty() || view.getTxtTime().getText().trim().isEmpty()) {
-            view.showMessage("Date and time are required.");
-            return;
-        }
-        Request req = new Request();
-        req.setType(RequestType.SCHEDULE_APPOINTMENT);
-        req.putMap("doctor", String.valueOf(view.getCboDoctor().getSelectedItem()));
-        req.putMap("department", String.valueOf(view.getCboDepartment().getSelectedItem()));
-        req.putMap("date", view.getTxtDate().getText().trim());
-        req.putMap("time", view.getTxtTime().getText().trim());
-        Response res = send(req);
-        view.showMessage(res == null ? "No response from server." : res.getMessage());
-        refresh();
-    }
-=======
 		Response departments = Client.send(new Request(RequestType.GET_DEPARTMENTS, "type", "appointment"));
->>>>>>> stash
-=======
-		Response departments = Client.send(new Request(RequestType.GET_DEPARTMENTS, "type", "appointment"));
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
-    private void cancel() {
-        int row = view.getTblAppointments().getSelectedRow();
-        if (row < 0) { view.showMessage("Select an appointment to cancel."); return; }
-        Object id = view.getTableModel().getValueAt(row, 0);
-        Request req = new Request(RequestType.CANCEL_APPOINTMENT, "appointmentId", id);
-        Response res = send(req);
-        view.showMessage(res == null ? "No response from server." : res.getMessage());
-        refresh();
-    }
+		if (departments != null && Boolean.TRUE.equals(departments.getSuccess())) {
+			fillCombo(view.getCboDepartment(), departments.getData());
+		}
+	}
 
-<<<<<<< HEAD
-    @SuppressWarnings("unchecked")
-    private void refresh() {
-        Response res = send(new Request(RequestType.GET_MY_APPOINTMENTS, "patientId", "current"));
-        if (res == null || !Boolean.TRUE.equals(res.getSuccess())) return;
-        view.clearTable();
-        if (res.getData() instanceof List<?>) for (Object row : (List<Object>) res.getData()) view.addAppointment((Object[]) row);
-    }
-}
-=======
 	@SuppressWarnings("unchecked")
 	private void fillCombo(JComboBox<String> combo, Object data) {
 		combo.removeAllItems();
->>>>>>> stash
 
-<<<<<<< HEAD
-=======
 		if (data instanceof List<?>) {
 			for (Object value : (List<Object>) data) {
 				combo.addItem(String.valueOf(value));
@@ -316,4 +224,3 @@ public class AppointmentController {
 
 	}
 }
->>>>>>> stash

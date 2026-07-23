@@ -1,19 +1,15 @@
 package com.careplus.client.employee.controller;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 import java.time.LocalDate;
 import java.time.LocalDateTime;
->>>>>>> stash
-=======
-import java.time.LocalDate;
-import java.time.LocalDateTime;
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 import java.util.List;
 
-import com.careplus.client.employee.view.Diagnosis;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.careplus.client.employee.view.DiagnosisView;
 import com.careplus.common.client.net.Client;
+import com.careplus.common.model.MedicalRecord;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
@@ -26,9 +22,10 @@ import com.careplus.common.net.Response;
  * the server, so nothing written here is persisted yet.
  */
 public class DiagnosisController {
-	private final Diagnosis view;
+	private final DiagnosisView view;
+	private static final Logger logger = LogManager.getLogger(DiagnosisController.class);
 
-	public DiagnosisController(Diagnosis view) {
+	public DiagnosisController(DiagnosisView view) {
 		this.view = view;
 		refresh();
 	}
@@ -41,27 +38,11 @@ public class DiagnosisController {
 		save(RequestType.ADD_DIAGNOSIS);
 	}
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-	private void loadStatus() {
-		view.getCboStatus().removeAllItems();
-		view.getCboStatus().addItem("Active");
-		view.getCboStatus().addItem("Follow-up Required");
-		view.getCboStatus().addItem("Closed");
-=======
 	/*
 	 * Update the selected medical record
 	 */
 	public void saveUpdate() {
 		save(RequestType.UPDATE_DIAGNOSIS);
->>>>>>> stash
-=======
-	/*
-	 * Update the selected medical record
-	 */
-	public void saveUpdate() {
-		save(RequestType.UPDATE_DIAGNOSIS);
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	}
 
 	/*
@@ -75,22 +56,17 @@ public class DiagnosisController {
 	 * for the server side service.
 	 */
 	private void save(RequestType type) {
-		if (view.getTxtPatientId().getText().trim().isEmpty() || view.getTxtDiagnosis().getText().trim().isEmpty()) {
+		if (view.getTxtPatientId().getText().trim().isEmpty()
+				|| view.getTxtDiagnosis().getText().trim().isEmpty()) {
+
 			view.showMessage("Patient ID and diagnosis are required.");
+			logger.warn("Medical record rejected because the patient ID or diagnosis was empty");
+
 			return;
 		}
+
 		Request req = new Request();
 		req.setType(type);
-<<<<<<< HEAD
-		req.putMap("patientId", view.getTxtPatientId().getText().trim());
-		req.putMap("diagnosis", view.getTxtDiagnosis().getText().trim());
-		req.putMap("treatment", view.getTxtTreatment().getText().trim());
-		req.putMap("prescription", view.getTxtPrescription().getText().trim());
-		req.putMap("status", String.valueOf(view.getCboStatus().getSelectedItem()));
-		Response res = new Client().send(req);
-		view.showMessage(res == null ? "No response from server." : res.getMessage());
-		refresh();
-=======
 
 		MedicalRecord medicalRecord = new MedicalRecord();
 
@@ -165,18 +141,9 @@ public class DiagnosisController {
 
 		refresh();
 
->>>>>>> stash
 	}
 
 	@SuppressWarnings("unchecked")
-<<<<<<< HEAD
-<<<<<<< HEAD
-	private void refresh() {
-		Response res = new Client().send(new Request(RequestType.GET_DIAGNOSIS_RECORDS, "all", true));
-		if (res == null || !Boolean.TRUE.equals(res.getSuccess()))
-=======
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	public void refresh() {
 		Response res = Client.send(
 				new Request(
@@ -187,14 +154,10 @@ public class DiagnosisController {
 		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 
 			logger.warn("Medical records could not be retrieved");
->>>>>>> stash
 			return;
+		}
+
 		view.clearTable();
-<<<<<<< HEAD
-		if (res.getData() instanceof List<?>)
-			for (Object row : (List<Object>) res.getData())
-				view.addDiagnosis((Object[]) row);
-=======
 
 		for (MedicalRecord row : (List<MedicalRecord>) res.getData()) {
 
@@ -211,6 +174,5 @@ public class DiagnosisController {
 
 		logger.info("Medical records refreshed successfully");
 
->>>>>>> stash
 	}
 }

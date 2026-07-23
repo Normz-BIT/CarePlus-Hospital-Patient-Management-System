@@ -1,17 +1,15 @@
 package com.careplus.client.patient.controller;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 import java.time.LocalDateTime;
->>>>>>> stash
-=======
-import java.time.LocalDateTime;
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 import java.util.List;
 
-import com.careplus.client.patient.view.Chat;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.careplus.client.patient.view.ChatView;
 import com.careplus.common.client.net.Client;
+import com.careplus.common.client.view.MainDashboard;
+import com.careplus.common.model.ChatMessage;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
@@ -31,40 +29,28 @@ import com.careplus.common.net.Response;
  * TODO: route CHAT_SEND and CHAT_POLL on the server.
  */
 public class ChatController {
-	private final Chat view;
+	private final ChatView view;
+	private static final Logger logger = LogManager.getLogger(ChatController.class);
 
-	public ChatController(Chat view) {
+	public ChatController(ChatView view) {
 		this.view = view;
-<<<<<<< HEAD
-<<<<<<< HEAD
-		view.getBtnSend().addActionListener(e -> sendMessage());
-		view.getBtnRefresh().addActionListener(e -> refresh());
-		view.getBtnClear().addActionListener(e -> view.clearConversation());
-=======
->>>>>>> stash
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 		refresh();
 	}
 
 	public void sendMessage() {
 		String msg = view.getTxtMessage().getText().trim();
-		if (msg.isEmpty())
+
+		if (msg.isEmpty()) {
+			view.showMessage("Message is required.");
+			logger.warn("Chat message rejected because the message was empty");
+
 			return;
+		}
+
 		Request req = new Request();
 		req.setType(RequestType.CHAT_SEND);
-<<<<<<< HEAD
-		req.putMap("sender", "Patient");
-		req.putMap("recipient", String.valueOf(view.getCboRecipient().getSelectedItem()));
-		req.putMap("message", msg);
-		Response res = new Client().send(req);
-		if (res == null || !Boolean.TRUE.equals(res.getSuccess()))
-			view.showMessage(res == null ? "No response from server." : res.getMessage());
-		view.clearMessageField();
-		refresh();
-=======
 
-		ChatMessages chatMessage = new ChatMessages();
+		ChatMessage chatMessage = new ChatMessage();
 
 		try {
 
@@ -73,7 +59,7 @@ public class ChatController {
 
 			chatMessage.setContent(msg);
 
-			chatMessage.setTimeStamp(LocalDateTime.now());
+			chatMessage.setSentAt(LocalDateTime.now());
 
 			/*
 			 * A newly sent message is unread by definition. The recipient's client is what
@@ -123,7 +109,6 @@ public class ChatController {
 
 		refresh();
 
->>>>>>> stash
 	}
 
 	/*
@@ -134,14 +119,6 @@ public class ChatController {
 	 * would block the Event Dispatch Thread on a socket round trip.
 	 */
 	@SuppressWarnings("unchecked")
-<<<<<<< HEAD
-<<<<<<< HEAD
-	private void refresh() {
-		Response res = new Client().send(new Request(RequestType.CHAT_POLL, "user", "current"));
-		if (res == null || !Boolean.TRUE.equals(res.getSuccess()))
-=======
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	public void refresh() {
 		Response res = Client.send(
 				new Request(
@@ -152,11 +129,25 @@ public class ChatController {
 		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 
 			logger.warn("Chat messages could not be retrieved");
->>>>>>> stash
 			return;
+		}
+
 		view.clearConversation();
-		if (res.getData() instanceof List<?>)
-			for (Object msg : (List<Object>) res.getData())
-				view.appendMessage(String.valueOf(msg));
+
+		for (ChatMessage msg : (List<ChatMessage>) res.getData()) {
+
+			String viewMessage =
+					"Message ID: " + msg.getMessageId()
+					+ "\nSender: " + msg.getSenderId()
+					+ "\nMessage: " + msg.getContent()
+					+ "\nTime: " + msg.getSentAt()
+					+ "\nRead: " + msg.getIsRead()
+					+ "\n";
+
+			view.appendMessage(viewMessage);
+		}
+
+		logger.info("Chat messages refreshed successfully");
+
 	}
 }

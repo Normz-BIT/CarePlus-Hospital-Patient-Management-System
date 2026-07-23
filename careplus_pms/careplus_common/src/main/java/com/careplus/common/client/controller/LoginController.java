@@ -2,6 +2,9 @@ package com.careplus.common.client.controller;
 
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.careplus.common.client.net.Client;
 import com.careplus.common.client.view.DashboardFeature;
 import com.careplus.common.client.view.LoginView;
@@ -11,33 +14,21 @@ import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
 
+/*
+ * Login Controller
+ * Authenticates patients and employees
+ * Opens the dashboard with the correct features
+ */
 public class LoginController {
 	private final LoginView view;
 	private final List<DashboardFeature> features;
+	private static final Logger logger = LogManager.getLogger(LoginController.class);
 
-<<<<<<< HEAD
-
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	public LoginController(LoginView view, List<DashboardFeature> features) {
 		this.view = view;
 		this.features = features;
-<<<<<<< HEAD
-<<<<<<< HEAD
-		init();
 	}
 
-	private void init() {
-		view.getBtnLogin().addActionListener(e -> login());
-=======
->>>>>>> stash
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
-	}
-
-<<<<<<< HEAD
-	private void login() {
-=======
 	/*
 	 * Authenticate User
 	 */
@@ -52,10 +43,6 @@ public class LoginController {
 		 * the String pool. Converting it here gives that protection up, and the value
 		 * then travels to the server as plaintext anyway.
 		 */
-<<<<<<< HEAD
->>>>>>> stash
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 		String id = view.getTxtId().getText().trim();
 		String password = String.valueOf(view.getTxtPassword().getPassword());
 
@@ -66,6 +53,8 @@ public class LoginController {
 		 */
 		if (id.isEmpty() || password.isEmpty()) {
 			view.showMessage("ID and password are required.");
+			logger.warn("Login rejected because the ID or password was empty");
+
 			return;
 		}
 
@@ -73,21 +62,13 @@ public class LoginController {
 		// password, and returns the concrete Patient/Doctor/Nurse/Receptionist
 		// so the dashboard can show the right menus.
 		Request request = new Request();
+
 		request.setType(RequestType.LOGIN);
 		request.putMap("id", id);
 		request.putMap("password", password);
 
-		Response response = new Client().send(request);
+		try {
 
-<<<<<<< HEAD
-		if (response != null && Boolean.TRUE.equals(response.getSuccess()) && response.getData() instanceof Person) {
-			Person user = (Person) response.getData();
-			MainDashboard dashboard = new MainDashboard(user, features);
-			dashboard.setVisible(true);
-			view.dispose();
-		} else {
-			view.showMessage(response == null ? "No response from server." : response.getMessage());
-=======
 			logger.info("Login request submitted for user ID: {}", id);
 
 			/*
@@ -158,7 +139,10 @@ public class LoginController {
 			logger.error("An error occurred while logging in user ID: " + id, e);
 			
 			view.showMessage("Unable to complete login: " + e.getMessage());
->>>>>>> stash
 		}
 	}
+	
+	
+	
+	
 }

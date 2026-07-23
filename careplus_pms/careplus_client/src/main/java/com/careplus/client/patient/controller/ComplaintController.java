@@ -1,17 +1,17 @@
 package com.careplus.client.patient.controller;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 import java.time.LocalDateTime;
->>>>>>> stash
-=======
-import java.time.LocalDateTime;
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 import java.util.List;
 
-import com.careplus.client.patient.view.Complaint;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.careplus.client.patient.view.ComplaintView;
 import com.careplus.common.client.net.Client;
+import com.careplus.common.client.view.MainDashboard;
+import com.careplus.common.enums.ComplaintCategory;
+import com.careplus.common.enums.ComplaintStatus;
+import com.careplus.common.model.Complaint;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
@@ -24,9 +24,10 @@ import com.careplus.common.net.Response;
  * the server, so every call below currently returns an empty Response.
  */
 public class ComplaintController {
-	private final Complaint view;
+	private final ComplaintView view;
+	private static final Logger logger = LogManager.getLogger(ComplaintController.class);
 
-	public ComplaintController(Complaint view) {
+	public ComplaintController(ComplaintView view) {
 		this.view = view;
 		loadCategories();
 		refresh();
@@ -49,34 +50,18 @@ public class ComplaintController {
 			view.getCboCategory().addItem(category.name());
 	}
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-	private Response send(Request request) {
-		return new Client().send(request);
-	}
-
-	private void submit() {
-=======
 	public void submit() {
->>>>>>> stash
-=======
-	public void submit() {
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 		String desc = view.getTxtDescription().getText().trim();
+
 		if (desc.isEmpty()) {
 			view.showMessage("Complaint description is required.");
+			logger.warn("Complaint rejected because the description was empty");
+
 			return;
 		}
+
 		Request req = new Request();
 		req.setType(RequestType.SUBMIT_COMPLAINT);
-<<<<<<< HEAD
-		req.putMap("category", String.valueOf(view.getCboCategory().getSelectedItem()));
-		req.putMap("priority", String.valueOf(view.getCboPriority().getSelectedItem()));
-		req.putMap("description", desc);
-		Response res = send(req);
-		view.showMessage(res == null ? "No response from server." : res.getMessage());
-		refresh();
-=======
 
 		Complaint complaint = new Complaint();
 
@@ -132,19 +117,17 @@ public class ComplaintController {
 
 		refresh();
 
->>>>>>> stash
 	}
 
 	public void delete() {
 		int row = view.getTblComplaints().getSelectedRow();
+
 		if (row < 0) {
 			view.showMessage("Select a complaint to delete.");
+			logger.warn("Complaint deletion attempted without selecting a record");
+
 			return;
 		}
-<<<<<<< HEAD
-		Request req = new Request(RequestType.DELETE_COMPLAINT, "complaintId", view.getTableModel().getValueAt(row, 0));
-		Response res = send(req);
-=======
 
 		Request req = new Request(
 				RequestType.DELETE_COMPLAINT,
@@ -153,20 +136,18 @@ public class ComplaintController {
 
 		Response res = Client.send(req);
 
->>>>>>> stash
 		view.showMessage(res == null ? "No response from server." : res.getMessage());
+
+		if (res == null) {
+			logger.error("No response received from server while deleting complaint");
+		} else {
+			logger.info("Complaint deletion response: {}", res.getMessage());
+		}
+
 		refresh();
 	}
 
 	@SuppressWarnings("unchecked")
-<<<<<<< HEAD
-<<<<<<< HEAD
-	private void refresh() {
-		Response res = send(new Request(RequestType.GET_MY_COMPLAINTS, "patientId", "current"));
-		if (res == null || !Boolean.TRUE.equals(res.getSuccess()))
-=======
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	public void refresh() {
 		Response res = Client.send(
 				new Request(
@@ -177,14 +158,10 @@ public class ComplaintController {
 		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 
 			logger.warn("Complaint records could not be retrieved");
->>>>>>> stash
 			return;
+		}
+
 		view.clearTable();
-<<<<<<< HEAD
-		if (res.getData() instanceof List<?>)
-			for (Object row : (List<Object>) res.getData())
-				view.addComplaint((Object[]) row);
-=======
 
 		for (Complaint row : (List<Complaint>) res.getData()) {
 
@@ -204,6 +181,5 @@ public class ComplaintController {
 
 		logger.info("Complaint records refreshed successfully");
 
->>>>>>> stash
 	}
 }

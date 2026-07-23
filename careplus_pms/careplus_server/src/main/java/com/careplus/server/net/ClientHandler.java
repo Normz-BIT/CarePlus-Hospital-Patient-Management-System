@@ -5,12 +5,15 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.List;
 
-import com.careplus.common.model.Patient;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
+import com.careplus.server.service.AuthService;
+import com.careplus.server.service.PaymentService;
 
 /*
  * ClientHandler
@@ -28,12 +31,6 @@ public class ClientHandler extends Thread {
 	private ObjectOutputStream outputStream;
 	private ObjectInputStream inputStream;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-	public ClientHandler(Socket socket) {
-=======
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	/*
 	 * Services are instantiated per handler rather than shared or static, which is
 	 * what keeps BaseService's session and transaction fields safe. Those fields are
@@ -43,14 +40,17 @@ public class ClientHandler extends Thread {
 	 */
 	private AuthService authservice;
 	private PaymentService paymentService;
-	private Server server;
 
-	public ClientHandler(Socket socket, Server server) {
->>>>>>> stash
+	private static final Logger logger = LogManager.getLogger(Server.class);
+	
+	public ClientHandler(Socket socket) {
 		this.socket = socket;
+		authservice = new AuthService();
+		paymentService = new PaymentService();
+
 	}
 
-	public void getStreams() {
+	private void getStreams() {
 		try {
 			/*
 			 * Output before input, mirroring the client. Both ends must agree on this order:
@@ -69,8 +69,6 @@ public class ClientHandler extends Thread {
 		}
 	}
 
-<<<<<<< HEAD
-=======
 	private void closeConnection() {
 
 		try {
@@ -103,34 +101,17 @@ public class ClientHandler extends Thread {
 	 * readObject() throw and passes control to the finally block below. That is how
 	 * Server.stop() brings handler threads down without needing a shared flag.
 	 */
-<<<<<<< HEAD
->>>>>>> stash
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	@Override
 	public void run() {
 		try {
 
-			Request req = (Request) inputStream.readObject();
+			this.getStreams();
 
-			RequestType reqtype = req.getType();
+			while (true) {
 
-			Response resp = new Response();
+				System.out.println("Waiting for input..");
+				Request req = (Request) inputStream.readObject();
 
-			switch (reqtype) {
-
-			case LOGIN:
-				
-				resp.setSuccess(true);
-
-<<<<<<< HEAD
-				Patient test1 = new Patient("PT1001","Dave","Brown","DBrowan@email.com","12312312","Here I AM",List.of());
-				resp.setData(test1);
-				
-				break;
-			default:
-				break;
-=======
 				RequestType reqtype = req.getType();
 
 				Response resp = new Response();
@@ -184,65 +165,24 @@ public class ClientHandler extends Thread {
 				 * Response cannot sit in the buffer while the client waits on its read.
 				 */
 				outputStream.writeObject(resp);
->>>>>>> stash
 
 			}
 
-			outputStream.writeObject(resp);
-
 		} catch (ClassNotFoundException e) {
-<<<<<<< HEAD
-<<<<<<< HEAD
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-=======
-
-			
-			logger.error("Class not found Exception:" + e.getMessage());
->>>>>>> stash
-
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 			/*
 			 * The client sent a class this server cannot resolve, which in practice means
 			 * the two sides were built against different versions of careplus_common.
 			 */
-			System.out.println("Class not found Exception:" + e.getMessage());
-
+			logger.error("Class not found Exception:" + e.getMessage());
 
 		} catch (IOException e) {
-<<<<<<< HEAD
-<<<<<<< HEAD
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-
-		} finally {
-			try {
-				if (socket != null && !socket.isClosed()) {
-					socket.close();
-					System.out.println("Socket closed. Thread terminating.");
-				}
-			} catch (IOException e) {
-				System.out.println("Failed to close socket: " + e.getMessage());
-			}
-=======
-
-			
-			logger.error("Error:" + e.getMessage());
-
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 			/*
 			 * Normal termination path as well as the error path: this is what a client
 			 * disconnecting, or Server.stop() closing the socket, looks like from inside
 			 * the blocked read. It is not necessarily a fault.
 			 */
-			System.out.println("Error:" + e.getMessage());
-
->>>>>>> stash
+			logger.error("Error:" + e.getMessage());
 		}
-<<<<<<< HEAD
-=======
 
 		finally {
 
@@ -254,6 +194,5 @@ public class ClientHandler extends Thread {
 			closeConnection();
 		}
 
->>>>>>> stash
 	}
 }

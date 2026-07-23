@@ -18,14 +18,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
-<<<<<<< HEAD
-
-import com.careplus.server.net.Server;
-
-//public class ServerView extends JFrame  {
-
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 import com.careplus.server.util.ServerConsole;
 
 import com.careplus.server.controller.ServerController;
@@ -46,14 +38,6 @@ public class ServerView extends JFrame implements ServerConsole {
 	// Console
 	private JTextArea txtConsole;
 
-<<<<<<< HEAD
-	
-	private Server server;
-	private Thread serverThread;
-	
-
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	public ServerView() {
 
 		setTitle("CarePlus Hospital Server");
@@ -98,19 +82,6 @@ public class ServerView extends JFrame implements ServerConsole {
 		consoleScroll.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
 
 		add(topPanel, BorderLayout.NORTH);
-<<<<<<< HEAD
-
-		//add(txtConsole, BorderLayout.CENTER);
-		add(new JScrollPane(txtConsole), BorderLayout.CENTER);
-
-		add(consoleScroll, BorderLayout.CENTER);
-
-		setVisible(true);
-		
-		startBtn.addActionListener(e -> startServer());
-
-		stopBtn.addActionListener(e -> stopServer());
-=======
 		add(consoleScroll, BorderLayout.CENTER);
 		
 		
@@ -150,92 +121,9 @@ public class ServerView extends JFrame implements ServerConsole {
 		stopBtn.addActionListener(e -> controller.stop());
 		resetDbs.addActionListener(e -> controller.resetDatabase());
 
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	}
 	
-<<<<<<< HEAD
-	private void stopServer() {
-
-	    if (server == null) {
-	        appendMessage("Server is not running.");
-	        return;
-	    }
-
-	    server.stopServer();
-
-	    server = null;
-	    serverThread = null;
-
-	    appendMessage("Server stopped.");
-	}
-
-	private void startServer() {
-
-	    if (serverThread != null && serverThread.isAlive()) {
-	        appendMessage("Server is already running.");
-	        return;
-	    }
-
-	    serverThread = new Thread(() -> {
-
-	        appendMessage("Starting server...");
-
-	        server = new Server(this);
-
-	    });
-
-	    serverThread.start();
-	}
-	public void appendMessage(String message) {
-		 SwingUtilities.invokeLater(() -> {
-		        txtConsole.append(message + "\n");
-		    });
-
-		setWindowIcon();
-	}
-
-	/*
-	 * Appends a timestamped line to the console. Safe to call from any thread - the
-	 * server and database work run off the event dispatch thread.
-	 */
-	@Override
-	public void println(String message) {
-
-		SwingUtilities.invokeLater(() -> {
-
-			txtConsole.append("[" + LocalTime.now().format(TIME) + "] " + message + "\n");
-			txtConsole.setCaretPosition(txtConsole.getDocument().getLength());
-		});
-	}
-
-	/*
-	 * Unlike println above, this touches the text area directly with no invokeLater,
-	 * so it is only safe from the event dispatch thread. That holds today because
-	 * its only caller is a button handler, but it must not be called from the server
-	 * or database worker threads the way println can be.
-	 */
-	public void clearConsole() {
-		txtConsole.setText("");
-	}
-
-	/*
-	 * Attaches this view's controls to the controller that handles them.
-	 */
-	public void registerActionListener(ServerController controller) {
-
-		startBtn.addActionListener(e -> controller.start());
-		stopBtn.addActionListener(e -> controller.stop());
-		resetDbs.addActionListener(e -> controller.resetDatabase());
-
-
-	}
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	
-<<<<<<< HEAD
-	
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	private void setWindowIcon() {
 
 		icons = new ArrayList<>();

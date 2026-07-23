@@ -2,54 +2,38 @@ package com.careplus.common.client.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 import java.awt.Image;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
->>>>>>> stash
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-<<<<<<< HEAD
-=======
 import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
-<<<<<<< HEAD
->>>>>>> stash
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.KeyStroke;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.careplus.common.client.controller.LoginController;
 import com.careplus.common.model.Person;
 
 /**
- * MDI main window. 
- * Shows a menu bar of the features the logged-in user's role may use
- * each menu item opens that feature's internal frame
- * re-focuses it if it is already open.
+ * MDI main window. Shows a menu bar of the features the logged-in user's role
+ * may use each menu item opens that feature's internal frame re-focuses it if
+ * it is already open.
  */
 public class MainDashboard extends JFrame {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    /** Client property that tags an open internal frame with its feature label. */
-    private static final String FEATURE_KEY = "careplus.feature";
-=======
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	/**
 	 * Client property that tags an open internal frame with its feature label.
 	 *
@@ -58,16 +42,7 @@ public class MainDashboard extends JFrame {
 	 * maintain a separate registry of what is open.
 	 */
 	private static final String FEATURE_KEY = "careplus.feature";
->>>>>>> stash
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    private final Person currentUser;
-    private final List<DashboardFeature> features;
-    private final JDesktopPane desktopPane = new JDesktopPane();
-=======
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	/*
 	 * Static so any controller can reach the signed in user through
 	 * getCurrentUser() without it being passed down through every view
@@ -82,54 +57,33 @@ public class MainDashboard extends JFrame {
 	private static Person currentUser;
 	private final List<DashboardFeature> features;
 	private final JDesktopPane desktopPane = new JDesktopPane();
->>>>>>> stash
 
-    public MainDashboard(Person currentUser) {
-        this(currentUser, List.of());
-    }
+	private static final Logger logger = LogManager.getLogger(MainDashboard.class);
 
-    public MainDashboard(Person currentUser, List<DashboardFeature> features) {
+	public MainDashboard(Person currentUser) {
+		this(currentUser, List.of());
+	}
 
-        this.currentUser = currentUser;
-        this.features = features;
+	public MainDashboard(Person currentUser, List<DashboardFeature> features) {
 
-        setTitle(currentUser == null ? "CarePlus Hospital Management System"
-                : "CarePlus - " + currentUser.getFullName());
+		MainDashboard.currentUser = currentUser;
+		this.features = features;
 
-        desktopPane.setBackground(new Color(225, 238, 250));
-        setLayout(new BorderLayout());
-        add(desktopPane, BorderLayout.CENTER);
+		setTitle(currentUser == null ? "CarePlus Hospital Management System"
+				: "CarePlus - " + currentUser.getFullName());
 
-        setJMenuBar(buildMenuBar());
+		desktopPane.setBackground(new Color(225, 238, 250));
+		desktopPane.setToolTipText("CarePlus workspace. Select a feature from the menu bar.");
 
-        setSize(1300, 750);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    }
+		setLayout(new BorderLayout());
+		add(desktopPane, BorderLayout.CENTER);
 
-    /** System menu plus one menu per feature group the current role may see. */
-    private JMenuBar buildMenuBar() {
+		setJMenuBar(buildMenuBar());
 
-        JMenuBar menuBar = new JMenuBar();
-        menuBar.add(buildSystemMenu());
+		setSize(1300, 750);
+		setLocationRelativeTo(null);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-<<<<<<< HEAD
-        Map<String, JMenu> menusByGroup = new LinkedHashMap<>();
-        for (DashboardFeature feature : features) {
-            if (currentUser != null && !feature.visibleFor(currentUser.getRole())) {
-                continue;
-            }
-            JMenu menu = menusByGroup.computeIfAbsent(feature.getMenu(), JMenu::new);
-            JMenuItem item = new JMenuItem(feature.getLabel());
-            item.addActionListener(e -> openFeature(feature));
-            menu.add(item);
-        }
-        
-        menusByGroup.values().forEach(menuBar::add);
-
-        return menuBar;
-    }
-=======
 		if (currentUser != null) {
 			logger.info(
 					"Main dashboard opened for user ID: {} with role: {}",
@@ -142,50 +96,24 @@ public class MainDashboard extends JFrame {
 	
 	// Retrieve the details of the current logged in user
 	public static Person getCurrentUser() {
->>>>>>> stash
 
-    private JMenu buildSystemMenu() {
+		return currentUser;
 
-        JMenuItem logout = new JMenuItem("Logout");
-        logout.addActionListener(e -> {
-            dispose();
-            Login login = new Login();
-            new LoginController(login, features);
-            login.setVisible(true);
-        });
+	}
 
-        JMenuItem exit = new JMenuItem("Exit");
-        exit.addActionListener(e -> System.exit(0));
+	/** System menu plus one menu per feature group the current role may see. */
+	private JMenuBar buildMenuBar() {
 
-        JMenu menuSystem = new JMenu("System");
-        menuSystem.add(logout);
-        menuSystem.addSeparator();
-        menuSystem.add(exit);
-        return menuSystem;
-    }
+		JMenuBar menuBar = new JMenuBar();
+		menuBar.add(buildSystemMenu());
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    /** Opens the feature's frame, or focuses it if it is already open. */
-    private void openFeature(DashboardFeature feature) {
-=======
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 		/*
 		 * LinkedHashMap rather than HashMap so menus appear in the order features were
 		 * registered in ClientApp, giving a stable menu bar instead of one that
 		 * reshuffles with hash ordering between runs.
 		 */
 		Map<String, JMenu> menusByGroup = new LinkedHashMap<>();
->>>>>>> stash
 
-<<<<<<< HEAD
-        JInternalFrame open = findOpenFrame(feature.getLabel());
-        if (open != null) {
-            focus(open);
-            return;
-        }
-=======
 		for (DashboardFeature feature : features) {
 			/*
 			 * Role filtering happens once, here, at menu construction time. That is why no
@@ -198,37 +126,13 @@ public class MainDashboard extends JFrame {
 			if (currentUser != null && !feature.visibleFor(currentUser.getRole())) {
 				continue;
 			}
->>>>>>> stash
 
-        JInternalFrame view = feature.createView();
-        view.putClientProperty(FEATURE_KEY, feature.getLabel());
-        desktopPane.add(view);
-        focus(view);
-    }
+			JMenu menu = menusByGroup.computeIfAbsent(feature.getMenu(), menuName -> {
 
-    /** The open internal frame for this feature label, or null if none. */
-    private JInternalFrame findOpenFrame(String featureLabel) {
-        for (JInternalFrame frame : desktopPane.getAllFrames()) {
-            if (featureLabel.equals(frame.getClientProperty(FEATURE_KEY))) {
-                return frame;
-            }
-        }
-        return null;
-    }
+				JMenu featureMenu = new JMenu(menuName);
+				setMnemonicFromText(featureMenu, menuName);
+				featureMenu.setToolTipText("Open " + menuName + " features.");
 
-<<<<<<< HEAD
-    /** Makes a frame visible, restored, selected and on top. */
-    private void focus(JInternalFrame frame) {
-        try {
-            frame.setVisible(true);
-            frame.setIcon(false);
-            frame.setSelected(true);
-            frame.toFront();
-        } catch (Exception ex) {
-            
-        }
-    }
-=======
 				return featureMenu;
 			});
 
@@ -401,8 +305,4 @@ public class MainDashboard extends JFrame {
 		this.setIconImages(icons);
 	}
 	
-<<<<<<< HEAD
->>>>>>> stash
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 }

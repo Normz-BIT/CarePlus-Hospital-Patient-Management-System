@@ -2,14 +2,16 @@ package com.careplus.client.employee.controller;
 
 import java.util.List;
 
-import com.careplus.client.employee.view.Doctors;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.careplus.client.employee.view.DoctorsView;
 import com.careplus.common.client.net.Client;
+import com.careplus.common.model.Doctor;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
 
-<<<<<<< HEAD
-=======
 /*
  * Doctors Controller
  * Retrieves and displays the doctors directory
@@ -22,24 +24,19 @@ import com.careplus.common.net.Response;
  * Note this also depends on Doctor being a mapped entity, which it is not yet, so
  * this table cannot populate until those annotations are added.
  */
->>>>>>> stash
 public class DoctorsController {
-    private final Doctors view;
+    private final DoctorsView view;
+    private static final Logger logger = LogManager.getLogger(DoctorsController.class);
 
-    public DoctorsController(Doctors view) {
+    public DoctorsController(DoctorsView view) {
         this.view = view;
         refresh();
     }
 
+    /*
+     * View All Doctors
+     */
     @SuppressWarnings("unchecked")
-<<<<<<< HEAD
-<<<<<<< HEAD
-    private void refresh() {
-        Response res = new Client().send(new Request(RequestType.GET_DOCTORS, "all", true));
-        if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
-=======
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
     public void refresh() {
         Response res = Client.send(
                 new Request(
@@ -50,19 +47,10 @@ public class DoctorsController {
         if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 
             logger.warn("Doctor records could not be retrieved");
->>>>>>> stash
             return;
         }
+
         view.clearTable();
-<<<<<<< HEAD
-<<<<<<< HEAD
-        
-        if (res.getData() instanceof List<?>) {
-            for (Object element : (List<Object>) res.getData()) {
-                view.addDoctor(element instanceof Object[] ? (Object[]) element : new Object[]{element});
-            }
-=======
-=======
 
         /*
          * Casting straight to Doctor rather than Person, so the specialization and
@@ -86,30 +74,7 @@ public class DoctorsController {
 
             view.addDoctor(viewRow);
         }
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
-        /*
-         * Casting straight to Doctor rather than Person, so the specialization and
-         * licence columns below are reachable. This only holds because the request asks
-         * specifically for doctors: a response carrying any other Person subclass would
-         * fail here with a ClassCastException.
-         */
-        for (Doctor row : (List<Doctor>) res.getData()) {
-
-            Object[] viewRow = new Object[] {
-                    row.getPersonId(),
-                    row.getFirstName(),
-                    row.getLastName(),
-                    row.getEmail(),
-                    row.getPhone(),
-                    row.getDepartment(),
-                    row.getHireDate(),
-                    row.getSpecialization(),
-                    row.getLicenseNo()
-            };
-
-            view.addDoctor(viewRow);
->>>>>>> stash
-        }
+        logger.info("Doctor records refreshed successfully");
     }
 }

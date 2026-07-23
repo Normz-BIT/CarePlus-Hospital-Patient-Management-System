@@ -1,33 +1,22 @@
 package com.careplus.client.employee.controller;
 
 import java.util.ArrayList;
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 import java.time.LocalDateTime;
->>>>>>> stash
-=======
-import java.time.LocalDateTime;
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-import com.careplus.client.employee.view.EmployeeComplaint;
-=======
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 import javax.swing.JComboBox;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.careplus.client.employee.view.EmployeeComplaintView;
->>>>>>> stash
 import com.careplus.common.client.net.Client;
+import com.careplus.common.client.view.MainDashboard;
+import com.careplus.common.enums.ComplaintStatus;
+import com.careplus.common.model.Complaint;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
@@ -53,12 +42,9 @@ public class EmployeeComplaintController {
 	 * two values, and nothing will fail to compile if that is forgotten.
 	 */
 	// Column indices in the complaint table (see EmployeeComplaint columns).
-	private static final int CATEGORY_COL = 1;
-	private static final int STATUS_COL = 3;
+	private static final int CATEGORY_COL = 2;
+	private static final int STATUS_COL = 7;
 
-<<<<<<< HEAD
-	private final EmployeeComplaint view;
-=======
 	private final EmployeeComplaintView view;
 	/*
 	 * The unfiltered result of the last refresh, held separately from the table
@@ -66,13 +52,10 @@ public class EmployeeComplaintController {
 	 * Filtering therefore rebuilds the table from this list rather than discarding
 	 * rows it would need again.
 	 */
-<<<<<<< HEAD
->>>>>>> stash
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	private final List<Object[]> allComplaints = new ArrayList<>();
+	private static final Logger logger = LogManager.getLogger(EmployeeComplaintController.class);
 
-	public EmployeeComplaintController(EmployeeComplaint view) {
+	public EmployeeComplaintController(EmployeeComplaintView view) {
 		this.view = view;
 		loadCombos();
 		refresh();
@@ -80,17 +63,7 @@ public class EmployeeComplaintController {
 
 
 	private void loadCombos() {
-<<<<<<< HEAD
-<<<<<<< HEAD
-		add(view.getCboCategory(), "Medical", "Billing", "Appointment", "Staff", "Other");
-		add(view.getCboPriority(), "Low", "Medium", "High");
-		add(view.getCboStatus(), "Pending", "Assigned", "In Progress", "Resolved", "Closed");
-=======
 		fill(view.getCboStatus(), ComplaintStatus.values());
->>>>>>> stash
-=======
-		fill(view.getCboStatus(), ComplaintStatus.values());
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	}
 
 	private void fill(JComboBox<String> box, Enum<?>[] values) {
@@ -100,12 +73,6 @@ public class EmployeeComplaintController {
 			box.addItem(value.name());
 	}
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-	private void assign() {
-=======
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	public void assign() {
 		if (view.getTxtComplaintId().getText().trim().isEmpty()) {
 			view.showMessage("Complaint ID is required.");
@@ -114,20 +81,17 @@ public class EmployeeComplaintController {
 			return;
 		}
 
->>>>>>> stash
 		Request req = new Request();
 		req.setType(RequestType.ASSIGN_STAFF);
 		req.putMap("complaintId", view.getTxtComplaintId().getText().trim());
+		req.putMap("employeeId", MainDashboard.getCurrentUser().getPersonId());
 		req.putMap("remarks", view.getTxtRemarks().getText().trim());
+
+		logger.info("Assigning complaint ID: {}", view.getTxtComplaintId().getText().trim());
+
 		submit(req);
 	}
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-	private void resolve() {
-=======
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	public void resolve() {
 		if (view.getTxtComplaintId().getText().trim().isEmpty()) {
 			view.showMessage("Complaint ID is required.");
@@ -136,15 +100,8 @@ public class EmployeeComplaintController {
 			return;
 		}
 
->>>>>>> stash
 		Request req = new Request();
 		req.setType(RequestType.RESPOND_TO_COMPLAINT);
-<<<<<<< HEAD
-		req.putMap("complaintId", view.getTxtComplaintId().getText().trim());
-		req.putMap("status", String.valueOf(view.getCboStatus().getSelectedItem()));
-		req.putMap("response", view.getTxtRemarks().getText().trim());
-		submit(req);
-=======
 
 		Complaint complaint = new Complaint();
 
@@ -181,43 +138,33 @@ public class EmployeeComplaintController {
 			logger.error("An error occurred while responding to complaint", e);
 			view.showMessage("Unable to respond to complaint: " + e.getMessage());
 		}
->>>>>>> stash
 	}
 
 	/** Sends a change request, reports the result, and reloads the list. */
 	private void submit(Request req) {
-		Response res = new Client().send(req);
+		Response res = Client.send(req);
 		view.showMessage(res == null ? "No response from server." : res.getMessage());
+
+		if (res == null) {
+			logger.error("No response received from server while updating complaint");
+		} else {
+			logger.info("Server complaint response: {}", res.getMessage());
+		}
+
 		refresh();
 	}
 
 	@SuppressWarnings("unchecked")
-<<<<<<< HEAD
-<<<<<<< HEAD
-	private void refresh() {
-		Response res = new Client().send(new Request(RequestType.GET_ALL_COMPLAINTS, "all", true));
-		if (res == null || !Boolean.TRUE.equals(res.getSuccess()))
-=======
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	public void refresh() {
 		Response res = Client.send(new Request(RequestType.GET_ALL_COMPLAINTS, "all", true));
 
 		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 
 			logger.warn("Complaint records could not be retrieved");
->>>>>>> stash
 			return;
+		}
+
 		allComplaints.clear();
-<<<<<<< HEAD
-<<<<<<< HEAD
-		if (res.getData() instanceof List<?>) {
-			for (Object row : (List<Object>) res.getData()) {
-				if (row instanceof Object[])
-					allComplaints.add((Object[]) row);
-			}
-=======
-=======
 
 		for (Complaint row : (List<Complaint>) res.getData()) {
 
@@ -234,44 +181,17 @@ public class EmployeeComplaintController {
 
 			allComplaints.add(viewRow);
 		}
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
-
-<<<<<<< HEAD
-		for (Complaint row : (List<Complaint>) res.getData()) {
-
-			Object[] viewRow = new Object[] {
-					row.getComplaintId(),
-					row.getComplaintParentId(),
-					row.getCategory(),
-					row.getDescription(),
-					row.getDateSubmitted(),
-					row.getResponse(),
-					row.getResponseDate(),
-					row.getStatus()
-			};
-
-			allComplaints.add(viewRow);
->>>>>>> stash
-		}
-<<<<<<< HEAD
-=======
 
 		/*
 		 * Order matters: the filter options are rebuilt from the new data first, then
 		 * the table is rendered through that filter, and only then are the totals
 		 * computed. Summarising earlier would count against the previous load.
 		 */
->>>>>>> stash
-=======
-		/*
-		 * Order matters: the filter options are rebuilt from the new data first, then
-		 * the table is rendered through that filter, and only then are the totals
-		 * computed. Summarising earlier would count against the previous load.
-		 */
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 		populateFilter();
 		applyFilter();
 		updateSummary();
+
+		logger.info("Complaint records refreshed successfully");
 	}
 
 	/**

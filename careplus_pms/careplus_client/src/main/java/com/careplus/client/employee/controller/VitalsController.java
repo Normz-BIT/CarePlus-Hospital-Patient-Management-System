@@ -1,23 +1,19 @@
 package com.careplus.client.employee.controller;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 import java.time.LocalDateTime;
->>>>>>> stash
-=======
-import java.time.LocalDateTime;
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 import java.util.List;
 
-import com.careplus.client.employee.view.Vitals;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.careplus.client.employee.view.VitalsView;
 import com.careplus.common.client.net.Client;
+import com.careplus.common.client.view.MainDashboard;
+import com.careplus.common.model.VitalSigns;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
 
-<<<<<<< HEAD
-=======
 /*
  * Vitals Controller
  * Allows nurses to record and view patient vital signs
@@ -30,31 +26,15 @@ import com.careplus.common.net.Response;
  * TODO: route RECORD_VITALS and GET_ASSIGNED_CASES on the server so readings are
  * saved and the case list is populated.
  */
->>>>>>> stash
 public class VitalsController {
-	private final Vitals view;
+	private final VitalsView view;
+	private static final Logger logger = LogManager.getLogger(VitalsController.class);
 
-	public VitalsController(Vitals view) {
+	public VitalsController(VitalsView view) {
 		this.view = view;
 		refresh();
 	}
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-	private void init() {
-		view.getBtnRecord().addActionListener(e -> record());
-		view.getBtnRefresh().addActionListener(e -> refresh());
-		view.getBtnClear().addActionListener(e -> view.clearFields());
-	}
-
-	private Response send(Request request) {
-		return new Client().send(request);
-	}
-
-	private void record() {
-=======
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	/*
 	 * Record Patient Vital Signs
 	 */
@@ -63,42 +43,18 @@ public class VitalsController {
 		 * TODO: take the patient from the case table selection rather than a typed ID,
 		 * so a reading cannot be filed against the wrong patient.
 		 */
-<<<<<<< HEAD
->>>>>>> stash
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 		String patientId = view.getTxtPatientId().getText().trim();
+
 		if (patientId.isEmpty()) {
-<<<<<<< HEAD
-<<<<<<< HEAD
-			patientId = selectedPatientId();
-		}
-		if (patientId.isEmpty()) {
-			view.showMessage("Enter or select a patient before recording vitals.");
-=======
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 			view.showMessage("Enter a patient ID before recording vitals.");
 			logger.warn("Vital signs rejected because no patient was selected");
 
->>>>>>> stash
 			return;
 		}
 
 		Request req = new Request();
 		req.setType(RequestType.RECORD_VITALS);
-		req.putMap("patientId", patientId);
-		req.putMap("temperature", view.getTxtTemperature().getText().trim());
-		req.putMap("bloodPressure", view.getTxtBloodPressure().getText().trim());
-		req.putMap("pulse", view.getTxtPulse().getText().trim());
-		req.putMap("respiratoryRate", view.getTxtRespiratory().getText().trim());
-		req.putMap("observations", view.getTxtObservations().getText().trim());
-		req.putMap("nursingNotes", view.getTxtNursingNotes().getText().trim());
 
-<<<<<<< HEAD
-		Response res = send(req);
-		view.showMessage(res == null ? "No response from server." : res.getMessage());
-=======
 		VitalSigns vitalSigns = new VitalSigns();
 
 		try {
@@ -172,37 +128,12 @@ public class VitalsController {
 
 		refresh();
 
->>>>>>> stash
 	}
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-	/** Patient id of the currently selected assigned-case row, or "". */
-	private String selectedPatientId() {
-		int row = view.getTblCases().getSelectedRow();
-		if (row < 0) {
-			return "";
-		}
-		Object value = view.getTableModel().getValueAt(row, 0);
-		return value == null ? "" : String.valueOf(value);
-	}
-
-=======
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	/*
 	 * View Patient Vital Signs
 	 */
->>>>>>> stash
 	@SuppressWarnings("unchecked")
-<<<<<<< HEAD
-<<<<<<< HEAD
-	private void refresh() {
-		Response res = send(new Request(RequestType.GET_ASSIGNED_CASES, "nurse", "current"));
-		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
-=======
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	public void refresh() {
 		Response res = Client.send(
 				new Request(
@@ -213,17 +144,10 @@ public class VitalsController {
 		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 
 			logger.warn("Patient vital signs could not be retrieved");
->>>>>>> stash
 			return;
 		}
+
 		view.clearTable();
-<<<<<<< HEAD
-<<<<<<< HEAD
-		if (res.getData() instanceof List<?>) {
-			for (Object row : (List<Object>) res.getData()) {
-				view.addCase((Object[]) row);
-			}
-=======
 
 		for (VitalSigns row : (List<VitalSigns>) res.getData()) {
 
@@ -239,24 +163,9 @@ public class VitalsController {
 			};
 
 			view.addCase(viewRow);
->>>>>>> stash
-=======
-
-		for (VitalSigns row : (List<VitalSigns>) res.getData()) {
-
-			Object[] viewRow = new Object[] {
-					row.getVitalId(),
-					row.getTemperature(),
-					row.getBloodPressure(),
-					row.getHeartRate(),
-					row.getRespiratoryRate(),
-					row.getObservations(),
-					row.getNursingNotes(),
-					row.getRecordedAt()
-			};
-
-			view.addCase(viewRow);
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 		}
+
+		logger.info("Patient vital signs refreshed successfully");
+
 	}
 }

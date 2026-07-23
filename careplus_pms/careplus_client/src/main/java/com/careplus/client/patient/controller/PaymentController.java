@@ -1,9 +1,16 @@
 package com.careplus.client.patient.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Random;
 
-import com.careplus.client.patient.view.Payment;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.careplus.client.patient.view.PaymentView;
 import com.careplus.common.client.net.Client;
+import com.careplus.common.client.view.MainDashboard;
+import com.careplus.common.model.Payment;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
@@ -17,9 +24,10 @@ import com.careplus.common.net.Response;
  * service rather than receiving empty responses.
  */
 public class PaymentController {
-	private final Payment view;
+	private final PaymentView view;
+	private static final Logger logger = LogManager.getLogger(PaymentController.class);
 
-	public PaymentController(Payment view) {
+	public PaymentController(PaymentView view) {
 		this.view = view;
 		/*
 		 * Populating from the constructor means opening this screen performs a blocking
@@ -32,13 +40,6 @@ public class PaymentController {
 	public void pay() {
 		Request req = new Request();
 		req.setType(RequestType.MAKE_PAYMENT);
-<<<<<<< HEAD
-		req.putMap("amount", view.getTxtAmount().getText().trim());
-		req.putMap("method", view.getTxtMethod().getText().trim());
-		Response res = new Client().send(req);
-		view.showMessage(res == null ? "No response from server." : res.getMessage());
-		refresh();
-=======
 
 		Payment payment = new Payment();
 
@@ -115,7 +116,6 @@ public class PaymentController {
 		 */
 		refresh();
 
->>>>>>> stash
 	}
 
 	/*
@@ -125,14 +125,6 @@ public class PaymentController {
 	 * action and losing the user's selection and scroll position.
 	 */
 	@SuppressWarnings("unchecked")
-<<<<<<< HEAD
-<<<<<<< HEAD
-	private void refresh() {
-		Response res = new Client().send(new Request(RequestType.GET_MY_PAYMENTS, "patientId", "current"));
-		if (res == null || !Boolean.TRUE.equals(res.getSuccess()))
-=======
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	public void refresh() {
 		Response res = Client
 				.send(new Request(RequestType.GET_MY_PAYMENTS, "patientId", MainDashboard.getCurrentUser().getPersonId()));
@@ -145,23 +137,30 @@ public class PaymentController {
 		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 
 			logger.warn("Payment records could not be retrieved");
->>>>>>> stash
 			return;
-<<<<<<< HEAD
-=======
 		}
 
 		/*
 		 * Cleared only after the response is known to be good, so a failed refresh
 		 * leaves the previous rows on screen rather than blanking the table.
 		 */
-<<<<<<< HEAD
->>>>>>> stash
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 		view.clearTable();
-		if (res.getData() instanceof List<?>)
-			for (Object row : (List<Object>) res.getData())
-				view.addPayment((Object[]) row);
+
+		for (Payment row : (List<Payment>) res.getData()) {
+		    
+		    Object[] viewRow = new Object[] {
+		    		row.getPaymentId(),
+		    		row.getAmountPaid(),
+		    		row.getOutstandingBalance(),
+		    		row.getDescription(),
+		    		row.getPaymentDate()
+		    };
+		    
+		    view.addPayment(viewRow);
+		}
+
+		logger.info("Payment records refreshed successfully");
+
 	}
 }
+

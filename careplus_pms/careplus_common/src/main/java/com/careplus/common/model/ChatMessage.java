@@ -2,117 +2,139 @@ package com.careplus.common.model;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-
 import jakarta.persistence.*;
+/*
+ * Chat Messages for all users
+ *
+ * A single message in the patient to staff conversation, carrying who sent it,
+ * what they said, when, and whether it has been read. The read flag is what lets
+ * the interface show a patient that staff have seen their message.
+ *
+ * A wire type for now, gaining its JPA mapping when ChatService is completed.
+ *
+ * TODO: add a recipient field. The model records only a sender at present, and
+ * the recipient is passed separately by the controllers, so a stored message
+ * does not yet carry who it was addressed to.
+ * */
 
 @Entity
 @Table(name = "chat_message")
 public class ChatMessage implements Serializable {
 
-    @Transient
-    private static final long serialVersionUID = 1L;
+	@Transient
+	private static final long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "message_id", nullable = false)
-    private Integer messageId;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "message_id", nullable = false)
+	private Integer messageId;
+	/*
+	 * A String matching Person.personId, so patients and staff share one identifier
+	 * space and either can be a sender. Note ChatService.poll takes an int, an
+	 * inconsistency that has to be resolved before the two can be wired together.
+	 */
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "sender_id", nullable = false)
+	private String senderId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sender_id", nullable = false)
-    private Person sender;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "receiver_id", nullable = false)
+	private String receiverId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "receiver_id", nullable = false)
-    private Person receiver;
+	@Column(name = "content", nullable = false, columnDefinition = "TEXT")
+	private String content;
+	/*
+	 * Orders the conversation, and is also what any operating hours rule would be
+	 * evaluated against. That check belongs on the server rather than here, since a
+	 * client clock can be wrong or deliberately altered.
+	 */
+	@Column(name = "sent_at", nullable = false)
+	private LocalDateTime sentAt = LocalDateTime.now();
+	/*
+	 * Boxed rather than primitive, so null means "never set" as distinct from an
+	 * explicit unread. Callers should treat null as unread rather than assume it is
+	 * populated.
+	 */
+	  @Column(name = "is_read", nullable = false)
+	    private Boolean isRead = false;
 
-    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
-    private String content;
+	  public ChatMessage() {
+	    }
 
-    @Column(name = "sent_at", nullable = false)
-    private LocalDateTime sentAt = LocalDateTime.now();
+	  public ChatMessage(String sender, String receiver, String content, LocalDateTime sentAt, Boolean isRead) {
+	        this.senderId = sender;
+	        this.receiverId = receiver;
+	        this.content = content;
+	        this.sentAt = sentAt;
+	        this.isRead = isRead;
+	    }
 
-    @Column(name = "is_read", nullable = false)
-    private Boolean isRead = false;
+	    public Integer getMessageId() {
+	        return messageId;
+	    }
 
-    public ChatMessage() {
-    }
+	    public void setMessageId(Integer messageId) {
+	        this.messageId = messageId;
+	    }
 
-    public ChatMessage(Person sender, Person receiver, String content, LocalDateTime sentAt, Boolean isRead) {
-        this.sender = sender;
-        this.receiver = receiver;
-        this.content = content;
-        this.sentAt = sentAt;
-        this.isRead = isRead;
-    }
+	    public String getSenderId() {
+	        return senderId;
+	    }
 
-    public Integer getMessageId() {
-        return messageId;
-    }
+	    public void setSenderId(String sender) {
+	        this.senderId = sender;
+	    }
 
-    public void setMessageId(Integer messageId) {
-        this.messageId = messageId;
-    }
+	    public String getReceiver() {
+	        return receiverId;
+	    }
 
-    public Person getSender() {
-        return sender;
-    }
+	    public void setReceiver(String receiver) {
+	        this.receiverId = receiver;
+	    }
 
-    public void setSender(Person sender) {
-        this.sender = sender;
-    }
+	    public String getContent() {
+	        return content;
+	    }
 
-    public Person getReceiver() {
-        return receiver;
-    }
+	    public void setContent(String content) {
+	        this.content = content;
+	    }
 
-    public void setReceiver(Person receiver) {
-        this.receiver = receiver;
-    }
+	    public LocalDateTime getSentAt() {
+	        return sentAt;
+	    }
 
-    public String getContent() {
-        return content;
-    }
+	    public void setSentAt(LocalDateTime sentAt) {
+	        this.sentAt = sentAt;
+	    }
 
-    public void setContent(String content) {
-        this.content = content;
-    }
+	    public Boolean getIsRead() {
+	        return isRead;
+	    }
 
-    public LocalDateTime getSentAt() {
-        return sentAt;
-    }
+	    public void setIsRead(Boolean isRead) {
+	        this.isRead = isRead;
+	    }
 
-    public void setSentAt(LocalDateTime sentAt) {
-        this.sentAt = sentAt;
-    }
+	   
+	    @Override
+		public String toString() {
+			return "ChatMessage [messageId=" + messageId + ", senderId=" + senderId + ", receiverId=" + receiverId
+					+ ", content=" + content + ", sentAt=" + sentAt + ", isRead=" + isRead + "]";
+		}
 
-    public Boolean getIsRead() {
-        return isRead;
-    }
+		@Override
+	    public boolean equals(Object obj) {
+	        if (this == obj) return true;
+	        if (!(obj instanceof ChatMessage)) return false;
+	        ChatMessage other = (ChatMessage) obj;
+	        return messageId != null && messageId.equals(other.messageId);
+	    }
 
-    public void setIsRead(Boolean isRead) {
-        this.isRead = isRead;
-    }
+	    @Override
+	    public int hashCode() {
+	        return messageId == null ? 0 : messageId.hashCode();
+	    }
 
-    @Override
-    public String toString() {
-        return "ChatMessage [messageId=" + messageId
-                + ", sender=" + (sender != null ? sender.getPersonId() : null)
-                + ", receiver=" + (receiver != null ? receiver.getPersonId() : null)
-                + ", content=" + content
-                + ", sentAt=" + sentAt
-                + ", isRead=" + isRead + "]";
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (!(obj instanceof ChatMessage)) return false;
-        ChatMessage other = (ChatMessage) obj;
-        return messageId != null && messageId.equals(other.messageId);
-    }
-
-    @Override
-    public int hashCode() {
-        return messageId == null ? 0 : messageId.hashCode();
-    }
 }

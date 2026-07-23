@@ -5,6 +5,9 @@ import java.util.Set;
 
 import javax.swing.SwingUtilities;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.careplus.client.employee.controller.*;
 import com.careplus.client.employee.view.*;
 
@@ -12,6 +15,7 @@ import com.careplus.client.patient.controller.*;
 import com.careplus.client.patient.view.*;
 
 import com.careplus.common.client.controller.LoginController;
+import com.careplus.common.client.net.Client;
 import com.careplus.common.client.view.*;
 import com.careplus.common.enums.UserRole;
 
@@ -20,8 +24,6 @@ import com.careplus.common.enums.UserRole;
  */
 public class ClientApp {
 
-<<<<<<< HEAD
-=======
 	private static final Logger logger = LogManager.getLogger(ClientApp.class);
 
 	/*
@@ -46,7 +48,6 @@ public class ClientApp {
 	 * Note "Doctors" is the only feature visible to two roles, since both doctors
 	 * and receptionists need the directory when assigning staff.
 	 */
->>>>>>> stash
 	public static List<DashboardFeature> assignFeatures() {
 
 		/*
@@ -58,207 +59,73 @@ public class ClientApp {
 
 				// Patient features
 				new DashboardFeature("Patient", "Appointments", Set.of(UserRole.PATIENT), () -> {
-<<<<<<< HEAD
-<<<<<<< HEAD
-					Appointment view = new Appointment();
-					new AppointmentController(view);
-=======
 					AppointmentView view = new AppointmentView();
 					AppointmentController controller = new AppointmentController(view);
 					view.registerActionListener(controller);
->>>>>>> stash
-=======
-					AppointmentView view = new AppointmentView();
-					AppointmentController controller = new AppointmentController(view);
-					view.registerActionListener(controller);
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 					return view;
 				}), new DashboardFeature("Patient", "Complaints", Set.of(UserRole.PATIENT), () -> {
-<<<<<<< HEAD
-<<<<<<< HEAD
-					Complaint view = new Complaint();
-					new ComplaintController(view);
-=======
 					ComplaintView view = new ComplaintView();
 					ComplaintController controller = new ComplaintController(view);
 					view.registerActionListener(controller);
->>>>>>> stash
-=======
-					ComplaintView view = new ComplaintView();
-					ComplaintController controller = new ComplaintController(view);
-					view.registerActionListener(controller);
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 					return view;
 				}), new DashboardFeature("Patient", "Medical Records", Set.of(UserRole.PATIENT), () -> {
-<<<<<<< HEAD
-<<<<<<< HEAD
-					MedicalRecord view = new MedicalRecord();
-					new MedicalRecordController(view);
-=======
 					MedicalRecordView view = new MedicalRecordView();
 					MedicalRecordController controller = new MedicalRecordController(view);
 					view.registerActionListener(controller);
->>>>>>> stash
-=======
-					MedicalRecordView view = new MedicalRecordView();
-					MedicalRecordController controller = new MedicalRecordController(view);
-					view.registerActionListener(controller);
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 					return view;
 				}), new DashboardFeature("Patient", "Payments", Set.of(UserRole.PATIENT), () -> {
-<<<<<<< HEAD
-<<<<<<< HEAD
-					Payment view = new Payment();
-					new PaymentController(view);
-=======
 					PaymentView view = new PaymentView();
 					PaymentController controller = new PaymentController(view);
 					view.registerActionListener(controller);
->>>>>>> stash
-=======
-					PaymentView view = new PaymentView();
-					PaymentController controller = new PaymentController(view);
-					view.registerActionListener(controller);
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 					return view;
 				}), new DashboardFeature("Patient", "Chat", Set.of(UserRole.PATIENT), () -> {
-<<<<<<< HEAD
-<<<<<<< HEAD
-					Chat view = new Chat();
-					new ChatController(view);
-=======
 					ChatView view = new ChatView();
 					ChatController controller = new ChatController(view);
 					view.registerActionListener(controller);
->>>>>>> stash
-=======
-					ChatView view = new ChatView();
-					ChatController controller = new ChatController(view);
-					view.registerActionListener(controller);
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 					return view;
 				}),
 
 				// Employee features
 				new DashboardFeature("Employee", "Diagnosis", Set.of(UserRole.DOCTOR), () -> {
-<<<<<<< HEAD
-<<<<<<< HEAD
-					Diagnosis view = new Diagnosis();
-					new DiagnosisController(view);
-=======
 					DiagnosisView view = new DiagnosisView();
 					DiagnosisController controller = new DiagnosisController(view);
 					view.registerActionListener(controller);
->>>>>>> stash
-=======
-					DiagnosisView view = new DiagnosisView();
-					DiagnosisController controller = new DiagnosisController(view);
-					view.registerActionListener(controller);
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 					return view;
 				}), new DashboardFeature("Employee", "Complaint Manager", Set.of(UserRole.RECEPTIONIST), () -> {
-<<<<<<< HEAD
-<<<<<<< HEAD
-					EmployeeComplaint view = new EmployeeComplaint();
-					new EmployeeComplaintController(view);
-=======
 					EmployeeComplaintView view = new EmployeeComplaintView();
 					EmployeeComplaintController controller = new EmployeeComplaintController(view);
 					view.registerActionListener(controller);
->>>>>>> stash
-=======
-					EmployeeComplaintView view = new EmployeeComplaintView();
-					EmployeeComplaintController controller = new EmployeeComplaintController(view);
-					view.registerActionListener(controller);
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 					return view;
 				}), new DashboardFeature("Employee", "Staff Assignment", Set.of(UserRole.RECEPTIONIST), () -> {
-<<<<<<< HEAD
-<<<<<<< HEAD
-					StaffAssignment view = new StaffAssignment();
-					new StaffAssignmentController(view);
-=======
 					StaffAssignmentView view = new StaffAssignmentView();
 					StaffAssignmentController controller = new StaffAssignmentController(view);
 					view.registerActionListener(controller);
->>>>>>> stash
-=======
-					StaffAssignmentView view = new StaffAssignmentView();
-					StaffAssignmentController controller = new StaffAssignmentController(view);
-					view.registerActionListener(controller);
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 					return view;
 				}), new DashboardFeature("Employee", "My Patients", Set.of(UserRole.DOCTOR), () -> {
-<<<<<<< HEAD
-<<<<<<< HEAD
-					Patients view = new Patients();
-					new PatientsController(view);
-=======
 					PatientsView view = new PatientsView();
 					PatientsController controller = new PatientsController(view);
 					view.registerActionListener(controller);
->>>>>>> stash
-=======
-					PatientsView view = new PatientsView();
-					PatientsController controller = new PatientsController(view);
-					view.registerActionListener(controller);
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 					return view;
 				}), new DashboardFeature("Employee", "Doctors", Set.of(UserRole.DOCTOR, UserRole.RECEPTIONIST), () -> {
-<<<<<<< HEAD
-<<<<<<< HEAD
-					Doctors view = new Doctors();
-					new DoctorsController(view);
-=======
 					DoctorsView view = new DoctorsView();
 					DoctorsController controller = new DoctorsController(view);
 					view.registerActionListener(controller);
->>>>>>> stash
-=======
-					DoctorsView view = new DoctorsView();
-					DoctorsController controller = new DoctorsController(view);
-					view.registerActionListener(controller);
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 					return view;
 				}), new DashboardFeature("Employee", "Nurse Station", Set.of(UserRole.NURSE), () -> {
-<<<<<<< HEAD
-<<<<<<< HEAD
-					Vitals view = new Vitals();
-					new VitalsController(view);
-=======
 					VitalsView view = new VitalsView();
 					VitalsController controller = new VitalsController(view);
 					view.registerActionListener(controller);
->>>>>>> stash
-=======
-					VitalsView view = new VitalsView();
-					VitalsController controller = new VitalsController(view);
-					view.registerActionListener(controller);
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 					return view;
 				}), new DashboardFeature("Employee", "Staff Chat",
 						Set.of(UserRole.DOCTOR, UserRole.NURSE, UserRole.RECEPTIONIST), () -> {
-<<<<<<< HEAD
-<<<<<<< HEAD
-							StaffChat view = new StaffChat();
-							new StaffChatController(view);
-=======
 							StaffChatView view = new StaffChatView();
 							StaffChatController controller = new StaffChatController(view);
 							view.registerActionListener(controller);
->>>>>>> stash
-=======
-							StaffChatView view = new StaffChatView();
-							StaffChatController controller = new StaffChatController(view);
-							view.registerActionListener(controller);
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 							return view;
 						}));
 
 	}
 
-<<<<<<< HEAD
-=======
 	/*
 	 * Start CarePlus Client Application
 	 *
@@ -268,17 +135,9 @@ public class ClientApp {
 	 * The whole bootstrap runs inside invokeLater because Swing components must be
 	 * created and touched only on the Event Dispatch Thread, construction included.
 	 */
->>>>>>> stash
 	public static void main(String[] args) {
 
-		List<DashboardFeature> features = assignFeatures();
-
 		SwingUtilities.invokeLater(() -> {
-<<<<<<< HEAD
-			Login login = new Login();
-			new LoginController(login, features);
-			login.setVisible(true);
-=======
 
 			try {
 	
@@ -317,7 +176,7 @@ public class ClientApp {
 				// TODO
 				logger.error("CarePlus client application could not be started", e);
 			}
->>>>>>> stash
 		});
+
 	}
 }

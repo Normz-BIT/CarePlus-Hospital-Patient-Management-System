@@ -2,8 +2,13 @@ package com.careplus.client.patient.controller;
 
 import java.util.List;
 
-import com.careplus.client.patient.view.MedicalRecord;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.careplus.client.patient.view.MedicalRecordView;
 import com.careplus.common.client.net.Client;
+import com.careplus.common.client.view.MainDashboard;
+import com.careplus.common.model.MedicalRecord;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
@@ -18,26 +23,14 @@ import com.careplus.common.net.Response;
  * table is currently empty.
  */
 public class MedicalRecordController {
-	private final MedicalRecord view;
+	private final MedicalRecordView view;
+	private static final Logger logger = LogManager.getLogger(MedicalRecordController.class);
 
-	public MedicalRecordController(MedicalRecord view) {
+	public MedicalRecordController(MedicalRecordView view) {
 		this.view = view;
-<<<<<<< HEAD
-<<<<<<< HEAD
-		view.getBtnRefresh().addActionListener(e -> refresh());
-		view.getBtnClear().addActionListener(e -> view.clearFields());
-=======
->>>>>>> stash
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 		refresh();
 	}
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	/*
 	 * Copies the selected row into the detail fields so long free text such as a
 	 * treatment note can be read in full, rather than clipped to a table cell.
@@ -76,16 +69,7 @@ public class MedicalRecordController {
 				view.getTableModel().getValueAt(row, 0));
 	}
 
->>>>>>> stash
 	@SuppressWarnings("unchecked")
-<<<<<<< HEAD
-<<<<<<< HEAD
-	private void refresh() {
-		Response res = new Client().send(new Request(RequestType.GET_MEDICAL_RECORDS, "patientId", "current"));
-		if (res == null || !Boolean.TRUE.equals(res.getSuccess()))
-=======
-=======
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 	public void refresh() {
 		Response res = Client.send(
 				new Request(
@@ -96,11 +80,25 @@ public class MedicalRecordController {
 		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 
 			logger.warn("Medical records could not be retrieved");
->>>>>>> stash
 			return;
+		}
+
 		view.clearTable();
-		if (res.getData() instanceof List<?>)
-			for (Object row : (List<Object>) res.getData())
-				view.addMedicalRecord((Object[]) row);
+
+		for (MedicalRecord row : (List<MedicalRecord>) res.getData()) {
+
+			Object[] viewRow = new Object[] {
+					row.getRecordId(),
+					row.getDiagnosis(),
+					row.getTreatmentNote(),
+					row.getFollowUpDate(),
+					row.getCreatedDate()
+			};
+
+			view.addMedicalRecord(viewRow);
+		}
+
+		logger.info("Medical records refreshed successfully");
+
 	}
 }

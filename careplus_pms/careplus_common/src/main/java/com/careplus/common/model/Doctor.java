@@ -1,11 +1,13 @@
 package com.careplus.common.model;
 
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.Objects;
 
 import com.careplus.common.enums.DoctorSpecialization;
 import com.careplus.common.enums.UserRole;
 
-<<<<<<< HEAD
+import jakarta.persistence.*;
+
 /*
  * Doctor is one of the three staff types in our Person hierarchy, alongside
  * Nurse and Receptionist. Doctors are the clinical decision makers in the
@@ -20,32 +22,22 @@ import com.careplus.common.enums.UserRole;
  * load a staff row into a Doctor. Person, Employee and Patient are already
  * mapped; the staff side is the next piece of persistence work.
  */
-=======
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.PrimaryKeyJoinColumn;
-import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "doctor")
 @PrimaryKeyJoinColumn(name = "person_id")
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 public class Doctor extends Employee {
 
-<<<<<<< HEAD
-	private DoctorSpecialization specialization;
-	private String licenseNo;
-	private List<Appointment> appointmentsList;
-	private List<MedicalRecord> medicalRecordsList;
-=======
-    @Transient
-    private static final long serialVersionUID = 1L;
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
+	@Transient
+	private static final long serialVersionUID = 1L;
 
-<<<<<<< HEAD
+	@Enumerated(EnumType.STRING)
+	@Column(name = "specialization", nullable = false)
+	private DoctorSpecialization specialization;
+
+	@Column(name = "license_no", length = 40, unique = true)
+	private String licenseNo;
+
 	/*
 	 * We fix the role inside the constructor rather than accepting it as a
 	 * parameter, so a Doctor can never be built carrying the wrong UserRole. This
@@ -56,88 +48,57 @@ public class Doctor extends Employee {
 		super();
 		setRole(UserRole.DOCTOR);
 	}
-=======
-    @Enumerated(EnumType.STRING)
-    @Column(name = "specialization", nullable = false)
-    private DoctorSpecialization specialization;
 
-    @Column(name = "license_no", length = 40, unique = true)
-    private String licenseNo;
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-	public Doctor(String personId, String firstName, String lastName, String email, String phone, String password,
-			List<ChatMessages> complaint) {
-		super(personId, firstName, lastName, email, phone, password, UserRole.DOCTOR, complaint);
-=======
 	/*
 	 * The full constructor passes the role up to super instead of calling setRole,
 	 * so the two constructors reach the same state by different routes. Both are
 	 * kept because Hibernate needs the no-arg version while application code is
 	 * clearer building a doctor in one step.
 	 */
-	public Doctor(String personId, String firstName, String lastName, String email, String phone, String password) {
-		super(personId, firstName, lastName, email, phone, password, UserRole.DOCTOR);
->>>>>>> stash
-=======
-    public Doctor() {
-        super();
-        setRole(UserRole.DOCTOR);
-    }
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
 
-    public Doctor(String personId, String firstName, String lastName,
-                  String email, String phone, String password) {
-        super(personId, firstName, lastName, email, phone, password, UserRole.DOCTOR);
-    }
 
-    public DoctorSpecialization getSpecialization() {
-        return specialization;
-    }
-
-    public void setSpecialization(DoctorSpecialization specialization) {
-        this.specialization = specialization;
-    }
-
-    public String getLicenseNo() {
-        return licenseNo;
-    }
-
-    public void setLicenseNo(String licenseNo) {
-        this.licenseNo = licenseNo;
-    }
-
-<<<<<<< HEAD
-	public List<Appointment> getAppointmentsList() {
-		return appointmentsList;
+	public DoctorSpecialization getSpecialization() {
+		return specialization;
 	}
 
-	public void setAppointmentsList(List<Appointment> appointmentsList) {
-		this.appointmentsList = appointmentsList;
+	public Doctor(String personId, String firstName, String lastName, String email, String phone, String password, LocalDateTime createdAt) {
+		super(personId, firstName, lastName, email, phone, password, UserRole.DOCTOR, createdAt);
+		// TODO Auto-generated constructor stub
 	}
 
-	public List<MedicalRecord> getMedicalRecordsList() {
-		return medicalRecordsList;
+	public void setSpecialization(DoctorSpecialization specialization) {
+		this.specialization = specialization;
 	}
 
-	public void setMedicalRecordsList(List<MedicalRecord> medicalRecordsList) {
-		this.medicalRecordsList = medicalRecordsList;
+	public String getLicenseNo() {
+		return licenseNo;
 	}
 
-=======
-    @Override
-    public String toString() {
-        return "Doctor [personId=" + personId
-                + ", firstName=" + firstName
-                + ", lastName=" + lastName
-                + ", email=" + email
-                + ", phone=" + phone
-                + ", role=" + role
-                + ", department=" + department
-                + ", hireDate=" + hireDate
-                + ", specialization=" + specialization
-                + ", licenseNo=" + licenseNo + "]";
-    }
->>>>>>> branch 'development' of https://github.com/Normz-BIT/CarePlus-Hospital-Patient-Management-System.git
+	public void setLicenseNo(String licenseNo) {
+		this.licenseNo = licenseNo;
+	}
+	
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (!(obj instanceof Doctor)) {
+			return false;
+		}
+		Doctor other = (Doctor) obj;
+		return Objects.equals(licenseNo, other.licenseNo) && specialization == other.specialization;
+	}
+
+	@Override
+	public String toString() {
+		return "Doctor [personId=" + personId + ", firstName=" + firstName + ", lastName=" + lastName + ", email="
+				+ email + ", phone=" + phone + ", role=" + role + ", department=" + department + ", hireDate="
+				+ hireDate + ", specialization=" + specialization + ", licenseNo=" + licenseNo + "]";
+	}
+
 }
