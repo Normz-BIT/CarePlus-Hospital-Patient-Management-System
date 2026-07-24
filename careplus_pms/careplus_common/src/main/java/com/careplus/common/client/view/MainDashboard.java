@@ -157,7 +157,8 @@ public class MainDashboard extends JFrame {
 			dispose();
 
 			LoginView login = new LoginView();
-			new LoginController(login, features);
+			LoginController loginController = new LoginController(login, features);
+			login.registerActionListener(loginController);
 			login.setVisible(true);
 		});
 
