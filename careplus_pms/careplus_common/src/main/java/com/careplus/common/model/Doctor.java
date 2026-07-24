@@ -1,32 +1,57 @@
 package com.careplus.common.model;
 
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.Objects;
 
 import com.careplus.common.enums.DoctorSpecialization;
 import com.careplus.common.enums.UserRole;
 
+import jakarta.persistence.*;
+
 /*
- * Child of the Employee and Person Class
- * 
- * Doctors create medical records and attend Appointments
+ * One of the three staff types, alongside Nurse and Receptionist. Doctors are
+ * the ones making the clinical calls: they write diagnoses and medical records
+ * and take appointments.
+ *
+ * specialization is an enum rather than free text so the booking and directory
+ * screens can group doctors properly. licenseNo stays a String since it's just
+ * an identifier we show on screen and never do maths with.
  */
+
+@Entity
+@Table(name = "doctor")
+@PrimaryKeyJoinColumn(name = "person_id")
 public class Doctor extends Employee {
+
+	@Transient
 	private static final long serialVersionUID = 1L;
 
+	@Enumerated(EnumType.STRING)
+	@Column(name = "specialization", nullable = false)
 	private DoctorSpecialization specialization;
-	private String licenseNo;
-	private List<Appointment> appointmentsList;
-	private List<MedicalRecord> medicalRecordsList;
 
+	@Column(name = "license_no", length = 40, unique = true)
+	private String licenseNo;
+
+	/*
+	 * We set the role in here instead of taking it as a parameter, so nobody can
+	 * accidentally build a Doctor with the wrong UserRole. That matters because the
+	 * client reads the role to decide which menus to show, so getting it wrong
+	 * would drop a doctor into somebody else's dashboard.
+	 */
 	public Doctor() {
 		super();
 		setRole(UserRole.DOCTOR);
 	}
 
-	public Doctor(String personId, String firstName, String lastName, String email, String phone, String password,
-			List<ChatMessages> complaint) {
-		super(personId, firstName, lastName, email, phone, password, UserRole.DOCTOR, complaint);
-
+	/*
+	 * This one passes the role up to super instead of calling setRole, so both
+	 * constructors end up in the same place by different routes. We keep both
+	 * because Hibernate needs the empty one, but our own code is clearer building
+	 * a doctor in one go.
+	 */
+	public Doctor(String personId, String firstName, String lastName, String email, String phone, String password, LocalDateTime createdAt) {
+		super(personId, firstName, lastName, email, phone, password, UserRole.DOCTOR, createdAt);
 	}
 
 	public DoctorSpecialization getSpecialization() {
@@ -44,21 +69,28 @@ public class Doctor extends Employee {
 	public void setLicenseNo(String licenseNo) {
 		this.licenseNo = licenseNo;
 	}
-
-	public List<Appointment> getAppointmentsList() {
-		return appointmentsList;
+	
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (!(obj instanceof Doctor)) {
+			return false;
+		}
+		Doctor other = (Doctor) obj;
+		return Objects.equals(licenseNo, other.licenseNo) && specialization == other.specialization;
 	}
 
-	public void setAppointmentsList(List<Appointment> appointmentsList) {
-		this.appointmentsList = appointmentsList;
-	}
-
-	public List<MedicalRecord> getMedicalRecordsList() {
-		return medicalRecordsList;
-	}
-
-	public void setMedicalRecordsList(List<MedicalRecord> medicalRecordsList) {
-		this.medicalRecordsList = medicalRecordsList;
+	@Override
+	public String toString() {
+		return "Doctor [personId=" + personId + ", firstName=" + firstName + ", lastName=" + lastName + ", email="
+				+ email + ", phone=" + phone + ", role=" + role + ", department=" + department + ", hireDate="
+				+ hireDate + ", specialization=" + specialization + ", licenseNo=" + licenseNo + "]";
 	}
 
 }

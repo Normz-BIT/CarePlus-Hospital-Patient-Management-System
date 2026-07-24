@@ -9,6 +9,14 @@ import com.careplus.common.enums.UserRole;
 
 /**
  * Base Dashboard class
+ *
+ * Describes one menu item on the dashboard without knowing anything about the
+ * screen behind it. That's what lets the MDI shell live in careplus_common while
+ * all the actual screens live in careplus_client: the shell just gets handed a
+ * list of these and never imports a single patient or employee view.
+ *
+ * So adding a new feature is just registering one of these, and ClientApp is the
+ * only place that does it.
  */
 public class DashboardFeature {
 
@@ -21,7 +29,15 @@ public class DashboardFeature {
     /** Roles allowed to see this feature. */
     private final Set<UserRole> roles;
 
-    /** Creates a fresh view (and wires its controller) when the item is opened. */
+    /**
+     * Builds the view (and hooks up its controller) when someone actually opens
+     * the menu item.
+     *
+     * A Supplier rather than a ready-made frame, so we're not building all twelve
+     * screens the moment someone logs in. Each one makes a blocking server call in
+     * its constructor, so building them all up front would mean sitting through
+     * twelve round trips before the dashboard even appears.
+     */
     private final Supplier<JInternalFrame> viewFactory;
 
     public DashboardFeature(String menu, String label, Set<UserRole> roles,
@@ -40,6 +56,15 @@ public class DashboardFeature {
         return label;
     }
 
+    /*
+     * The only permission check in the whole client. A null role hides the feature
+     * rather than showing it, which is the safer way round if a Person ever turns
+     * up without one.
+     *
+     * Important: this only controls what's visible. The server doesn't check
+     * anyone's role before acting on a Request, so this hides a menu item, it
+     * doesn't actually stop the action underneath.
+     */
     public boolean visibleFor(UserRole role) {
         return role != null && roles.contains(role);
     }
