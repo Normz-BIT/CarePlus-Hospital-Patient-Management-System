@@ -48,10 +48,6 @@ public class DiagnosisController {
 	 * and only the RequestType and the need for a selected row differ. The type
 	 * parameter is what the two public entry points above vary.
 	 *
-	 * Worth noting against the append only intent described on MedicalRecord: an
-	 * update path overwrites an existing clinical record rather than superseding it,
-	 * which loses the previous diagnosis. Whether that is acceptable is a decision
-	 * for the server side service.
 	 */
 	private void save(RequestType type) {
 		if (view.getTxtPatientId().getText().trim().isEmpty()
@@ -73,7 +69,7 @@ public class DiagnosisController {
 			/*
 			 * The record has to carry which patient it's for, or the server has nothing
 			 * to attach it to. The doctor goes on the request separately below, since
-			 * that's the signed-in user rather than something typed on this form.
+			 * that's the signed-in user.
 			 */
 			medicalRecord.setPatientId(
 					view.getTxtPatientId().getText().trim().toUpperCase());
@@ -88,13 +84,6 @@ public class DiagnosisController {
 			 * Comes straight off the Day/Month/Year spinners, already at midnight since
 			 * that picker has no hour or min on it. follow_up_date is a DATE column so
 			 * the time half never gets saved anyway.
-			 *
-			 * This used to be a third different date format on top of the two the booking
-			 * screens each used. All three share the one DateTimePicker now.
-			 *
-			 * Note the follow-up is no longer optional: the spinners always hold a date,
-			 * so every record gets one whether the doctor wants it or not. If we need
-			 * "no follow-up" back, add a tick box next to the picker.
 			 */
 			medicalRecord.setFollowUpDate(view.getPickerFollowUpDate().getDateTime());
 
@@ -102,8 +91,7 @@ public class DiagnosisController {
 
 			/*
 			 * An update needs the ID of the row being changed, which only exists once
-			 * something is selected. A create has no such requirement, which is why this
-			 * guard is inside the type check rather than applying to both paths.
+			 * something is selected. 
 			 */
 			if (type == RequestType.UPDATE_DIAGNOSIS) {
 				int row = view.getTblDiagnosis().getSelectedRow();

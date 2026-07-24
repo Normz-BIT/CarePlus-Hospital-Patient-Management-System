@@ -69,10 +69,7 @@ public class PatientsController {
 		try {
 
 			/*
-			 * Straight off the Day/Month/Year/Hour/Min spinners. This used to be a copy of
-			 * AppointmentController's parsing, pattern string and all, which meant two
-			 * unrelated bits of code had to be kept in step by hand. Both screens share
-			 * the one DateTimePicker now.
+			 * Straight off the Day/Month/Year/Hour/Min spinners. 
 			 */
 			appointment.setAppointmentDate(view.getPickerDate().getDateTime());
 

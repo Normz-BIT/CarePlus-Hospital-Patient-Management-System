@@ -35,7 +35,7 @@ public class ClientApp {
 	 * given screen.
 	 *
 	 * Each entry hands over a factory instead of a ready-made screen, so the twelve
-	 * of them only get built when someone clicks the menu item. That matters
+	 * of them only get built when someone clicks the menu item. this  is important
 	 * because every controller constructor does a blocking server call, so building
 	 * them all at login would mean waiting on twelve round trips before the
 	 * dashboard appears.

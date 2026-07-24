@@ -26,13 +26,11 @@ import com.careplus.client.patient.controller.ChatController;
  * Patient side of the live chat: pick a recipient, send a message, and read the
  * conversation.
  *
- * The only feature screen with no JTable. The conversation is a plain JTextArea
+ * The conversation is a plain JTextArea
  * that the controller appends formatted message blocks to, so there is no per
  * message component and no selection model. Refreshing therefore clears and
  * rewrites the entire transcript rather than appending only what is new.
  *
- * Note the recipient is chosen from a combo here, whereas staff type a patient ID
- * by hand in StaffChatView.
  */
 public class ChatView extends JInternalFrame {
 

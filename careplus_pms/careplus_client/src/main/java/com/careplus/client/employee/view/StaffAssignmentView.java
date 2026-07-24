@@ -34,9 +34,6 @@ import com.careplus.client.employee.controller.StaffAssignmentController;
  * careplus_common has no StaffAssignment class to bind to. See the note on
  * StaffAssignmentController.
  *
- * The department combo is filled from a hardcoded list in that controller rather
- * than from the server, since department is free text on Employee rather than an
- * enum.
  */
 public class StaffAssignmentView extends JInternalFrame {
 

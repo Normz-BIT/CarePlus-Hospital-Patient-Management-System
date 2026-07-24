@@ -45,14 +45,7 @@ public class MainDashboard extends JFrame {
 
 	/*
 	 * Static so any controller can reach the signed in user through
-	 * getCurrentUser() without it being passed down through every view
-	 * constructor. Nearly every feature needs the patient or staff ID to build its
-	 * requests, so threading it through by hand would add a parameter to most of
-	 * the classes in the client.
-	 *
-	 * This suits the application being a desktop client with one user signed in at
-	 * a time, which is the same assumption behind the single shared socket in
-	 * Client.
+	 * getCurrentUser() without it being passed down through every view constructor.
 	 */
 	private static Person currentUser;
 	private final List<DashboardFeature> features;
@@ -85,15 +78,12 @@ public class MainDashboard extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		if (currentUser != null) {
-			logger.info(
-					"Main dashboard opened for user ID: {} with role: {}",
-					currentUser.getPersonId(),
+			logger.info("Main dashboard opened for user ID: {} with role: {}", currentUser.getPersonId(),
 					currentUser.getRole());
 		}
-		
-		
+
 	}
-	
+
 	// Retrieve the details of the current logged in user
 	public static Person getCurrentUser() {
 
@@ -101,7 +91,9 @@ public class MainDashboard extends JFrame {
 
 	}
 
-	/** System menu plus one menu per feature group the current role may see. */
+	/**
+	 * System menu plus one menu per feature group the current role may see.
+	 */
 	private JMenuBar buildMenuBar() {
 
 		JMenuBar menuBar = new JMenuBar();
@@ -109,7 +101,7 @@ public class MainDashboard extends JFrame {
 
 		/*
 		 * LinkedHashMap rather than HashMap so menus appear in the order features were
-		 * registered in ClientApp, giving a stable menu bar instead of one that
+		 * registered in ClientApp, giving a fixed menu bar instead of one that
 		 * reshuffles with hash ordering between runs.
 		 */
 		Map<String, JMenu> menusByGroup = new LinkedHashMap<>();
@@ -118,10 +110,7 @@ public class MainDashboard extends JFrame {
 			/*
 			 * Role filtering happens once, here, at menu construction time. That is why no
 			 * individual view or controller contains a role check, and also why the menu
-			 * bar is not rebuilt on the fly: a role change would require a new dashboard.
-			 *
-			 * Note the null user case falls through and shows everything, so a dashboard
-			 * built without a signed in user is unfiltered.
+			 * bar is not rebuilt on the fly.
 			 */
 			if (currentUser != null && !feature.visibleFor(currentUser.getRole())) {
 				continue;
@@ -154,18 +143,16 @@ public class MainDashboard extends JFrame {
 		JMenuItem logout = new JMenuItem("Logout");
 		logout.setMnemonic(KeyEvent.VK_L);
 		logout.setAccelerator(
-				KeyStroke.getKeyStroke(
-						KeyEvent.VK_L,
-						InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
+				KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
 		logout.setToolTipText("Log out of CarePlus. Shortcut: Ctrl+Shift+L.");
 
 		logout.addActionListener(e -> {
 
 			if (currentUser != null) {
 				logger.info("User ID: {} logged out", currentUser.getPersonId());
-				
+
 			}
-		
+
 			currentUser = null;
 			dispose();
 
@@ -176,10 +163,7 @@ public class MainDashboard extends JFrame {
 
 		JMenuItem exit = new JMenuItem("Exit");
 		exit.setMnemonic(KeyEvent.VK_X);
-		exit.setAccelerator(
-				KeyStroke.getKeyStroke(
-						KeyEvent.VK_Q,
-						InputEvent.CTRL_DOWN_MASK));
+		exit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK));
 		exit.setToolTipText("Exit CarePlus. Shortcut: Ctrl+Q.");
 
 		exit.addActionListener(e -> {
@@ -203,9 +187,7 @@ public class MainDashboard extends JFrame {
 	 * Use the first usable character of the label as the keyboard shortcut.
 	 *
 	 * Working it out from the label means nobody can add a menu item and forget to
-	 * give it a shortcut. The catch is that two labels starting with the same
-	 * letter clash, and Swing just cycles between them instead of telling you. If
-	 * the menu bar gets much bigger we should pick these by hand.
+	 * give it a shortcut.
 	 */
 	private void setMnemonicFromText(AbstractButton component, String text) {
 
@@ -258,13 +240,11 @@ public class MainDashboard extends JFrame {
 		} catch (Exception ex) {
 			/*
 			 * Deliberately broad. A view that fails to build, most often because its server
-			 * request went unanswered, must not take the whole dashboard down with it: the
-			 * user keeps every other feature and the failure is confined to this frame.
+			 * request went unanswered, must not take the whole dashboard down with it.
+			 *  the user keeps every other feature and the failure is confined to this frame.
 			 */
 
-			logger.error(
-					"Feature could not be opened: " + feature.getLabel(),
-					ex);
+			logger.error("Feature could not be opened: " + feature.getLabel(), ex);
 		}
 	}
 
@@ -284,25 +264,24 @@ public class MainDashboard extends JFrame {
 
 			frame.setMaximum(true);
 			frame.setVisible(true);
-			// sets the icon image for the current open tab, rescaled as original is too large
-			frame.setFrameIcon(new ImageIcon(this.getIconImage().getScaledInstance(16, 16,Image.SCALE_SMOOTH)));;
+			// sets the icon image for the current open tab, rescaled as original is too
+			// large
+			frame.setFrameIcon(new ImageIcon(this.getIconImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH)));
+			;
 			frame.setIcon(false);
-			
+
 			frame.setSelected(true);
 			frame.toFront();
 
 		} catch (Exception ex) {
 
-			logger.error(
-					"Internal frame could not be focused: " + frame.getTitle(),
-					ex);
+			logger.error("Internal frame could not be focused: " + frame.getTitle(), ex);
 		}
 	}
-	
-	
+
 	public void setIcons(List<Image> icons) {
-		
+
 		this.setIconImages(icons);
 	}
-	
+
 }

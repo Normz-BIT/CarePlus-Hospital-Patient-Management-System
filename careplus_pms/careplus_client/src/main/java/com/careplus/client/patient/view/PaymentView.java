@@ -124,19 +124,17 @@ public class PaymentView extends JInternalFrame {
 		tableModel = new DefaultTableModel();
 
 		/*
-		 * Column order here is a contract with PaymentController: it builds each row as
-		 * an untyped Object array in exactly this sequence. Reordering these headers
-		 * without reordering the row construction there misaligns every value, and
-		 * nothing will fail to compile.
+		 * Column order here  builds each row as an untyped Object array 
+		 * in exactly this sequence. Reordering these headers
+		 * without reordering the row construction there messes up every value and cause errors
 		 */
 		tableModel.setColumnIdentifiers(new Object[] { "Payment ID", "Amount Paid", "Outstanding Balance", "Description", "Date" });
 
 		/*
 		 * DefaultTableModel reports every cell as editable, so this history table can be
-		 * typed into even though it is meant to be read only. Edits go nowhere: they
-		 * change the model in memory, are never sent to the server, and vanish on the
-		 * next refresh. Overriding isCellEditable to return false would make the
-		 * intent explicit.
+		 * typed into even though it is meant to be read only. Edits go nowhere as 
+		 * they are never sent to the server, and vanish on the
+		 * next refresh.
 		 */
 		tblPayments = new JTable(tableModel);
 		tblPayments.setRowHeight(25);
@@ -240,8 +238,7 @@ public class PaymentView extends JInternalFrame {
 	/*
 	 * setRowCount(0) discards every row in one call, which is cheaper than removing
 	 * them individually and fires a single table change event rather than one per
-	 * row. Paired with addPayment below it gives the clear and rebuild refresh the
-	 * controllers rely on.
+	 * row. 
 	 */
 	public void clearTable() {
 		tableModel.setRowCount(0);

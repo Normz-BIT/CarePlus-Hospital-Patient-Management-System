@@ -38,10 +38,8 @@ public class ClientHandler extends Thread {
 
 	/*
 	 * Each handler builds its own services rather than sharing them or making them
-	 * static. That's what keeps BaseService's session and transaction fields safe:
-	 * they're plain fields with no locking, so if two client threads shared one
-	 * service object, one request could commit or close the other one's transaction
-	 * out from under it.
+	 * static. if two client threads shared one
+	 * service object, one request could commit or close the other one's transaction.
 	 */
 	private AuthService authservice;
 	private PaymentService paymentService;
@@ -72,7 +70,7 @@ public class ClientHandler extends Thread {
 	private boolean getStreams() {
 		try {
 			/*
-			 * Output first, then input, and the client does the same. Don't swap these:
+			 * Output first, then input, and the client does the same.
 			 * building an ObjectInputStream blocks until it reads a header that the other
 			 * side's ObjectOutputStream sends when it's created. If both ends built their
 			 * input stream first they'd sit there waiting on each other forever.
@@ -115,7 +113,7 @@ public class ClientHandler extends Thread {
 	 * Miss a write and that client hangs forever. Write twice and the stream gets
 	 * out of step, so every reply after that lands against the wrong request.
 	 *
-	 * The while(true) is deliberate. It ends when the socket closes, which makes
+	 * The while(true)  ends when the socket closes, which makes
 	 * readObject() throw and drops us into the finally below. That's how
 	 * Server.stop() shuts these threads down without needing a shared flag.
 	 */
@@ -140,9 +138,9 @@ public class ClientHandler extends Thread {
 				Response resp = new Response();
 
 				/*
-				 * Switching on RequestType keeps this easy to add to: a new feature means a
-				 * new enum value and a new case here, and the read/write loop around it
-				 * doesn't get touched.
+				 * Switching on RequestType keeps this easy to add to
+				 * a new feature means a new enum value and a new case here, 
+				 * and the read/write loop around it doesn't get touched.
 				 */
 				switch (reqtype) {
 
@@ -244,11 +242,7 @@ public class ClientHandler extends Thread {
 					break;
 
 				default:
-					/*
-					 * UPDATE_APPOINTMENT and UPDATE_COMPLAINT exist in RequestType but no
-					 * screen actually sends them, so they end up here. Better to say so
-					 * plainly than to write handlers nothing ever calls.
-					 */
+					
 					resp.setSuccess(false);
 					resp.setMessage("The server has no handler for " + reqtype);
 
@@ -258,7 +252,7 @@ public class ClientHandler extends Thread {
 				}
 
 				/*
-				 * New Response object every time round the loop, never reused. This matters:
+				 * New Response object every time round the loop, never reused.
 				 * ObjectOutputStream remembers objects it has already written, so if we sent
 				 * the same instance twice the client would just get the first version again
 				 * even after we'd changed what was in it.
@@ -291,8 +285,7 @@ public class ClientHandler extends Thread {
 
 			/*
 			 * Runs even if the socket is already shut, since closeConnection checks
-			 * isClosed() first. Closing twice does no harm and this way the socket is
-			 * always released no matter which path ended the loop.
+			 * isClosed() first. 
 			 */
 			closeConnection();
 		}

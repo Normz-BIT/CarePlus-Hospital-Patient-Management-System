@@ -26,11 +26,7 @@ public class Server {
 
 	/*
 	 * The accept thread adds to this on every new connection and whoever calls
-	 * stop() reads it, so every use below is inside synchronized (handlers). We
-	 * stuck with a plain ArrayList rather than a concurrent one on purpose: stop()
-	 * has to walk the whole list and clear it as one go, and a
-	 * CopyOnWriteArrayList wouldn't give us that without an outer lock anyway.
-	 * Neither block holds the lock long enough for it to matter.
+	 * stop() reads it, so every use below is inside synchronized (handlers)
 	 */
 	private final List<ClientHandler> handlers = new ArrayList<>();
 
@@ -48,7 +44,7 @@ public class Server {
 	 * clients get refused rather than queued.
 	 */
 	private final int port = 8888;
-	private final int backlogCount = 50;
+	private final int backlogCount = 10;
 
 	private ServerConsole console;
 
@@ -74,8 +70,8 @@ public class Server {
 	}
 
 	/*
-	 * Opens the socket and begins accepting clients on a background thread.
-	 * Returns false when the server is already running or the port is taken.
+	 * Opens the socket and begins accepting clients on a background thread. Returns
+	 * false when the server is already running or the port is taken.
 	 */
 	public boolean start() {
 
@@ -102,13 +98,8 @@ public class Server {
 		 */
 		running = true;
 
-		acceptThread = new Thread(this::waitForRequests, "careplus-accept");
-		/*
-		 * Daemon thread so closing the server window actually kills the program even if
-		 * nobody called stop(). A normal thread sat waiting in accept() would keep the
-		 * whole process alive with no window to close.
-		 */
-		acceptThread.setDaemon(true);
+		acceptThread = new Thread(() -> waitForRequests(), "careplus-accept");
+	
 		acceptThread.start();
 
 		logger.info("Server started on port {}", port);
@@ -146,8 +137,9 @@ public class Server {
 		 */
 		synchronized (handlers) {
 
-			for (ClientHandler handler : handlers)
+			for (ClientHandler handler : handlers) {
 				handler.disconnect();
+			}
 
 			handlers.clear();
 		}
@@ -175,8 +167,8 @@ public class Server {
 	 * The accept loop. One thread per connected client, no pool and no upper limit.
 	 * That covers the multi-client requirement from the brief and means a slow
 	 * database call only holds up the client that asked for it. The catch is that
-	 * ten clients means ten threads, so this would want an ExecutorService before it
-	 * could handle a whole hospital.
+	 * ten clients means ten threads, so this would want an ExecutorService before
+	 * it could handle a whole hospital.
 	 */
 	private void waitForRequests() {
 

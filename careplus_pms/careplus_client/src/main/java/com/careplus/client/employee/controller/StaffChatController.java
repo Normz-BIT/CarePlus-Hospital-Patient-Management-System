@@ -38,8 +38,7 @@ public class StaffChatController {
 
 	/*
 	 * Fill the patient combo with "PAT0001 - Name" strings from the server. If the
-	 * lookup fails the combo just stays empty, same silent-failure style as the
-	 * booking screen's combos.
+	 * lookup fails the combo just stays empty,
 	 */
 	private void loadPatients() {
 		Response res = Client.send(new Request(RequestType.GET_PATIENTS, "all", true));
@@ -150,8 +149,7 @@ public class StaffChatController {
 		/*
 		 * We poll as ourselves and narrow it with "with" to the selected patient, so
 		 * this shows our conversation with them rather than every message that patient
-		 * has had with anyone. That's what it used to do, because it polled as the
-		 * patient instead of as us.
+		 * has had with anyone. 
 		 */
 		Request req = new Request(
 				RequestType.CHAT_POLL,

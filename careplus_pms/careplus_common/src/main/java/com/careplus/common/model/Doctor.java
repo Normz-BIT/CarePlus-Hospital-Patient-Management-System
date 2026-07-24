@@ -15,7 +15,7 @@ import jakarta.persistence.*;
  *
  * specialization is an enum rather than free text so the booking and directory
  * screens can group doctors properly. licenseNo stays a String since it's just
- * an identifier we show on screen and never do maths with.
+ * an identifier we show on screen.
  */
 
 @Entity
@@ -35,9 +35,7 @@ public class Doctor extends Employee {
 
 	/*
 	 * We set the role in here instead of taking it as a parameter, so nobody can
-	 * accidentally build a Doctor with the wrong UserRole. That matters because the
-	 * client reads the role to decide which menus to show, so getting it wrong
-	 * would drop a doctor into somebody else's dashboard.
+	 * accidentally build a Doctor with the wrong UserRole. 
 	 */
 	public Doctor() {
 		super();
@@ -47,8 +45,7 @@ public class Doctor extends Employee {
 	/*
 	 * This one passes the role up to super instead of calling setRole, so both
 	 * constructors end up in the same place by different routes. We keep both
-	 * because Hibernate needs the empty one, but our own code is clearer building
-	 * a doctor in one go.
+	 * because Hibernate needs the empty one
 	 */
 	public Doctor(String personId, String firstName, String lastName, String email, String phone, String password, LocalDateTime createdAt) {
 		super(personId, firstName, lastName, email, phone, password, UserRole.DOCTOR, createdAt);

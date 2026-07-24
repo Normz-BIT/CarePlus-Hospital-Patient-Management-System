@@ -18,11 +18,9 @@ import com.careplus.common.net.Response;
  * Assigns complaints to employees
  * Updates and views staff assignments
  *
- * Note: there is no StaffAssignment model in careplus_common. The server side
+ *  The server side
  * (ReportService) answers GET_STAFF_ASSIGNMENTS with plain Object[] rows from a
- * JDBC query, and this controller renders them straight into the table. An
- * assignment is really just two columns on complaint, so a model class never
- * felt worth it.
+ * JDBC query, and this controller renders them straight into the table.
  */
 public class StaffAssignmentController {
 
@@ -39,9 +37,7 @@ public class StaffAssignmentController {
 	 * Load Department and Complaint Status
 	 *
 	 * Both combos are filled from enums rather than from the server: departments
-	 * from Department and statuses from ComplaintStatus. Both describe the domain
-	 * rather than stored data, so the screen opens without waiting on a request,
-	 * and the department list is the same definition Employee stores.
+	 * from Department and statuses from ComplaintStatus. 
 	 */
 	private void loadCombos() {
 		view.getCboDepartment().removeAllItems();
@@ -57,12 +53,6 @@ public class StaffAssignmentController {
 
 	/*
 	 * Assign or update a staff assignment. Both actions send the same request.
-	 *
-	 * There is no separate update action because the server cannot distinguish the
-	 * two without a StaffAssignment model: ASSIGN_STAFF is expected to create or
-	 * overwrite the assignment for a given complaint. That makes assignment
-	 * idempotent, so reassigning the same complaint replaces rather than
-	 * duplicates.
 	 */
 	public void save() {
 		save(RequestType.ASSIGN_STAFF);

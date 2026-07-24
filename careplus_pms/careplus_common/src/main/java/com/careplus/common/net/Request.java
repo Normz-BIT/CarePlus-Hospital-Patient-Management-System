@@ -58,8 +58,7 @@ public class Request implements Serializable {
 
 		/*
 		 * params has no initializer on the field, so it's always null by the time we
-		 * get here and this if always runs. Looks pointless but don't delete it,
-		 * putMap below would hit a null map without it.
+		 * get here and this if always runs.
 		 */
 		if (params == null) {
 			params = new HashMap<>();

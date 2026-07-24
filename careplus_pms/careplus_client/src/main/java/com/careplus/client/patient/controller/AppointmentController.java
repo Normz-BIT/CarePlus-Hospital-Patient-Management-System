@@ -77,20 +77,16 @@ public class AppointmentController {
 		try {
 
 			/*
-			 * Straight off the Day/Month/Year/Hour/Min spinners, so there's nothing to
-			 * parse and nothing to validate. The old version joined two typed boxes and
-			 * ran them through a yyyy-MM-dd HH:mm:ss formatter, which meant an empty check
-			 * and a parse error message on every screen that took a date, all three of
-			 * them expecting a slightly different format.
+			 * from Day/Month/Year/Hour/Min spinners, so there's nothing to
+			 * parse and nothing to validate.
 			 */
 			appointment.setAppointmentDate(view.getPickerDate().getDateTime());
 
 			appointment.setReason(view.getTxtReason().getText().trim());
 
 			/*
-			 * Every new booking starts at SCHEDULED. We set it here too, but don't rely on
-			 * that: AppointmentService overwrites it server side anyway, exactly because
-			 * anything set here is only a convention.
+			 * Every new booking starts at SCHEDULED. We set it here too, but 
+			 * AppointmentService overwrites it server side anyway.
 			 */
 			appointment.setStatus(AppointmentStatus.SCHEDULED);
 
@@ -134,7 +130,7 @@ public class AppointmentController {
 		int row = view.getTblAppointments().getSelectedRow();
 
 		/*
-		 * getSelectedRow returns -1 when nothing is highlighted, so this guard is what
+		 * getSelectedRow returns -1 when nothing is highlighted, so this 
 		 * stops the lookup below from running against a non existent row.
 		 */
 		if (row < 0) {
@@ -146,8 +142,8 @@ public class AppointmentController {
 
 		/*
 		 * Column 0 holds the appointment ID, matching the order refresh builds each row
-		 * in. The two methods share that column order as a convention, so any change to
-		 * the columns in refresh needs the indices here changed with it.
+		 * in. The two methods share that column order  so any change to
+		 * the columns in refresh needs this here changed with it.
 		 */
 		Object id = view.getTableModel().getValueAt(row, 0);
 		Request req = new Request(RequestType.CANCEL_APPOINTMENT, "appointmentId", id);

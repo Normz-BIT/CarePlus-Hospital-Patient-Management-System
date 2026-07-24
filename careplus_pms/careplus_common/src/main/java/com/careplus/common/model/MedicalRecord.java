@@ -13,7 +13,6 @@ import jakarta.persistence.*;
  * These are append only on purpose. If a doctor needs to correct something they
  * add another record rather than editing the old one, because the build-up of
  * history is what shows the next doctor how the patient was treated before.
- * Overwriting would lose the reasoning behind the earlier decision.
  */
  
  
@@ -39,9 +38,7 @@ public class MedicalRecord implements Serializable{
 	 * Left null when there's no follow up needed, which is most of the time. Null
 	 * versus a date is how we tell those apart from a real return visit.
 	 *
-	 * The column is a DATE so the time half never gets saved anyway. The diagnosis
-	 * screen pads the typed date to midnight with atStartOfDay, so don't read the
-	 * time on this as an appointment time, it doesn't mean anything.
+	 * The column is a DATE so the time half never gets saved anyway.
 	 */
 	 @Column(name = "follow_up_date")
     private LocalDateTime followUpDate;
@@ -55,9 +52,7 @@ public class MedicalRecord implements Serializable{
 
 
 	/*
-	 * Who the record is for and who wrote it, as plain person_id Strings rather
-	 * than @ManyToOne links. Same reasoning as Payment, plus one extra: loading a
-	 * whole Patient in here would drag their password across the socket with it.
+	 * Who the record is for and who wrote it, as plain person_id Strings
 	 * The database enforces both keys through fk_record_patient and
 	 * fk_record_doctor.
 	 */

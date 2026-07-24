@@ -19,21 +19,16 @@ public class Client {
 
 	private static final Logger logger = LogManager.getLogger(Client.class);
 	/*
-	 * These are static so the whole client shares one socket to the server. Fine
-	 * for a desktop app where one person is signed in at a time, and it means every
-	 * controller can just call send() without having to get hold of a connection
+	 * These are static so the whole client shares one socket to the server.
+	 *  means every controller can just call send() without having to get hold of a connection
 	 * first or pass one around.
 	 */
 	private static Socket socket;
 	private static ObjectInputStream inputStream;
 	private static ObjectOutputStream outputStream;
 
-
-
 	/*
-	 * Server address is hardcoded rather than read from a config file, so pointing
-	 * the client at anything other than localhost means rebuilding. The port has to
-	 * match the one hardcoded in the server's Server class.
+	 * Server address is hardcoded 
 	 */
 	private final static String host = "localhost";
 	private final static int port = 8888;
@@ -51,8 +46,7 @@ public class Client {
 			socket = new Socket(host, port);
 			/*
 			 * Keepalive on so the OS spots a server that's gone away, instead of us
-			 * sitting on a dead socket forever. This used to call getKeepAlive(), which
-			 * only reads the flag and does nothing at all.
+			 * sitting on a dead socket forever.
 			 */
 			socket.setKeepAlive(true);
 		} catch (IOException ex) {
@@ -63,7 +57,7 @@ public class Client {
 	private void getStreams() {
 		try {
 			/*
-			 * Don't swap these two lines. Building an ObjectInputStream blocks until it
+			 * Building an ObjectInputStream blocks until it
 			 * reads a header that the other side only sends when its ObjectOutputStream is
 			 * built. Make the input stream first here and we'd deadlock with the server,
 			 * which does output before input just like this.
@@ -76,16 +70,14 @@ public class Client {
 	}
 
 	/*
-	 * The one way every controller talks to the server. Putting all the traffic
+	 * The one way every controller talks to the server. Putting all the connection
 	 * behind a single method means the request and response format is written down
 	 * in exactly one place, and the controllers just deal in Request and Response
 	 * objects without knowing anything about sockets or streams.
 	 *
-	 * Worth knowing this blocks: it writes the request then sits waiting for the
+	 * This blocks currently as it writes the request then sits waiting for the
 	 * reply before it returns. Controllers call it straight from Swing button
-	 * handlers, so the whole window freezes while the server answers. Fine at our
-	 * size, but doing it properly would mean a SwingWorker, and some
-	 * synchronization in here once more than one thread can call it.
+	 * handlers, so the whole window freezes while the server answers.
 	 */
 	public static Response send(Request request) {
 

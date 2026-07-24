@@ -34,7 +34,7 @@ public class MedicalRecordController {
 	/*
 	 * Copies the selected row into the detail fields so long free text such as a
 	 * treatment note can be read in full, rather than clipped to a table cell.
-	 * Nothing is re-fetched: the values come from the row already in the table.
+	 * the values come from the row already in the table.
 	 */
 	public void displaySelectedRecord() {
 		int row = view.getTblMedicalRecords().getSelectedRow();
@@ -42,7 +42,6 @@ public class MedicalRecordController {
 		/*
 		 * Returns without a message rather than warning the user. This runs from a
 		 * selection listener, and the selection is cleared every time the table is
-		 * repopulated, so no selection here is the normal case rather than a mistake.
 		 */
 		if (row < 0) {
 

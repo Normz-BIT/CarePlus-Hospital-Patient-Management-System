@@ -32,8 +32,7 @@ import com.careplus.client.employee.controller.VitalsController;
  *
  * Observations and nursing notes are kept as two separate fields rather than one
  * free text box. Observations record what the nurse saw, nursing notes record
- * the care that was given, and keeping them apart preserves that distinction for
- * whoever reads the record later.
+ * the care that was given.
  *
  * The form sits above the table so a nurse enters a reading and immediately sees
  * it join the history below, which is the order the task is actually performed

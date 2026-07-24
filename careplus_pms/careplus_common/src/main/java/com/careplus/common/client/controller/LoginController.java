@@ -36,20 +36,19 @@ public class LoginController {
 
 		/*
 		 * We trim the ID because people type them by hand and a stray space would go to
-		 * the server and fail the lookup. We deliberately don't trim the password, since
-		 * a space at either end is a perfectly valid character in one.
+		 * the server and fail the lookup. We deliberately don't trim the password.
 		 *
 		 * JPasswordField hands back a char[] on purpose so the password doesn't sit
 		 * around in the String pool. Turning it into a String here throws that away,
-		 * though it goes to the server as plain text anyway so it hardly matters here.
+		 * though it goes to the server as plain text anyway.
 		 */
 		String id = view.getTxtId().getText().trim();
 		String password = String.valueOf(view.getTxtPassword().getPassword());
 
 		/*
 		 * Caught here so an obviously empty form doesn't cost a round trip to the
-		 * server. This is just convenience, not security: the server checks properly
-		 * on its own regardless.
+		 * server.
+		 * the server checks properly on its own regardless.
 		 */
 		if (id.isEmpty() || password.isEmpty()) {
 			view.showMessage("ID and password are required.");
@@ -78,14 +77,8 @@ public class LoginController {
 			 */
 			Response response = Client.send(request);
 
-			/*
-			 * Careful with this line. getSuccess gives back a Boolean, and it's null for
-			 * anything the server didn't handle, so unboxing it throws a
-			 * NullPointerException rather than just being false. The catch below turns
-			 * that into a message on screen, so at least an unhandled response fails
-			 * safely instead of letting someone in.
-			 */
-			if (response != null && response.getSuccess()) {
+		
+			if (response != null && Boolean.TRUE.equals(response.getSuccess())) {
 
 				/*
 				 * The concrete subclass arrives here, not a bare Person, and its role is what
@@ -96,8 +89,7 @@ public class LoginController {
 
 				/*
 				 * The dashboard is shown before the login window is disposed. Disposing first
-				 * would briefly leave no displayable window, which lets Swing shut the JVM
-				 * down when the last one closes.
+				 * would briefly leave no displayable window.
 				 */
 				MainDashboard dashboard = new MainDashboard(user, features);
 				
@@ -116,8 +108,7 @@ public class LoginController {
 			} else {
 				/*
 				 * The server returns one identical message for a wrong password and for an
-				 * unknown ID, so relaying it verbatim preserves that deliberate ambiguity and
-				 * avoids revealing which patient or staff IDs exist.
+				 * unknown ID.
 				 */
 				view.showMessage(response == null ? "No response from server." : response.getMessage());
 

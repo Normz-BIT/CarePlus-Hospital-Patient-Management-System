@@ -20,8 +20,6 @@ import com.careplus.common.util.DateDisplay;
  * Payment Controller
  * Lets a patient record a payment and look back at their payment history.
  *
- * This was the first screen we got talking to a real service end to end, so if
- * you're adding a new one this is a decent example to copy.
  */
 public class PaymentController {
 	private final PaymentView view;
@@ -48,8 +46,7 @@ public class PaymentController {
 			/*
 			 * The patient ID comes from whoever is signed in, not from anything typed on
 			 * screen, so a patient can't put a payment on someone else's account from
-			 * here. The server doesn't double check this though, so it's really only a
-			 * UI guarantee.
+			 * here. 
 			 */
 			payment.setPatientId(MainDashboard.getCurrentUser().getPersonId());
 
@@ -62,8 +59,7 @@ public class PaymentController {
 			/*
 			 * Rejecting zero and negatives is the one business rule enforced on this
 			 * screen, and it is checked before anything is sent so an invalid payment never
-			 * reaches the server. The server performs no equivalent check, so a modified
-			 * client could still submit one.
+			 * reaches the server. 
 			 */
 			if (payment.getAmountPaid() <= 0) {
 				view.showMessage("Amount must be greater than zero (0)");
@@ -75,17 +71,13 @@ public class PaymentController {
 			payment.setDescription(view.getTxtDescription().getText().trim());
 
 			/*
-			 * PLACEHOLDER, don't forget this one. The balance is a random number rather
+			 * The balance is a random number rather
 			 * than what the patient actually owes, so the figure in the history is made
-			 * up. A real balance would have to be worked out on the server from previous
-			 * charges and payments, since only the server can see the whole account.
+			 * up.
 			 */
 			payment.setOutstandingBalance(new Random().nextInt(500, 1001));
 
-			/*
-			 * Time comes off this machine's clock, not the server's, so a workstation with
-			 * the wrong time records a misleading payment time.
-			 */
+	
 			payment.setPaymentDate(LocalDateTime.now());
 
 			logger.info("Payment created: {}", payment.toString());
@@ -119,9 +111,7 @@ public class PaymentController {
 
 	/*
 	 * The refresh pattern used by every controller in this project: ask the server
-	 * for the whole list, clear the table, rebuild it row by row. Simple and always
-	 * consistent with the server, at the cost of re-rendering everything after each
-	 * action and losing the user's selection and scroll position.
+	 * for the whole list, clear the table, rebuild it row by row. 
 	 */
 	@SuppressWarnings("unchecked")
 	public void refresh() {

@@ -24,9 +24,6 @@ public class Nurse extends Employee {
 	 * nurses on the same ward always match exactly, which typed-in ward names
 	 * would never guarantee.
 	 *
-	 * Note the assigned-cases list doesn't actually use this: it goes by who
-	 * recorded the reading, since vitals carry a nurse_id and patients have no
-	 * ward on them. Scoping by ward would need a ward column on patient first.
 	 */
 	@Enumerated(EnumType.STRING)
 	@Column(name = "ward", nullable = false)

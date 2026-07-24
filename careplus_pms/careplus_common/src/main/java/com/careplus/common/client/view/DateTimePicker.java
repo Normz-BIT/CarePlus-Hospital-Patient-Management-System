@@ -17,22 +17,14 @@ import javax.swing.SwingConstants;
  * A little row of spinners for picking a date: Day, Month, Year, and optionally
  * Hour and Min, each with its own label above it.
  *
- * This replaced the typed date boxes we used to have. Those were three different
- * formats on three different screens (yyyy-MM-dd here, yyyy-MM-dd HH:mm:ss
- * there) and every one of them threw a parse error if you typed it even slightly
- * wrong. With spinners there's no format to remember and no way to type it
- * wrong, so all that parsing and the error messages that went with it are gone.
- *
- * It lives in careplus_common so the patient and employee screens share the one
- * copy instead of each building their own.
  */
 public class DateTimePicker extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
 	/*
-	 * Months as names rather than numbers, because "Jun" can't be misread the way
-	 * 06 can. Index 0 is January, matching what LocalDateTime wants minus one.
+	 * Months as names rather than numbers.
+	 * Index 0 is January, matching what LocalDateTime wants minus one.
 	 */
 	private static final String[] MONTHS = {
 			"Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -48,10 +40,7 @@ public class DateTimePicker extends JPanel {
 	private final boolean withTime;
 
 	/*
-	 * Pass false for withTime on anything backed by a DATE column. The follow-up
-	 * date on the diagnosis screen is the one that matters: its column can't store
-	 * a time, so offering hour and min there would let a doctor pick 14:30 and
-	 * then quietly throw it away.
+	 * Pass false for withTime on anything backed by a DATE column.
 	 */
 	public DateTimePicker(boolean withTime) {
 
@@ -61,10 +50,7 @@ public class DateTimePicker extends JPanel {
 
 		spnDay = new JSpinner(new SpinnerNumberModel(now.getDayOfMonth(), 1, 31, 1));
 		spnMonth = new JSpinner(new javax.swing.SpinnerListModel(MONTHS));
-		/*
-		 * Year range is wide enough for a date of birth at one end and a follow-up a
-		 * few years out at the other.
-		 */
+
 		spnYear = new JSpinner(new SpinnerNumberModel(now.getYear(), 1900, 2100, 1));
 		spnHour = new JSpinner(new SpinnerNumberModel(now.getHour(), 0, 23, 1));
 		spnMinute = new JSpinner(new SpinnerNumberModel(0, 0, 59, 1));
@@ -72,8 +58,7 @@ public class DateTimePicker extends JPanel {
 		spnMonth.setValue(MONTHS[now.getMonthValue() - 1]);
 
 		/*
-		 * Without this the year spinner renders as "2,026" with a thousands separator,
-		 * which looks daft on a year.
+		 * Without this the year spinner renders as "2,026" with a thousands separator
 		 */
 		spnYear.setEditor(new JSpinner.NumberEditor(spnYear, "0000"));
 
@@ -100,8 +85,7 @@ public class DateTimePicker extends JPanel {
 
 	/*
 	 * Each part gets its own small label sitting above its spinner, so the user
-	 * reads "Day Month Year Hour Min" straight across without needing a format
-	 * hint anywhere.
+	 * reads "Day Month Year Hour Min" straight across 
 	 */
 	private void addField(GridBagConstraints gbc, int column, String caption, JSpinner spinner, int columns) {
 
