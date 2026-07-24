@@ -11,10 +11,10 @@ import jakarta.persistence.*;
  * Patient Books Appointments
  * Doctor Attends Appointments
  *
- * Appointment is one of the models we defined as a wire type first, so the
- * client screens could be built and demonstrated while the matching service was
- * still being written. It travels between client and server as a serialized
- * object and gains its JPA mapping when AppointmentService is completed.
+ * We wrote this one as a plain serializable class first so the booking screens
+ * could be built and shown off while the server side was still being written,
+ * then added the mapping once AppointmentService was done. It still travels
+ * between client and server as a serialized object.
  */
 @Entity
 @Table(name = "appointment")
@@ -26,9 +26,9 @@ public class Appointment implements Serializable {
 	@Column(name = "appointment_id", nullable = false)
 	private int appointmentId;
 	/*
-	 * LocalDateTime carries no zone or offset, so every appointment is implicitly
-	 * in the hospital's local time. Safe for a single site, but it would become
-	 * ambiguous across time zones or over a daylight saving transition.
+	 * LocalDateTime has no time zone on it, so every appointment is just assumed to
+	 * be hospital local time. Fine for one hospital, but it would get confusing
+	 * across time zones or over a daylight saving change.
 	 */
 
 	@Column(name = "appointment_date", nullable = false)
@@ -37,24 +37,22 @@ public class Appointment implements Serializable {
 	@Column(name = "reason", length = 200)
 	private String reason;
 	/*
-	 * Lifecycle is SCHEDULED, then either COMPLETED or CANCELLED. Bookings start at
-	 * SCHEDULED, and the terminal states are intended to be final.
+	 * Starts at SCHEDULED, then ends up either COMPLETED or CANCELLED. Those last
+	 * two are meant to be the end of it, nothing moves back out of them.
 	 */
 	@Enumerated(EnumType.STRING)
 	@Column(name = "status", nullable = false)
 	private AppointmentStatus status;
 
 	/*
-	 * Both foreign keys are held as person_id Strings with @Column rather than as
-	 * mapped associations, following the same reasoning as Payment: an Appointment
-	 * is serialized across the socket, and a lazy association would risk putting an
-	 * uninitialised proxy on the wire. Referential integrity is enforced by the
-	 * schema through fk_appt_patient and fk_appt_doctor.
+	 * Both of these are plain person_id Strings rather than @ManyToOne links, same
+	 * reasoning as Payment: an Appointment gets serialized over the socket, and a
+	 * lazy association could put a half-loaded proxy on the wire. The database
+	 * still enforces both keys through fk_appt_patient and fk_appt_doctor.
 	 *
-	 * These carried @JoinColumn previously with no @ManyToOne to go with it. On its
-	 * own that annotation declares no mapping, so both fields fell back to
-	 * Hibernate's default naming and looked for columns "patientId" and "doctorId",
-	 * neither of which exists in the appointment table.
+	 * These used to have @JoinColumn on them with no @ManyToOne, which does nothing
+	 * on its own. Both fields fell back to Hibernate's default naming and went
+	 * looking for "patientId" and "doctorId" columns that don't exist.
 	 */
 	@Column(name = "patient_id", nullable = false)
 	private String patientId;

@@ -93,7 +93,7 @@ public class ServerView extends JFrame implements ServerConsole {
 	 * server and database work run off the event dispatch thread.
 	 */
 	@Override
-	public void println(String message) {
+	public void showln(String message) {
 
 		SwingUtilities.invokeLater(() -> {
 
@@ -103,10 +103,11 @@ public class ServerView extends JFrame implements ServerConsole {
 	}
 
 	/*
-	 * Unlike println above, this touches the text area directly with no invokeLater,
-	 * so it is only safe from the event dispatch thread. That holds today because
-	 * its only caller is a button handler, but it must not be called from the server
-	 * or database worker threads the way println can be.
+	 * Careful with this one. Unlike showln above it touches the text area directly
+	 * with no invokeLater, so it's only safe to call from the Swing thread. Fine
+	 * right now because the only thing calling it is a button handler, but don't
+	 * call it from the server or database worker threads the way you can with
+	 * showln.
 	 */
 	public void clearConsole() {
 		txtConsole.setText("");

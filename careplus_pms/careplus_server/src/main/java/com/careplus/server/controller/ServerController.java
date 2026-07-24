@@ -29,26 +29,38 @@ public class ServerController {
 		server.setConsole(view);
 
 		view.setRunning(false);
-		view.println("CarePlus server console ready.");
+		view.showln("CarePlus server console ready.");
 
 		initializeDatabase();
 	}
 
 	/*
-	 * Builds the Hibernate session factory off the event dispatch thread so the
-	 * window paints immediately instead of freezing on the first connection.
+	 * Builds the Hibernate session factory on a background thread so the window
+	 * actually paints instead of sitting frozen while the first connection is made.
 	 */
 	private void initializeDatabase() {
 
 		view.setResetEnabled(false);
-		view.println("Connecting to the database...");
+		view.showln("Connecting to the database...");
 
 		new Thread(() -> {
 
 			/*
-			 * Constructed purely for the side effect of populating the static factory.
-			 * The instance itself is discarded, since every consumer reaches Hibernate
-			 * through HibernateUtil's static methods.
+			 * Builds careplus_db from the script the first time the server runs against a
+			 * MySQL that's never had it. Hibernate can't build a factory against a
+			 * database that isn't there, so this has to go first.
+			 *
+			 * If the database already exists this does nothing at all, so it's a no-op on
+			 * every run after the first. We ignore the return value on purpose: any
+			 * failure is already printed to the console, and the check below handles a
+			 * missing connection by leaving the Reset button available.
+			 */
+			databaseResetService.ensureDatabaseExists(view);
+
+			/*
+			 * We build one of these purely for the side effect of filling in the static
+			 * factory. The object itself gets thrown away, because everything else reaches
+			 * Hibernate through HibernateUtil's static methods anyway.
 			 */
 			new HibernateUtil();
 
@@ -57,25 +69,25 @@ public class ServerController {
 			if (connected) {
 				logger.info("Hibernate session factory created");
 				/*
-				 * Called straight from this worker thread rather than through invokeLater,
-				 * which is safe only because ServerView.println marshals onto the EDT itself.
-				 * See the threading contract on the ServerConsole interface.
+				 * Called straight from this worker thread instead of through invokeLater.
+				 * That's only safe because ServerView.showln puts itself on the Swing thread
+				 * internally. See the note on the ServerConsole interface.
 				 */
-				view.println("Database connection established.");
+				view.showln("Database connection established.");
 			} else {
 				logger.error("The Hibernate session factory could not be created");
 				/*
-				 * A failed connection is deliberately not fatal. Reset stays reachable below
-				 * so an operator can rebuild a missing or corrupt schema, which is the usual
-				 * cause of this branch on a fresh checkout.
+				 * A failed connection isn't fatal on purpose. We leave the Reset button
+				 * enabled below so somebody can rebuild a missing or broken database, which
+				 * is usually why you end up here on a fresh checkout.
 				 */
-				view.println("Database connection failed - check hibernate.properties. "
+				view.showln("Database connection failed - check hibernate.properties. "
 						+ "You can still use Clear/Reset Database to rebuild the schema.");
 			}
 
 			/*
-			 * Enabling a button mutates Swing state, so unlike println this genuinely has
-			 * to be marshalled onto the EDT.
+			 * Enabling a button actually changes Swing state, so unlike showln above this
+			 * one really does have to go through invokeLater.
 			 */
 			SwingUtilities.invokeLater(() -> view.setResetEnabled(true));
 
@@ -107,33 +119,31 @@ public class ServerController {
 	/*
 	 * Drop careplus_db and rebuild it from careplus_create_database.sql.
 	 *
-	 * This destroys all existing data, so it is confirmed first and the server is
-	 * stopped for the duration - clients holding sessions against the old schema
-	 * would fail once it is dropped.
+	 * This destroys all existing data,
 	 */
 	public void resetDatabase() {
 
 		boolean confirmed = view.confirm(
 				"This permanently deletes careplus_db and rebuilds it from "
-						+ "careplus_create_database.sql.\n\nAll existing data will be lost. Continue?",
+						+ "careplus_create_database.sql.\n\nAll"
+						+ " existing data will be lost. Continue?",
 				"Clear/Reset Database");
 
 		if (!confirmed) {
-
-			view.println("Database reset cancelled.");
+			view.showln("Database reset cancelled.");
 			return;
 		}
 
 		/*
-		 * Captured before the stop below, so the worker thread can restore whatever
-		 * state the operator was actually in rather than always leaving the server
-		 * stopped. Being effectively final is also what lets the lambda close over it.
+		 * Grabbed before the stop below, so afterwards we can put the server back the
+		 * way we found it instead of always leaving it stopped. It also has to be
+		 * effectively final for the lambda further down to use it.
 		 */
 		boolean wasRunning = server.isRunning();
 
 		if (wasRunning) {
 
-			view.println("Stopping the server before resetting the database...");
+			view.showln("Stopping the server before resetting the database...");
 
 			server.stop();
 			view.setRunning(false);
@@ -141,20 +151,20 @@ public class ServerController {
 
 		view.setResetEnabled(false);
 
-		view.println("Resetting the database...");
+		view.showln("Resetting the database...");
 
 		new Thread(() -> {
 
 			/*
-			 * Returns a negative count as the failure sentinel rather than throwing, which
-			 * is why the branch below tests for less than zero instead of catching.
+			 * This gives back a negative number to mean failure rather than throwing,
+			 * which is why we test for less than zero below instead of catching anything.
 			 */
 			int executed = databaseResetService.resetDatabase(view);
 
 			/*
-			 * Everything after the reset is bundled into one invokeLater so the button
-			 * state, the dialog and the restart are applied as a single unit on the EDT,
-			 * rather than interleaving with other queued UI work.
+			 * Everything after the reset goes in one invokeLater so the button, the dialog
+			 * and the restart all happen together as one lot, instead of getting mixed in
+			 * with whatever else Swing has queued up.
 			 */
 			SwingUtilities.invokeLater(() -> {
 
@@ -168,7 +178,7 @@ public class ServerController {
 
 				if (wasRunning) {
 
-					view.println("Restarting the server...");
+					view.showln("Restarting the server...");
 
 					if (server.start()) {
 						view.setRunning(true);
@@ -180,10 +190,10 @@ public class ServerController {
 	}
 
 	/*
-	 * Server side entry point. The whole bootstrap runs inside invokeLater because
-	 * Swing components must be created and touched only on the Event Dispatch
-	 * Thread, including construction. The controller constructor then offloads the
-	 * slow Hibernate startup back onto a worker so the window appears immediately.
+	 * Where the server starts. The whole thing goes inside invokeLater because Swing
+	 * components have to be created and touched only on the Swing thread, building
+	 * them included. The controller constructor then pushes the slow Hibernate
+	 * startup back onto a worker thread so the window shows up straight away.
 	 */
 	public static void main(String[] args) {
 

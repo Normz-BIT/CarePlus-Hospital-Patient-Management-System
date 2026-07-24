@@ -11,14 +11,14 @@ import org.hibernate.cfg.Configuration;
 public class HibernateUtil {
 
 	/*
-	 * A SessionFactory is expensive to build but is thread safe once constructed,
-	 * so we build one and share it across every ClientHandler thread. Individual
-	 * Sessions are not thread safe, which is why getSession() below hands out a new
-	 * one per call instead of sharing a single session.
+	 * A SessionFactory takes a while to build but is safe to share once it exists,
+	 * so we make one and every ClientHandler thread uses it. Individual Sessions
+	 * are NOT safe to share, which is why getSession() below hands out a new one
+	 * every call instead of passing the same one around.
 	 *
-	 * We left the field mutable so DatabaseResetService can close the factory and
-	 * rebuild it around a schema drop, which is what allows the reset feature to
-	 * work while the server is running.
+	 * The field isn't final on purpose, so DatabaseResetService can close the
+	 * factory and build a new one around dropping the database. That's what lets
+	 * the reset button work without restarting the server.
 	 */
 	public static SessionFactory sessionFactory = null;
 
@@ -28,9 +28,8 @@ public class HibernateUtil {
 	}
 
 	/*
-	 * Builds the factory only when there is not one already, so repeated calls are
-	 * harmless. The factory is created once during server startup, before any
-	 * client can connect.
+	 * Only builds the factory if there isn't one already, so calling this twice
+	 * does no harm. It runs once at server startup, before any client can connect.
 	 */
 	private static SessionFactory buildSessionFactory() {
 
@@ -38,14 +37,11 @@ public class HibernateUtil {
 
 			try {
 				/*
-				 * configure() with no argument reads hibernate.cfg.xml from the classpath root.
-				 * DatabaseResetService reuses that same file to recover the raw JDBC
-				 * credentials, so connection settings live in exactly one place.
+				 * configure() with nothing passed in picks up hibernate.cfg.xml from the top
+				 * of the classpath.
 				 */
 				sessionFactory = new Configuration().configure().buildSessionFactory();
 				
-				
-
 				System.out.println("SessionFactory created successfully.");
 			} catch (Exception e) {
 
@@ -57,9 +53,10 @@ public class HibernateUtil {
 	}
 
 	/*
-	 * Rebuilds the factory from scratch. Used after DatabaseResetService drops and
-	 * recreates the schema, since the old factory's pooled connections still point
-	 * at a database that no longer exists.
+	 * Builds the factory again from scratch. We need this after
+	 * DatabaseResetService drops and recreates the database, because the old
+	 * factory's pooled connections are still pointing at a database that isn't
+	 * there any more.
 	 */
 	public static void reconnect() {
 		try {
@@ -67,9 +64,9 @@ public class HibernateUtil {
 				sessionFactory.close();
 			}
 			/*
-			 * Nulling the field is what lets buildSessionFactory() do its work, since it
-			 * only builds when it finds nothing there. Without this line a reconnect on an
-			 * already closed factory would leave it closed.
+			 * Setting it to null is what lets buildSessionFactory() actually do anything,
+			 * since it only builds when it finds nothing there. Without this line a
+			 * reconnect on an already closed factory would just leave it closed.
 			 */
 			sessionFactory = null;
 			buildSessionFactory();
@@ -80,15 +77,15 @@ public class HibernateUtil {
 	}
 
 	/*
-	 * Hands out a new Session per call rather than exposing the factory itself,
-	 * because Sessions are not thread safe and must not be shared between client
-	 * threads. Whoever calls this owns the session and is responsible for closing
-	 * it, which BaseService.endSession does on every request.
+	 * Gives out a new Session each call instead of handing over the factory,
+	 * because Sessions aren't thread safe and two client threads must never share
+	 * one. Whoever calls this owns the session and has to close it, which
+	 * BaseService.endSession does on every request.
 	 *
-	 * The check at the top rebuilds the factory if the database was reset since the
-	 * last call, so services do not need to know a reset ever happened. The reset
-	 * flow stops the server first, so no client threads are running while the
-	 * factory is being swapped.
+	 * The check at the top rebuilds the factory if the database got reset since
+	 * last time, so the services never have to know a reset happened. The reset
+	 * stops the server first anyway, so no client threads are running while we're
+	 * swapping the factory out.
 	 */
 	public static Session getSession() {
 

@@ -12,6 +12,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
@@ -51,7 +52,7 @@ public class VitalsView extends JInternalFrame {
 	private JLabel lblObservations;
 	private JLabel lblNursingNotes;
 
-	private JTextField txtPatientId;
+	private JComboBox<String> cboPatient;
 	private JTextField txtTemperature;
 	private JTextField txtBloodPressure;
 	private JTextField txtPulse;
@@ -83,7 +84,7 @@ public class VitalsView extends JInternalFrame {
 		lblTitle = new JLabel("Vital Signs & Nursing Notes");
 		lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
 
-		lblPatientId = new JLabel("Patient ID");
+		lblPatientId = new JLabel("Patient");
 		lblTemperature = new JLabel("Temperature (°C)");
 		lblBloodPressure = new JLabel("Blood Pressure");
 		lblPulse = new JLabel("Heart Rate (bpm)");
@@ -91,7 +92,7 @@ public class VitalsView extends JInternalFrame {
 		lblObservations = new JLabel("Observations");
 		lblNursingNotes = new JLabel("Nursing Notes");
 
-		txtPatientId = new JTextField(20);
+		cboPatient = new JComboBox<>();
 		txtTemperature = new JTextField(20);
 		txtBloodPressure = new JTextField(20);
 		txtPulse = new JTextField(20);
@@ -106,7 +107,7 @@ public class VitalsView extends JInternalFrame {
 		txtNursingNotes.setWrapStyleWord(true);
 
 		lblPatientId.setDisplayedMnemonic(KeyEvent.VK_P);
-		lblPatientId.setLabelFor(txtPatientId);
+		lblPatientId.setLabelFor(cboPatient);
 
 		lblTemperature.setDisplayedMnemonic(KeyEvent.VK_T);
 		lblTemperature.setLabelFor(txtTemperature);
@@ -126,7 +127,7 @@ public class VitalsView extends JInternalFrame {
 		lblNursingNotes.setDisplayedMnemonic(KeyEvent.VK_N);
 		lblNursingNotes.setLabelFor(txtNursingNotes);
 
-		txtPatientId.setToolTipText("Enter the patient's ID. Shortcut: Alt+P.");
+		cboPatient.setToolTipText("Select the patient the reading is for. Shortcut: Alt+P.");
 		txtTemperature.setToolTipText("Enter the patient's temperature in degrees Celsius. Shortcut: Alt+T.");
 		txtBloodPressure.setToolTipText("Enter the blood pressure, for example 120/80. Shortcut: Alt+B.");
 		txtPulse.setToolTipText("Enter the patient's heart rate in beats per minute. Shortcut: Alt+H.");
@@ -180,7 +181,7 @@ public class VitalsView extends JInternalFrame {
 		formPanel.add(lblTitle, gbc);
 		gbc.gridwidth = 1;
 
-		addRow(formPanel, gbc, 1, lblPatientId, txtPatientId);
+		addRow(formPanel, gbc, 1, lblPatientId, cboPatient);
 		addRow(formPanel, gbc, 2, lblTemperature, txtTemperature);
 		addRow(formPanel, gbc, 3, lblBloodPressure, txtBloodPressure);
 		addRow(formPanel, gbc, 4, lblPulse, txtPulse);
@@ -211,7 +212,8 @@ public class VitalsView extends JInternalFrame {
 		add(mainPanel);
 	}
 
-	private void addRow(JPanel panel, GridBagConstraints gbc, int y, JLabel label, JTextField field) {
+	// JComponent rather than JTextField so the patient combo fits through here too.
+	private void addRow(JPanel panel, GridBagConstraints gbc, int y, JLabel label, JComponent field) {
 		gbc.gridx = 0;
 		gbc.gridy = y;
 		gbc.anchor = GridBagConstraints.WEST;
@@ -285,8 +287,14 @@ public class VitalsView extends JInternalFrame {
 
 	}
 
+	/*
+	 * Clear resets the patient selection rather than emptying the combo, since
+	 * the list is only loaded once when the screen opens.
+	 */
 	public void clearFields() {
-		txtPatientId.setText("");
+		if (cboPatient.getItemCount() > 0) {
+			cboPatient.setSelectedIndex(0);
+		}
 		txtTemperature.setText("");
 		txtBloodPressure.setText("");
 		txtPulse.setText("");
@@ -299,8 +307,8 @@ public class VitalsView extends JInternalFrame {
 		JOptionPane.showMessageDialog(this, message);
 	}
 
-	public JTextField getTxtPatientId() {
-		return txtPatientId;
+	public JComboBox<String> getCboPatient() {
+		return cboPatient;
 	}
 
 	public JTextField getTxtTemperature() {

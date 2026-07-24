@@ -23,9 +23,10 @@ import com.careplus.common.net.Response;
  * refreshes it. We chose polling because our protocol is strictly one response
  * per request, so the server has no way to write to a client unprompted.
  *
- * TODO: enforce operating hours rule in ChatService,
- *
- * TODO: route CHAT_SEND and CHAT_POLL on the server.
+ * The operating hours rule (8:00 a.m. to 7:00 p.m.) lives in ChatService on the
+ * server, so a message sent after hours comes back rejected with a message
+ * saying so. We don't duplicate the check here because a client clock can be
+ * wrong or changed.
  */
 public class ChatController {
 	private final ChatView view;

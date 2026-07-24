@@ -1,60 +1,170 @@
 package com.careplus.server.service;
 
+import java.time.LocalTime;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.careplus.common.enums.UserRole;
 import com.careplus.common.model.ChatMessage;
+import com.careplus.common.model.Person;
+import com.careplus.common.net.Request;
 import com.careplus.common.net.Response;
 
 /*
  * ChatService
- * Intended home of the live chat feature between patients and staff.
- *
- * NOT YET IMPLEMENTED. Every method below is a placeholder returning null or
- * false, and no CHAT_SEND or CHAT_POLL case exists in ClientHandler's dispatch
- * switch, so chat requests from either client currently return an empty Response.
- * The signatures are committed ahead of the bodies so the client controllers can
- * be written against the final shape.
- *
- * Note this class does not extend BaseService, unlike the two working services.
- * It will need to once it touches the database, so that it picks up the shared
- * session and transaction handling instead of managing Hibernate itself.
+ * Live chat between patients and staff. It's polled, not pushed: our protocol is
+ * strictly one reply per request so the server can't write to a client out of
+ * the blue. The client has to keep asking with CHAT_POLL instead.
  */
-public class ChatService {
+public class ChatService extends BaseService {
 
-	public Response send(ChatMessage message) {
-		return null;
+	private static final Logger logger = LogManager.getLogger(ChatService.class);
 
+	/*
+	 * Hospital opening hours from the brief. Pulled out as constants so they're
+	 * easy to widen if we end up demoing in the evening. The check lives here on
+	 * the server because a client's clock can be wrong or changed on purpose.
+	 */
+	private static final LocalTime OPENS = LocalTime.of(8, 0);
+	private static final LocalTime CLOSES = LocalTime.of(19, 0);
+
+	public Response send(Request request) {
+
+		ChatMessage message = (ChatMessage) request.getParams().get("chatMessage");
+		String recipient = (String) request.getParams().get("recipient");
+
+		/*
+		 * Only sending is blocked outside hours. Polling stays open so people can
+		 * still read back their conversation after closing time.
+		 */
+		if (!isWithinHours()) {
+
+			resp = new Response();
+			resp.setSuccess(false);
+			resp.setMessage("Live chat is only available between 8:00 a.m. and 7:00 p.m.");
+
+			logger.info("Chat message rejected outside operating hours");
+
+			return resp;
+		}
+
+		startSession();
+
+		try {
+
+			message.setReceiverId(resolveRecipient(recipient));
+
+			session.persist(message);
+
+			resp.setSuccess(true);
+			resp.setMessage("Message sent");
+
+			logger.info("Chat message from {} to {}", message.getSenderId(), message.getReceiverId());
+
+		} catch (Exception e) {
+
+			transaction.rollback();
+			resp.setSuccess(false);
+			resp.setMessage("Failed to send message: " + e.getMessage());
+
+			logger.error("Could not send chat message", e);
+
+		} finally {
+			endSession();
+		}
+
+		return resp;
 	}
 
 	/*
-	 * Polling rather than server push, matching the request and response shape of
-	 * the socket protocol: the server never writes to a client that has not just
-	 * asked for something, so unread messages are only discovered when the client
-	 * calls this.
-	 *
-	 * The userId parameter is an int while Person identifiers are Strings elsewhere
-	 * in the system, so this signature will need reconciling before it can be wired
-	 * up.
+	 * The user's whole conversation, both directions, oldest first so it reads top
+	 * to bottom like a chat should. While we're in here we also flip isRead on
+	 * anything addressed to them, since polling is the moment they've actually seen
+	 * it, and that flag is what tells the other side their message was read.
 	 */
-	public List<ChatMessage> poll(int userId){
-		return null;
+	public Response poll(Request request) {
+
+		String userId = (String) request.getParams().get("user");
+
+		startSession();
+
+		try {
+			List<ChatMessage> messages = session
+					.createQuery("FROM ChatMessage WHERE senderId = ?1 OR receiverId = ?1 ORDER BY sentAt",
+							ChatMessage.class)
+					.setParameter(1, userId).list();
+
+			for (ChatMessage message : messages) {
+
+				if (userId.equals(message.getReceiverId()) && !Boolean.TRUE.equals(message.getIsRead())) {
+					// These are attached to the session, so this saves when endSession commits.
+					message.setIsRead(true);
+				}
+			}
+
+			resp.setSuccess(true);
+			resp.setMessage("Messages found");
+			resp.setData(messages);
+
+		} catch (Exception e) {
+
+			transaction.rollback();
+			resp.setSuccess(false);
+			resp.setMessage("Failed to get messages");
+
+			logger.error("Could not load chat messages for {}", userId, e);
+
+		} finally {
+			endSession();
+		}
+
+		return resp;
 	}
 
-	/*
-	 * Enforces the hospital operating hours rule: live chat is only available
-	 * between 8:00 a.m. and 7:00 p.m.
-	 *
-	 * Currently returns false unconditionally, so the rule is declared but not
-	 * enforced anywhere. Neither client checks the time of day either, which means
-	 * chat is effectively ungated rather than closed. Once implemented, send() and
-	 * poll() should both consult this, and the check belongs here on the server
-	 * rather than in the client, since a client's clock can be wrong or altered.
-	 *
-	 * TODO: Replace the false return with LocalTime.now() comparison against 08:00
-	 * and 19:00. Call this from send() and poll() to reject traffic outside hours.
-	 */
 	public boolean isWithinHours() {
-		return false;
+
+		LocalTime now = LocalTime.now();
+
+		return !now.isBefore(OPENS) && now.isBefore(CLOSES);
 	}
 
+	/*
+	 * The two chat screens send different things here. Staff pick an actual patient
+	 * from a combo, but the patient side just picks a role name ("Receptionist",
+	 * "Doctor", "Nurse"). So we try it as an ID first, and if that finds nothing we
+	 * treat it as a role and give the message to the first staff member with that
+	 * role. Routing it to whoever is actually on duty would need a rota, and we
+	 * don't have one of those.
+	 */
+	private String resolveRecipient(String recipient) {
+
+		if (recipient == null || recipient.trim().isEmpty()) {
+			throw new IllegalArgumentException("No recipient given");
+		}
+
+		String id = recipient.trim().toUpperCase();
+
+		if (session.find(Person.class, id) != null) {
+			return id;
+		}
+
+		for (UserRole role : UserRole.values()) {
+
+			if (role.name().equalsIgnoreCase(recipient.trim())) {
+
+				List<String> ids = session
+						.createQuery("SELECT p.personId FROM Person p WHERE p.role = ?1 ORDER BY p.personId",
+								String.class)
+						.setParameter(1, role).setMaxResults(1).list();
+
+				if (!ids.isEmpty()) {
+					return ids.get(0);
+				}
+			}
+		}
+
+		throw new IllegalArgumentException("No person or role matches \"" + recipient + "\"");
+	}
 }

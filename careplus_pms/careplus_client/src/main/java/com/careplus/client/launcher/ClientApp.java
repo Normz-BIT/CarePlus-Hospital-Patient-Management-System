@@ -29,31 +29,32 @@ public class ClientApp {
 	/*
 	 * Assign Views and Controllers to User Roles
 	 *
-	 * The single registry of every feature in the client, and the only place role
-	 * based access is declared. Nothing inside any view or controller checks the
-	 * user's role, so this method is where to look when asking who can reach a given
-	 * screen.
+	 * The one list of every feature in the client, and the only place we say which
+	 * role can see what. Nothing inside any view or controller checks the role
+	 * itself, so this is the method to look at when someone asks who can get to a
+	 * given screen.
 	 *
-	 * Each entry supplies a factory rather than an instance, so the twelve screens
-	 * are built lazily on first menu click. That matters because every controller
-	 * constructor performs a blocking server call: constructing all twelve eagerly
-	 * would stall login behind twelve round trips.
+	 * Each entry hands over a factory instead of a ready-made screen, so the twelve
+	 * of them only get built when someone clicks the menu item. That matters
+	 * because every controller constructor does a blocking server call, so building
+	 * them all at login would mean waiting on twelve round trips before the
+	 * dashboard appears.
 	 *
-	 * The repeated view then controller then registerActionListener sequence is the
-	 * project's MVC wiring convention. There is no base controller or view class, so
-	 * the three step handshake is written out per feature: the controller needs the
-	 * view to read its inputs, and the view needs the controller to handle its
-	 * buttons, so the listener is attached after both exist.
+	 * That view then controller then registerActionListener pattern repeated below
+	 * is just how we wire MVC in this project. There's no base class for it, so all
+	 * three steps are written out for each feature: the controller needs the view
+	 * to read its inputs, and the view needs the controller to handle its buttons,
+	 * so the listener goes on last once both exist.
 	 *
-	 * Note "Doctors" is the only feature visible to two roles, since both doctors
-	 * and receptionists need the directory when assigning staff.
+	 * "Doctors" is the only screen two roles can see, since doctors and
+	 * receptionists both need the directory.
 	 */
 	public static List<DashboardFeature> assignFeatures() {
 
 		/*
-		 * Immutable, so the feature list cannot be altered after startup. It is shared
-		 * with LoginController and then with every MainDashboard, and an unmodifiable
-		 * list makes that sharing safe.
+		 * List.of gives an unmodifiable list, so nothing can add or remove features
+		 * after startup. This gets passed to LoginController and then on to every
+		 * MainDashboard, so making it unchangeable keeps that sharing safe.
 		 */
 		return List.of(
 

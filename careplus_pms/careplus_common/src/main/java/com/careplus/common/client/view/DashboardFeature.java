@@ -10,13 +10,13 @@ import com.careplus.common.enums.UserRole;
 /**
  * Base Dashboard class
  *
- * Describes one dashboard menu item without knowing anything about the feature
- * behind it. This is what lets careplus_common host the MDI shell while every
- * concrete view lives in careplus_client: the shell is handed a list of these and
- * never imports a single patient or employee screen.
+ * Describes one menu item on the dashboard without knowing anything about the
+ * screen behind it. That's what lets the MDI shell live in careplus_common while
+ * all the actual screens live in careplus_client: the shell just gets handed a
+ * list of these and never imports a single patient or employee view.
  *
- * Registering a feature is therefore the only step needed to add one, and
- * ClientApp is the single place that does it.
+ * So adding a new feature is just registering one of these, and ClientApp is the
+ * only place that does it.
  */
 public class DashboardFeature {
 
@@ -30,11 +30,13 @@ public class DashboardFeature {
     private final Set<UserRole> roles;
 
     /**
-     * Creates a fresh view (and wires its controller) when the item is opened.
+     * Builds the view (and hooks up its controller) when someone actually opens
+     * the menu item.
      *
-     * A Supplier rather than a prebuilt frame, so the twelve feature screens are
-     * not all constructed at login. Each one performs a blocking server call in its
-     * constructor, so eager construction would stall startup on twelve round trips.
+     * A Supplier rather than a ready-made frame, so we're not building all twelve
+     * screens the moment someone logs in. Each one makes a blocking server call in
+     * its constructor, so building them all up front would mean sitting through
+     * twelve round trips before the dashboard even appears.
      */
     private final Supplier<JInternalFrame> viewFactory;
 
@@ -55,13 +57,13 @@ public class DashboardFeature {
     }
 
     /*
-     * The single authorization check in the client. A null role fails closed,
-     * hiding the feature rather than exposing it, which is the safe default if a
-     * Person ever arrives without one.
+     * The only permission check in the whole client. A null role hides the feature
+     * rather than showing it, which is the safer way round if a Person ever turns
+     * up without one.
      *
-     * This governs visibility only. The server does not verify the caller's role
-     * before acting on a Request, so this hides a menu item rather than preventing
-     * the underlying action.
+     * Important: this only controls what's visible. The server doesn't check
+     * anyone's role before acting on a Request, so this hides a menu item, it
+     * doesn't actually stop the action underneath.
      */
     public boolean visibleFor(UserRole role) {
         return role != null && roles.contains(role);

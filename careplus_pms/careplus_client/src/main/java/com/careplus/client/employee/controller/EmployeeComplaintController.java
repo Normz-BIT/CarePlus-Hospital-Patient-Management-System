@@ -26,31 +26,29 @@ import com.careplus.common.net.Response;
  * The receptionist's complaint queue: triage, assign, respond and report
  *
  * Unlike the other controllers, this one keeps its own copy of the loaded
- * complaints so it can filter and summarise without going back to the server.
- * That makes category switching instant, at the cost of the counts reflecting the
- * last refresh rather than live data.
- *
- * GET_ALL_COMPLAINTS, ASSIGN_STAFF and RESPOND_TO_COMPLAINT are all unrouted on
- * the server, so the queue is currently empty and the summary reads zero.
+ * complaints so it can filter by category without going back to the server.
+ * That makes category switching instant. The summary numbers are the exception:
+ * they come from the server so they cover every complaint, not just the loaded
+ * rows.
  */
 public class EmployeeComplaintController {
 
 	/*
-	 * Named constants because the cached rows are untyped Object arrays, so these
-	 * positions are the only link between how refresh builds a row and how the
-	 * filter and summary read it. Changing the column order means changing these
-	 * two values, and nothing will fail to compile if that is forgotten.
+	 * Which column is which in the complaint table. They're constants because the
+	 * cached rows are plain Object arrays, so these numbers are the only thing
+	 * connecting how refresh builds a row to how the filter reads it. If you
+	 * reorder the columns you have to change these too, and nothing will fail to
+	 * compile to remind you.
 	 */
-	// Column indices in the complaint table (see EmployeeComplaint columns).
 	private static final int CATEGORY_COL = 2;
 	private static final int STATUS_COL = 7;
 
 	private final EmployeeComplaintView view;
 	/*
-	 * The unfiltered result of the last refresh, held separately from the table
-	 * model because the model only ever contains the currently visible subset.
-	 * Filtering therefore rebuilds the table from this list rather than discarding
-	 * rows it would need again.
+	 * Everything the last refresh returned, kept separate from the table model
+	 * because the model only ever holds the rows currently being shown. Filtering
+	 * rebuilds the table from this list, so we don't throw away rows we'll want
+	 * back when the filter changes.
 	 */
 	private final List<Object[]> allComplaints = new ArrayList<>();
 	private static final Logger logger = LogManager.getLogger(EmployeeComplaintController.class);
@@ -116,11 +114,11 @@ public class EmployeeComplaintController {
 			complaint.setResponseDate(LocalDateTime.now());
 
 			/*
-			 * The receptionist picks any status from the full enum, so nothing prevents an
-			 * illegal jump such as SUBMITTED straight to RESOLVED, or reopening a case that
-			 * was never resolved. Enforcing the legal transitions belongs in
-			 * ComplaintService, since only the server can see the complaint's current
-			 * state.
+			 * The receptionist can pick any status off the combo, so there's nothing
+			 * stopping a silly jump like SUBMITTED straight to RESOLVED, or reopening
+			 * something that was never resolved in the first place. If we want to police
+			 * that it has to go in ComplaintService, since only the server knows what
+			 * state the complaint is actually in.
 			 */
 			complaint.setStatus(
 					ComplaintStatus.valueOf(
@@ -195,25 +193,25 @@ public class EmployeeComplaintController {
 	}
 
 	/**
-	 * Rebuilds the category filter from the loaded complaints (keeping the
-	 * selection).
+	 * Rebuilds the category filter from whatever complaints we loaded, keeping
+	 * whatever was selected.
 	 *
-	 * Options come from the data actually present rather than from the
-	 * ComplaintCategory enum, so the receptionist is never offered a category with
-	 * no complaints behind it. The side effect is that a category disappears from
-	 * the filter once its last complaint is resolved away.
+	 * The options come from the complaints we actually have rather than from the
+	 * ComplaintCategory enum, so the receptionist never gets offered a category
+	 * with nothing behind it. Side effect is that a category vanishes off the
+	 * filter once its last complaint is gone.
 	 */
 	private void populateFilter() {
 		/*
-		 * Captured before the combo is emptied, because removeAllItems clears the
-		 * selection. Without this the receptionist's chosen filter would reset to "All"
-		 * on every refresh, including after each assign or resolve.
+		 * Grab this before emptying the combo, because removeAllItems wipes the
+		 * selection. Without it the receptionist's chosen filter would jump back to
+		 * "All" on every refresh, including after every assign or resolve.
 		 */
 		Object selected = view.getCboFilter().getSelectedItem();
 		/*
-		 * LinkedHashSet gives both properties needed here: it drops duplicate categories
-		 * and preserves insertion order, so "All" stays pinned first and the rest follow
-		 * the order they appear in the data rather than an arbitrary hash order.
+		 * LinkedHashSet does both things we need here: drops duplicate categories and
+		 * keeps them in the order we added them, so "All" stays first and the rest
+		 * follow the data instead of coming out in some random hash order.
 		 */
 		LinkedHashSet<String> categories = new LinkedHashSet<>();
 		categories.add("All");
@@ -223,9 +221,9 @@ public class EmployeeComplaintController {
 		for (String category : categories)
 			view.getCboFilter().addItem(category);
 		/*
-		 * Restores what the user had chosen before the refresh, so filtering does not
-		 * reset every time the list reloads. If that category is no longer present the
-		 * combo falls back to its first entry, "All".
+		 * Puts back whatever they had chosen before the refresh, so the filter doesn't
+		 * reset every time the list reloads. If that category has gone the combo just
+		 * falls back to its first entry, "All".
 		 */
 		if (selected != null)
 			view.getCboFilter().setSelectedItem(selected);
@@ -250,33 +248,72 @@ public class EmployeeComplaintController {
 	 * Produces the dashboard figures the receptionist role requires: total requests,
 	 * resolved, outstanding, and a breakdown by category.
 	 *
-	 * Counted from the cached list rather than queried, so these totals describe
-	 * whatever the last refresh returned and not the database as it stands now.
-	 * ComplaintService.dashboardStats exists to move this aggregation server side,
-	 * which would also let it see complaints this client never received.
+	 * The numbers come from the server (ReportService runs one GROUP BY over the
+	 * whole complaint table), so they describe the database as it stands rather
+	 * than just the rows this screen happens to have loaded. If that request
+	 * fails we fall back to counting the cached rows, which is better than a
+	 * blank summary.
 	 */
 	private void updateSummary() {
+
+		Response res = Client.send(new Request(RequestType.GET_DASHBOARD_STATS, "all", true));
+
+		if (res == null || !Boolean.TRUE.equals(res.getSuccess()) || !(res.getData() instanceof List<?>)) {
+
+			logger.warn("Dashboard stats could not be retrieved, counting the loaded rows instead");
+			updateSummaryFromCache();
+			return;
+		}
+
+		int total = 0;
+		int resolved = 0;
+		int outstanding = 0;
+
+		List<String> categoryCounts = new ArrayList<>();
+
+		// Each row is {category, total, resolved, outstanding}, one per category.
+		for (Object row : (List<?>) res.getData()) {
+
+			if (row instanceof Object[] stats && stats.length >= 4) {
+
+				total += (Integer) stats[1];
+				resolved += (Integer) stats[2];
+				outstanding += (Integer) stats[3];
+
+				categoryCounts.add(stats[0] + " (" + stats[1] + ")");
+			}
+		}
+
+		view.setSummary("Total: " + total + " | Resolved: " + resolved + " | Outstanding: " + outstanding
+				+ " | By category: " + String.join(", ", categoryCounts));
+	}
+
+	/*
+	 * The old client-side count, kept as the fallback when the server can't give
+	 * us the stats. These totals only describe whatever the last refresh
+	 * returned, which is exactly why the server version above is preferred.
+	 */
+	private void updateSummaryFromCache() {
 		int total = allComplaints.size();
 		int resolved = 0;
 		/*
-		 * LinkedHashMap so the category breakdown reads in a stable order rather than
-		 * reshuffling between refreshes.
+		 * LinkedHashMap so the breakdown comes out in the same order every time instead
+		 * of shuffling around between refreshes.
 		 */
 		Map<String, Integer> byCategory = new LinkedHashMap<>();
 		for (Object[] row : allComplaints) {
 			if (isResolved(statusOf(row)))
 				resolved++;
 			/*
-			 * merge handles both the first sighting of a category and every subsequent one
-			 * in a single call, avoiding a separate containsKey check.
+			 * merge covers both the first time we see a category and every time after, so
+			 * we don't need a separate containsKey check.
 			 */
 			byCategory.merge(categoryOf(row), 1, Integer::sum);
 		}
 		/*
-		 * Outstanding is derived rather than counted separately, which guarantees the
-		 * two figures always sum to the total. Note this means REOPENED counts as
-		 * outstanding, which is the intended reading: a reopened complaint is
-		 * unfinished work.
+		 * We work outstanding out by subtracting rather than counting it separately, so
+		 * the two numbers always add up to the total. That does mean REOPENED counts as
+		 * outstanding, which is what we want: a reopened complaint is still work to do.
 		 */
 		int outstanding = total - resolved;
 
@@ -296,25 +333,22 @@ public class EmployeeComplaintController {
 	}
 
 	/*
-	 * Defensive on all three counts, returning an empty String rather than throwing
-	 * for a null row, a short row or a null cell. That matters because the summary
-	 * runs over every loaded complaint: one malformed row would otherwise abort the
-	 * whole count and blank the dashboard.
+	 * Guards against all three things that could go wrong (null row, row too short,
+	 * null cell) and just gives back an empty String instead of throwing. Worth it
+	 * because the summary walks every loaded complaint, so one bad row would kill
+	 * the whole count and leave the dashboard blank.
 	 */
 	private String cell(Object[] row, int index) {
 		return (row != null && row.length > index && row[index] != null) ? String.valueOf(row[index]) : "";
 	}
 
 	/*
-	 * Compares against text rather than the ComplaintStatus enum because the cached
-	 * rows hold whatever the cell renders as. equalsIgnoreCase is what makes this
-	 * match the enum's uppercase RESOLVED as well as any prettier casing.
+	 * Compares text rather than the ComplaintStatus enum, because the rows
+	 * only hold whatever the cell displayed. equalsIgnoreCase so it matches the
+	 * enum's uppercase RESOLVED as well as anything nicer looking.
 	 *
-	 * "Closed" is not a ComplaintStatus value, so that half of the test never
-	 * matches anything today. It is harmless, but it should either be removed or
-	 * promoted to a real status rather than left as an implied one.
 	 */
 	private boolean isResolved(String status) {
-		return status.equalsIgnoreCase("Resolved") || status.equalsIgnoreCase("Closed");
+		return status.equalsIgnoreCase("Resolved");
 	}
 }

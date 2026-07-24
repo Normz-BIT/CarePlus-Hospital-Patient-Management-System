@@ -15,12 +15,11 @@ import com.careplus.common.net.Response;
 
 /*
  * Medical Record Controller
- * Read only view of a patient's own diagnoses and treatment notes
+ * Read-only view of a patient's own diagnoses and treatment notes
  *
- * The only patient feature with no write path: patients read their record but
- * never alter it, since clinical content is authored by doctors through
- * DiagnosisController. GET_MEDICAL_RECORDS is unrouted on the server, so the
- * table is currently empty.
+ * The only patient screen with nothing to write: patients read their record but
+ * never change it, since the clinical side is written by doctors through
+ * DiagnosisController.
  */
 public class MedicalRecordController {
 	private final MedicalRecordView view;
@@ -53,29 +52,21 @@ public class MedicalRecordController {
 		 * The column indices below follow the order refresh builds each row in, so the
 		 * two methods have to be kept in step with each other.
 		 */
-		view.getTxtDiagnosis().setText(
-				String.valueOf(view.getTableModel().getValueAt(row, 1)));
+		view.getTxtDiagnosis().setText(String.valueOf(view.getTableModel().getValueAt(row, 1)));
 
-		view.getTxtTreatment().setText(
-				String.valueOf(view.getTableModel().getValueAt(row, 2)));
+		view.getTxtTreatment().setText(String.valueOf(view.getTableModel().getValueAt(row, 2)));
 
-		view.getTxtFollowUpDate().setText(
-				String.valueOf(view.getTableModel().getValueAt(row, 3)));
+		view.getTxtFollowUpDate().setText(String.valueOf(view.getTableModel().getValueAt(row, 3)));
 
-		view.getTxtCreatedDate().setText(
-				String.valueOf(view.getTableModel().getValueAt(row, 4)));
+		view.getTxtCreatedDate().setText(String.valueOf(view.getTableModel().getValueAt(row, 4)));
 
-		logger.info("Medical record selected: {}",
-				view.getTableModel().getValueAt(row, 0));
+		logger.info("Medical record selected: {}", view.getTableModel().getValueAt(row, 0));
 	}
 
 	@SuppressWarnings("unchecked")
 	public void refresh() {
-		Response res = Client.send(
-				new Request(
-						RequestType.GET_MEDICAL_RECORDS,
-						"patientId",
-						MainDashboard.getCurrentUser().getPersonId()));
+		Response res = Client.send(new Request(RequestType.GET_MEDICAL_RECORDS, "patientId",
+				MainDashboard.getCurrentUser().getPersonId()));
 
 		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 
@@ -87,13 +78,8 @@ public class MedicalRecordController {
 
 		for (MedicalRecord row : (List<MedicalRecord>) res.getData()) {
 
-			Object[] viewRow = new Object[] {
-					row.getRecordId(),
-					row.getDiagnosis(),
-					row.getTreatmentNote(),
-					row.getFollowUpDate(),
-					row.getCreatedDate()
-			};
+			Object[] viewRow = new Object[] { row.getRecordId(), row.getDiagnosis(), row.getTreatmentNote(),
+					row.getFollowUpDate(), row.getCreatedDate() };
 
 			view.addMedicalRecord(viewRow);
 		}

@@ -196,10 +196,10 @@ public class LoginView extends JFrame {
 	}
 
 	/*
-	 * Attaches this view's controls to the controller that handles them.
+	 * Hooks this view's buttons up to the controller.
 	 *
-	 * Called by ClientApp after construction rather than from the constructor,
-	 * which is what breaks the circular dependency: the controller needs the view
+	 * ClientApp calls this after construction rather than us doing it in the
+	 * constructor, because the two need each other: the controller needs the view
 	 * to read the form, and the view needs the controller to handle the click.
 	 */
 	public void registerActionListener(LoginController controller) {

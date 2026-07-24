@@ -3,13 +3,13 @@ package com.careplus.common.enums;
 /*
  * Type of Nurse
  *
- * The ward a nurse is posted to. This is what scopes a nurse's case list so they
- * see the patients on their own ward rather than every patient in the hospital.
+ * Which ward a nurse is posted to. GENERAL is the default for anyone without a
+ * specialist ward.
  *
- * GENERAL is the default posting for a nurse with no specialist ward.
- *
- * TODO: apply in the assigned-cases query once that service is
- * written.
+ * Worth knowing the assigned-cases list doesn't actually use this. It goes by
+ * who recorded the reading instead, because vitals carry a nurse_id and patients
+ * have no ward on them. Doing it by ward would mean adding a ward column to
+ * patient first.
  * */
 public enum NurseWard {
 	GENERAL,

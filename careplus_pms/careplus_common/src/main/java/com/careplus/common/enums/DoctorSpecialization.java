@@ -2,12 +2,12 @@ package com.careplus.common.enums;
 /*
  * Types of Doctors
  *
- * Doubles as the department list the patient picks from when booking, which is
- * why the appointment screen can populate its department combo from a doctor
- * lookup rather than from a separate department table.
+ * What a doctor specialises in. Not to be confused with Department, which is a
+ * separate enum: a doctor can be a CARDIOLOGY specialist working in the
+ * CARDIOLOGY department, but the two lists aren't the same thing.
  *
- * GENERAL is the fallback for a doctor with no declared specialism, so it should
- * stay present as a default.
+ * GENERAL is the fallback for a doctor with no particular specialism, so leave
+ * it in as the default.
  * */
 public enum DoctorSpecialization {
 	GENERAL,

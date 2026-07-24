@@ -36,9 +36,10 @@ CREATE TABLE patient (
 ) ENGINE=InnoDB;
 
 -- Employee
+-- department mirrors the Department enum in careplus_common. Keep the two lists in step.
 CREATE TABLE employee (
     person_id   VARCHAR(10) NOT NULL,
-    department  VARCHAR(80),
+    department  ENUM('INTERNAL_MEDICINE', 'CARDIOLOGY', 'GENERAL_WARD', 'EMERGENCY', 'FRONT_DESK'),
     hire_date   DATE,
     CONSTRAINT pk_employee PRIMARY KEY (person_id),
     CONSTRAINT fk_employee_person FOREIGN KEY (person_id)
@@ -210,11 +211,11 @@ INSERT INTO person (person_id, first_name, last_name, email, phone, password, ro
  ('STF0005', 'Janet',   'Williams', 'j.williams@careplus.example','876-555-0205', 'staff123', 'RECEPTIONIST');
 
 INSERT INTO employee (person_id, department, hire_date) VALUES
- ('STF0001', 'Internal Medicine', '2018-06-01'),
- ('STF0002', 'Cardiology',        '2020-09-15'),
- ('STF0003', 'General Ward',      '2019-03-10'),
- ('STF0004', 'Emergency',         '2021-01-20'),
- ('STF0005', 'Front Desk',        '2022-05-05');
+ ('STF0001', 'INTERNAL_MEDICINE', '2018-06-01'),
+ ('STF0002', 'CARDIOLOGY',        '2020-09-15'),
+ ('STF0003', 'GENERAL_WARD',      '2019-03-10'),
+ ('STF0004', 'EMERGENCY',         '2021-01-20'),
+ ('STF0005', 'FRONT_DESK',        '2022-05-05');
 
 INSERT INTO doctor (person_id, specialization, license_no) VALUES
  ('STF0001', 'GENERAL',    'MD-JM-1001'),

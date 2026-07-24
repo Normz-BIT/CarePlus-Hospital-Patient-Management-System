@@ -1,25 +1,31 @@
 package com.careplus.common.net;
 
 /**
- * The action codes of the client/server protocol. Every Request carries exactly
- * one of these, and ClientHandler switches on it to pick a service method.
+ * All the actions our client/server protocol supports. Every Request carries one
+ * of these and ClientHandler switches on it to pick which service to call.
  *
- * Using an enum rather than String action names means the compiler checks every
- * request type at both ends, and the switch in ClientHandler cannot be given a
- * value that does not exist.
+ * An enum rather than String action names means the compiler checks these at
+ * both ends, and nobody can hand the switch in ClientHandler a value that
+ * doesn't exist.
  *
- * We declared the full set of actions up front, before the matching services
- * were written, so the client controllers could be built against the protocol we
- * had agreed as a group rather than waiting on the server side. Each value gains
- * its handler as the corresponding service is completed.
+ * We wrote the whole list out up front, before most of the services existed, so
+ * everyone could build their client screens against the protocol we'd agreed as
+ * a group instead of waiting on the server side to catch up.
  *
- * Enums serialize by name rather than ordinal, so this list can safely be
- * reordered between client and server builds. Renaming a constant cannot: the
- * receiving side would no longer resolve the old name.
+ * These serialize by name and not by position, so reordering this list between
+ * builds is fine. Renaming one is not: the other side would no longer recognise
+ * the old name.
  */
 public enum RequestType {
     LOGIN,
     GET_DOCTORS,
+
+    /*
+     * "PAT0001 - Andre Campbell" text for the staff screens that need to pick a
+     * patient (staff chat and vitals), so nobody has to type an ID by hand and
+     * end up filing something against the wrong patient.
+     */
+    GET_PATIENTS,
     GET_DEPARTMENTS,
     SCHEDULE_APPOINTMENT,  
     UPDATE_APPOINTMENT,
@@ -36,6 +42,13 @@ public enum RequestType {
     RESPOND_TO_COMPLAINT,
     ASSIGN_STAFF,
     GET_STAFF_ASSIGNMENTS,
+
+    /*
+     * The receptionist dashboard numbers (total, resolved and outstanding per
+     * category). ReportService does this as a SQL GROUP BY so the counts cover
+     * every complaint, not just the rows the screen happens to have loaded.
+     */
+    GET_DASHBOARD_STATS,
     ADD_DIAGNOSIS,
     UPDATE_DIAGNOSIS,
     GET_DIAGNOSIS_RECORDS,
@@ -45,9 +58,9 @@ public enum RequestType {
     RECORD_VITALS,
 
     /*
-     * Chat is polled rather than pushed: the server never initiates a write to an
-     * idle client, so the client must call CHAT_POLL on a timer to discover new
-     * messages. This keeps ClientHandler's read loop strictly request/response.
+     * Chat is polled, not pushed. The server never writes to a client out of the
+     * blue, so the client has to keep calling CHAT_POLL to find new messages.
+     * Keeps ClientHandler's loop strictly one request, one response.
      */
     CHAT_SEND,
     CHAT_POLL

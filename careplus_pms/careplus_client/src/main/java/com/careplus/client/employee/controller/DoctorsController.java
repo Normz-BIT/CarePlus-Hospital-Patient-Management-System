@@ -14,15 +14,11 @@ import com.careplus.common.net.Response;
 
 /*
  * Doctors Controller
- * Retrieves and displays the doctors directory
+ * Fetches and shows the doctors directory
  *
- * The only read only feature on the employee side, and the only one visible to
- * two roles: doctors browse colleagues, receptionists need the list when
- * assigning staff to a complaint.
- *
- * GET_DOCTORS is unrouted on the server, so the directory is currently empty.
- * Note this also depends on Doctor being a mapped entity, which it is not yet, so
- * this table cannot populate until those annotations are added.
+ * The only read-only screen on the employee side, and the only one two roles can
+ * see: doctors browsing colleagues, and receptionists who need the list when
+ * they're assigning staff to a complaint.
  */
 public class DoctorsController {
     private final DoctorsView view;
@@ -53,10 +49,10 @@ public class DoctorsController {
         view.clearTable();
 
         /*
-         * Casting straight to Doctor rather than Person, so the specialization and
-         * licence columns below are reachable. This only holds because the request asks
-         * specifically for doctors: a response carrying any other Person subclass would
-         * fail here with a ClassCastException.
+         * Casting straight to Doctor instead of Person so we can reach the
+         * specialization and licence columns below. This only works because the request
+         * specifically asked for doctors: anything else coming back would blow up here
+         * with a ClassCastException.
          */
         for (Doctor row : (List<Doctor>) res.getData()) {
 

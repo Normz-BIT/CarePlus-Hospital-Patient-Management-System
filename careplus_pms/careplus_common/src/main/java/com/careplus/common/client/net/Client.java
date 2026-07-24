@@ -2,6 +2,9 @@ package com.careplus.common.client.net;
 
 import java.net.Socket;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.careplus.common.net.Request;
 import com.careplus.common.net.Response;
 
@@ -13,11 +16,13 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 public class Client {
+
+	private static final Logger logger = LogManager.getLogger(Client.class);
 	/*
-	 * The connection state is static so the whole client process shares one socket
-	 * to the server. That suits a desktop application where a single user is signed
-	 * in at a time, and it means controllers can call send() without each one
-	 * having to obtain or pass around a connection.
+	 * These are static so the whole client shares one socket to the server. Fine
+	 * for a desktop app where one person is signed in at a time, and it means every
+	 * controller can just call send() without having to get hold of a connection
+	 * first or pass one around.
 	 */
 	private static Socket socket;
 	private static ObjectInputStream inputStream;
@@ -26,9 +31,9 @@ public class Client {
 
 
 	/*
-	 * Server location is compiled in rather than read from config, so pointing the
-	 * client at a non local server currently requires a rebuild. The port must stay
-	 * in step with the value hardcoded in the server's Server class.
+	 * Server address is hardcoded rather than read from a config file, so pointing
+	 * the client at anything other than localhost means rebuilding. The port has to
+	 * match the one hardcoded in the server's Server class.
 	 */
 	private final static String host = "localhost";
 	private final static int port = 8888;
@@ -45,53 +50,51 @@ public class Client {
 		try {
 			socket = new Socket(host, port);
 			/*
-			 * TODO: this reads the keepalive flag rather than setting it. Change to
-			 * setKeepAlive(true) if we want the OS to detect a server that has gone away.
+			 * Keepalive on so the OS spots a server that's gone away, instead of us
+			 * sitting on a dead socket forever. This used to call getKeepAlive(), which
+			 * only reads the flag and does nothing at all.
 			 */
-			socket.getKeepAlive();
+			socket.setKeepAlive(true);
 		} catch (IOException ex) {
-			ex.printStackTrace();
+			logger.error("Could not connect to the server at {}:{}", host, port, ex);
 		}
 	}
 
 	private void getStreams() {
 		try {
 			/*
-			 * Order matters and must not be swapped. Constructing an ObjectInputStream
-			 * blocks until it has read the stream header its peer writes, and that header
-			 * is only flushed when the ObjectOutputStream is constructed. Creating the
-			 * input stream first here would deadlock against the server, which builds its
-			 * streams in the same output before input order.
+			 * Don't swap these two lines. Building an ObjectInputStream blocks until it
+			 * reads a header that the other side only sends when its ObjectOutputStream is
+			 * built. Make the input stream first here and we'd deadlock with the server,
+			 * which does output before input just like this.
 			 */
 			outputStream = new ObjectOutputStream(socket.getOutputStream());
 			inputStream = new ObjectInputStream(socket.getInputStream());
 		} catch (IOException ex) {
-			ex.printStackTrace();
+			logger.error("Could not open streams to the server", ex);
 		}
 	}
 
 	/*
-	 * The single entry point every controller uses to reach the server. Keeping all
-	 * traffic behind one method means the request and response format is defined in
-	 * exactly one place, and controllers deal in Request and Response objects
-	 * without knowing anything about sockets or streams.
+	 * The one way every controller talks to the server. Putting all the traffic
+	 * behind a single method means the request and response format is written down
+	 * in exactly one place, and the controllers just deal in Request and Response
+	 * objects without knowing anything about sockets or streams.
 	 *
-	 * The call is blocking: it writes a request and waits for the matching reply
-	 * before returning. Controllers call it from Swing action listeners, so the
-	 * interface waits while the server answers.
-	 *
-	 * TODO: move these calls onto a SwingWorker so the interface stays responsive
-	 * while a request is in flight, and add synchronization here once more than one
-	 * thread can call send().
+	 * Worth knowing this blocks: it writes the request then sits waiting for the
+	 * reply before it returns. Controllers call it straight from Swing button
+	 * handlers, so the whole window freezes while the server answers. Fine at our
+	 * size, but doing it properly would mean a SwingWorker, and some
+	 * synchronization in here once more than one thread can call it.
 	 */
 	public static Response send(Request request) {
 
 		Response response = new Response();
 
 		/*
-		 * Reconnecting here means controllers never have to manage the connection
-		 * lifecycle themselves; they just call send() and it works whether or not the
-		 * socket survived since the last request.
+		 * Reconnecting in here means no controller has to worry about the connection
+		 * itself. They just call send() and it works whether or not the socket
+		 * survived since last time.
 		 */
 		if (!isConnected()) {
 
@@ -105,25 +108,25 @@ public class Client {
 
 			response = (Response) inputStream.readObject();
 
-			// System.out.println("Server said: " + in.readObject());
 		} catch (IOException ioe) {
 
 			/*
-			 * The empty Response created above is returned on every failure path, so a
-			 * controller always gets an object back and checks isSuccess() rather than
-			 * having to guard against null on each call.
+			 * The empty Response we made above goes back on every failure path, so a
+			 * controller always gets an object and can just check getSuccess() instead of
+			 * null checking every single call.
 			 */
-			// TODO Add log4j2
+			logger.error("Request {} failed against the server", request.getType(), ioe);
+
 		} catch (ClassNotFoundException cnfe) {
 			/*
-			 * Means the server sent a class this client does not have on its classpath,
-			 * which in practice happens when the two sides were built against different
-			 * versions of careplus_common.
+			 * The server sent back a class this client doesn't have. Usually means the
+			 * two sides were built against different versions of careplus_common, so
+			 * rebuild both and try again.
 			 */
-			// TODO Add log4j2
+			logger.error("The server sent a class this client doesn't know", cnfe);
 
 		} catch (Exception e) {
-			// TODO Add log4j2
+			logger.error("Unexpected error sending request {}", request.getType(), e);
 		}
 
 		return response;
@@ -135,8 +138,8 @@ public class Client {
 	}
 
 	/*
-	 * Reports on the local end of the socket, which is what send() uses to decide
-	 * whether it needs to reconnect before writing.
+	 * Only tells us about our end of the socket, which is what send() uses to
+	 * decide whether to reconnect before writing.
 	 */
 	public static boolean isConnected() {
 
@@ -149,17 +152,16 @@ public class Client {
 		try {
 			if (socket != null && !socket.isClosed()) {
 				/*
-				 * Streams are closed before the socket so buffered bytes are flushed to the
-				 * server first. Closing the socket first would discard anything still pending
-				 * and give the server a truncated object rather than a clean end of stream.
+				 * Close the streams before the socket so anything still buffered gets flushed
+				 * out first. Close the socket first and whatever's pending gets thrown away,
+				 * so the server sees a half-written object instead of a clean disconnect.
 				 */
 				outputStream.close();
 				inputStream.close();
 				socket.close();
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Could not disconnect cleanly from the server", e);
 		}
 	}
 }

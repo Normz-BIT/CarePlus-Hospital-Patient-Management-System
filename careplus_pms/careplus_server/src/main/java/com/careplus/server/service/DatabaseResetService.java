@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -20,12 +22,12 @@ import com.careplus.server.util.ServerConsole;
 
 /*
  * Database Reset Service
- * Drops and recreates careplus_db by running careplus_create_database.sql
+ * Drops careplus_db and builds it again by running careplus_create_database.sql
  *
- * The script itself begins with DROP DATABASE / CREATE DATABASE / USE, so this
- * service connects to the MySQL server without selecting a schema - connecting
- * to careplus_db would mean holding an open connection to the database the
- * script is about to drop.
+ * The script starts with DROP DATABASE / CREATE DATABASE / USE, so this connects
+ * to the MySQL server without picking a database first. If we connected to
+ * careplus_db we'd be holding a connection open to the very thing the script is
+ * about to drop.
  */
 public class DatabaseResetService {
 
@@ -34,10 +36,10 @@ public class DatabaseResetService {
 	private static final Logger logger = LogManager.getLogger(DatabaseResetService.class);
 
 	/*
-	 * Runs the script end to end. Progress is reported through the console
-	 * callback so the caller can mirror it into the server window.
+	 * Runs the whole script. Progress goes back through the console callback so
+	 * the caller can print it in the server window as it happens.
 	 *
-	 * Returns the number of statements executed, or -1 if the reset failed.
+	 * Gives back how many statements ran, or -1 if the reset failed.
 	 */
 	public int resetDatabase(ServerConsole console) {
 
@@ -65,45 +67,12 @@ public class DatabaseResetService {
 
 		// Hibernate must let go of careplus_db before the script drops it.
 		HibernateUtil.closeFactory();
-		
+
 		report(console, "Hibernate session factory closed.");
 
-		/*
-		 * Declared outside the try so it survives into the catch, where it identifies
-		 * which statement failed. A variable scoped to the block would be unreachable
-		 * from the error path.
-		 */
-		int executed = 0;
+		int executed = executeStatements(statements, console);
 
-		/*
-		 * try-with-resources closes the statement and the connection in reverse order
-		 * on every path, including the SQLException below, so a failed reset cannot
-		 * strand an open connection against a half rebuilt schema.
-		 */
-		try (Connection connection = openServerConnection();
-				Statement statement = connection.createStatement()) {
-
-			/*
-			 * Executed sequentially on one connection with autocommit left on, so each
-			 * statement commits as it runs. There is deliberately no surrounding
-			 * transaction: MySQL cannot roll back DDL such as DROP DATABASE and CREATE
-			 * TABLE, so wrapping this would give a false impression of atomicity. The
-			 * practical consequence is that a mid script failure leaves the schema
-			 * partially built, and the fix is to run the reset again rather than to undo it.
-			 */
-			for (String sql : statements) {
-
-				statement.execute(sql);
-				executed++;
-			}
-
-			report(console, "Executed " + executed + " statements successfully.");
-			logger.info("Database reset completed: {} statements executed", executed);
-
-		} catch (SQLException e) {
-
-			logger.error("The database reset failed at statement {}", executed + 1, e);
-			report(console, "Reset failed at statement " + (executed + 1) + ": " + e.getMessage());
+		if (executed < 0) {
 
 			// Bring Hibernate back up even on failure so the server stays usable.
 			HibernateUtil.reconnect();
@@ -118,12 +87,179 @@ public class DatabaseResetService {
 	}
 
 	/*
+	 * Builds the database from the script if it isn't there yet, and leaves it
+	 * completely alone if it is. Returns true as long as the database exists by the
+	 * time we're done, whether we found it or made it.
+	 *
+	 * This is what lets the server start against a MySQL install that has never had
+	 * CarePlus on it. Hibernate can't build a session factory against a database
+	 * that doesn't exist, so this has to run before HibernateUtil does.
+	 *
+	 * IMPORTANT: the existence check is a safety guard, not an optimisation.
+	 * careplus_create_database.sql starts with DROP DATABASE, so running it on a
+	 * database with real data in it would wipe every row. That's why we only ever
+	 * create when it's genuinely missing and never touch an existing one, no matter
+	 * how empty or broken it looks. Rebuilding an existing database is what the
+	 * Reset button is for, and somebody has to press that on purpose.
+	 */
+	public boolean ensureDatabaseExists(ServerConsole console) {
+
+		String schema;
+
+		try {
+			schema = schemaName(new Configuration().configure()
+					.getProperties().getProperty("hibernate.connection.url"));
+
+		} catch (RuntimeException e) {
+
+			logger.error("The database configuration could not be read", e);
+			report(console, "Unable to read the database configuration: " + e.getMessage());
+
+			return false;
+		}
+
+		if (schema.isEmpty()) {
+
+			logger.error("The JDBC url names no database, so there is nothing to create");
+			report(console, "The JDBC url in hibernate.cfg.xml names no database.");
+
+			return false;
+		}
+
+		try (Connection connection = openServerConnection()) {
+
+			if (schemaExists(connection, schema)) {
+
+				logger.info("Database {} already exists", schema);
+
+				return true;
+			}
+
+		} catch (SQLException e) {
+
+			/*
+			 * Not being able to reach MySQL at all is a different problem from the
+			 * database being missing, and only the second one is ours to fix. A refused
+			 * connection means the server is off or the login is wrong, so say that
+			 * instead of pretending the database is missing.
+			 */
+			logger.error("The MySQL server could not be reached", e);
+			report(console, "Could not reach the MySQL server: " + e.getMessage());
+
+			return false;
+		}
+
+		logger.info("Database {} was not found, creating it from {}", schema, SCRIPT_NAME);
+		report(console, "Database " + schema + " was not found. Creating it from " + SCRIPT_NAME + "...");
+
+		List<String> statements;
+
+		try {
+			statements = readStatements();
+
+		} catch (IOException e) {
+
+			logger.error("The database script could not be read", e);
+			report(console, "Unable to read " + SCRIPT_NAME + ": " + e.getMessage());
+
+			return false;
+		}
+
+		if (statements.isEmpty()) {
+
+			logger.warn("The database script contained no statements");
+			report(console, "No statements found in " + SCRIPT_NAME + ".");
+
+			return false;
+		}
+
+		if (executeStatements(statements, console) < 0) {
+			return false;
+		}
+
+		report(console, "Database " + schema + " created.");
+
+		return true;
+	}
+
+	/*
+	 * Runs the script and says how many statements went through, or -1 if one of
+	 * them broke.
+	 *
+	 * Both the reset and the first-time creation above use this. Neither one messes
+	 * with the session factory in here: reset closes and rebuilds it around this
+	 * call, and creation runs before the factory even exists.
+	 */
+	private int executeStatements(List<String> statements, ServerConsole console) {
+
+		/*
+		 * Declared out here rather than inside the try so the catch can still see it
+		 * and tell us which statement fell over. Declared inside, it'd be out of scope
+		 * by the time we needed it.
+		 */
+		int executed = 0;
+
+		/*
+		 * try-with-resources closes the statement and the connection on every path out
+		 * of here, including the SQLException below. That way a failed run can't leave
+		 * a connection hanging open against a half-built database.
+		 */
+		try (Connection connection = openServerConnection();
+				Statement statement = connection.createStatement()) {
+
+			/*
+			 * One after another on the same connection with autocommit left on, so each
+			 * statement saves as it goes. We deliberately didn't wrap this in a
+			 * transaction: MySQL can't roll back DDL like DROP DATABASE and CREATE TABLE
+			 * anyway, so it would only look safer than it is. If it dies halfway the
+			 * database is half built, and the fix is to run it again rather than undo it.
+			 */
+			for (String sql : statements) {
+
+				statement.execute(sql);
+				executed++;
+			}
+
+			report(console, "Executed " + executed + " statements successfully.");
+			logger.info("Database script completed: {} statements executed", executed);
+
+			return executed;
+
+		} catch (SQLException e) {
+
+			logger.error("The database script failed at statement {}", executed + 1, e);
+			report(console, "Failed at statement " + (executed + 1) + ": " + e.getMessage());
+
+			return -1;
+		}
+	}
+
+	/*
+	 * Asks MySQL's own catalogue whether the database is there, instead of trying
+	 * to connect to it and treating a failure as "missing". A connection can fail
+	 * for all sorts of reasons and only one of them is the database not existing.
+	 */
+	private boolean schemaExists(Connection connection, String schema) throws SQLException {
+
+		try (PreparedStatement statement = connection
+				.prepareStatement("SELECT 1 FROM information_schema.schemata WHERE schema_name = ?")) {
+
+			statement.setString(1, schema);
+
+			try (ResultSet results = statement.executeQuery()) {
+
+				return results.next();
+			}
+		}
+	}
+
+	/*
 	 * Opens a JDBC connection to the MySQL server with no schema selected.
 	 */
 	private Connection openServerConnection() throws SQLException {
 
-		// Hibernate normalises cfg.xml keys to the hibernate.* prefix, and the
-		// credentials come from hibernate.properties under the same prefix.
+		// Hibernate puts a "hibernate." prefix on the cfg.xml keys, and the login
+		// details come out of hibernate.properties under the same prefix.
 		Properties properties = new Configuration().configure().getProperties();
 
 		return DriverManager.getConnection(
@@ -134,7 +270,8 @@ public class DatabaseResetService {
 
 	/*
 	 * Turns jdbc:mysql://host:3306/careplus_db?flags into
-	 * jdbc:mysql://host:3306/?flags so the connection outlives the DROP DATABASE.
+	 * jdbc:mysql://host:3306/?flags, so the connection survives the DROP DATABASE
+	 * instead of being killed along with the database it's attached to.
 	 */
 	String stripSchema(String url) {
 
@@ -155,9 +292,40 @@ public class DatabaseResetService {
 	}
 
 	/*
-	 * Splits the script on ';'. Safe because no statement terminator is ambiguous:
-	 * the script deliberately contains no semicolons inside string literals or
-	 * comments (see the note above the sample data in the .sql file).
+	 * The opposite of stripSchema: gives back just the database name out of the
+	 * url, or an empty String if the url doesn't name one.
+	 *
+	 * That check on the character before the slash is the important bit. In
+	 * jdbc:mysql://localhost:3306 the last slash is the second one of the "//"
+	 * before the host, so the text after it is "localhost:3306" and not a database
+	 * at all. Without the check we'd try to create a database called
+	 * "localhost:3306".
+	 */
+	String schemaName(String url) {
+
+		if (url == null) {
+
+			throw new IllegalStateException("No JDBC url is configured in hibernate.cfg.xml");
+		}
+
+		int query = url.indexOf('?');
+
+		String base = (query < 0 ? url : url.substring(0, query)).trim();
+
+		int lastSlash = base.lastIndexOf('/');
+
+		if (lastSlash < 0 || (lastSlash > 0 && base.charAt(lastSlash - 1) == '/')) {
+			return "";
+		}
+
+		return base.substring(lastSlash + 1);
+	}
+
+	/*
+	 * Chops the script up on semicolons. This works because the script deliberately
+	 * has no semicolons anywhere except at the end of statements, so don't put one
+	 * inside a comment or a string in the .sql file or this will split in the wrong
+	 * place. (Already caught us out once.)
 	 */
 	List<String> readStatements() throws IOException {
 
@@ -192,8 +360,8 @@ public class DatabaseResetService {
 	}
 
 	/*
-	 * A chunk carries the comments that preceded its statement, so skip any chunk
-	 * that is blank or nothing but -- comment lines.
+	 * Each chunk drags along whatever comments came before its statement, so skip
+	 * anything that's blank or nothing but -- comment lines.
 	 */
 	private boolean containsSql(String chunk) {
 
@@ -212,7 +380,7 @@ public class DatabaseResetService {
 	private void report(ServerConsole console, String message) {
 
 		if (console != null) {
-			console.println(message);
+			console.showln(message);
 		}
 	}
 }

@@ -3,12 +3,14 @@ package com.careplus.client.employee.view;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
@@ -20,6 +22,7 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
 import com.careplus.client.employee.controller.StaffChatController;
+
 /**
  * Employee side of the live chat staff pick a patient and exchange messages,
  * responding to and updating patients on their requests.
@@ -29,8 +32,9 @@ import com.careplus.client.employee.controller.StaffChatController;
  * table because a chat reads as continuous text, and making it non editable
  * keeps the transcript a faithful record of what was actually sent.
  *
- * TODO: select the patient from a list rather than a typed ID, matching how the
- * patient side chooses its recipient.
+ * The patient is picked from a combo the controller fills from the server,
+ * matching how the patient side chooses its recipient. It used to be a typed
+ * ID, which meant a typo could start a chat with nobody.
  */
 public class StaffChatView extends JInternalFrame {
 
@@ -39,7 +43,7 @@ public class StaffChatView extends JInternalFrame {
 	private JLabel lblTitle;
 	private JLabel lblPatient;
 	private JLabel lblMessage;
-	private JTextField txtPatient;
+	private JComboBox<String> cboPatient;
 
 	private JTextArea txtConversation;
 	private JTextField txtMessage;
@@ -65,10 +69,10 @@ public class StaffChatView extends JInternalFrame {
 		lblTitle = new JLabel("Live Chat");
 		lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
 
-		lblPatient = new JLabel("Patient ID:");
+		lblPatient = new JLabel("Patient:");
 		lblMessage = new JLabel("Message:");
 
-		txtPatient = new JTextField(12);
+		cboPatient = new JComboBox<>();
 
 		txtConversation = new JTextArea();
 		txtConversation.setEditable(false);
@@ -78,12 +82,12 @@ public class StaffChatView extends JInternalFrame {
 		txtMessage = new JTextField();
 
 		lblPatient.setDisplayedMnemonic(KeyEvent.VK_P);
-		lblPatient.setLabelFor(txtPatient);
+		lblPatient.setLabelFor(cboPatient);
 
 		lblMessage.setDisplayedMnemonic(KeyEvent.VK_M);
 		lblMessage.setLabelFor(txtMessage);
 
-		txtPatient.setToolTipText("Enter the patient's ID. Shortcut: Alt+P.");
+		cboPatient.setToolTipText("Select the patient to chat with. Shortcut: Alt+P.");
 		txtConversation.setToolTipText("Displays the sender, message content, timestamp and read status.");
 		txtMessage.setToolTipText("Enter the message content. Shortcut: Alt+M.");
 
@@ -108,7 +112,7 @@ public class StaffChatView extends JInternalFrame {
 		JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		topPanel.add(lblTitle);
 		topPanel.add(lblPatient);
-		topPanel.add(txtPatient);
+		topPanel.add(cboPatient);
 
 		JScrollPane conversationPane = new JScrollPane(txtConversation);
 
@@ -142,33 +146,33 @@ public class StaffChatView extends JInternalFrame {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void actionPerformed(java.awt.event.ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
 				btnSend.doClick();
 			}
 		});
 
-		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-				.put(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0), "refresh");
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0),
+				"refresh");
 
 		getRootPane().getActionMap().put("refresh", new AbstractAction() {
 
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void actionPerformed(java.awt.event.ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
 				btnRefresh.doClick();
 			}
 		});
 
-		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-				.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "clear");
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+				"clear");
 
 		getRootPane().getActionMap().put("clear", new AbstractAction() {
 
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void actionPerformed(java.awt.event.ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
 				btnClear.doClick();
 			}
 		});
@@ -192,6 +196,9 @@ public class StaffChatView extends JInternalFrame {
 		btnRefresh.addActionListener(e -> controller.refresh());
 		btnClear.addActionListener(e -> clearMessageField());
 
+		// Switching patient swaps straight to that conversation, no Refresh needed.
+		cboPatient.addActionListener(e -> controller.refresh());
+
 	}
 
 	public void clearMessageField() {
@@ -202,8 +209,8 @@ public class StaffChatView extends JInternalFrame {
 		JOptionPane.showMessageDialog(this, message);
 	}
 
-	public JTextField getTxtPatient() {
-		return txtPatient;
+	public JComboBox<String> getCboPatient() {
+		return cboPatient;
 	}
 
 	public JTextField getTxtMessage() {

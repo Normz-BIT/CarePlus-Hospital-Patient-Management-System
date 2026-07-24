@@ -8,38 +8,38 @@ import com.careplus.common.enums.UserRole;
 import jakarta.persistence.*;
 
 /**
- * Root of the person inheritance hierarchy
+ * The top of our person hierarchy. Everyone in the system is a Person: patients
+ * and all three staff types.
  *
- * JOINED inheritance gives each subclass its own table holding only its extra
- * columns, linked back to person by shared primary key. That keeps the schema
- * normalised to 3NF, at the cost of a join per subclass read. The alternative,
- * SINGLE_TABLE, would be faster but would force every doctor-only and
- * patient-only column to be nullable in one wide table.
+ * We went with JOINED so each subclass gets its own table with just its extra
+ * columns, joined back here on the same ID. That keeps us at 3NF like the brief
+ * asks. SINGLE_TABLE would've been quicker to read but then every
+ * doctor-only and patient-only column has to allow nulls in one huge table,
+ * which felt worse.
  *
- * The practical payoff is in AuthService: one lookup against Person resolves a
- * patient or any staff member without the caller knowing which, and the
- * concrete subclass comes back with its role attached.
+ * Where this really pays off is login: AuthService does one lookup on Person and
+ * gets back a Patient, Doctor, Nurse or Receptionist without having to know
+ * which it's looking for, and the role comes with it.
  *
- * This is also a Serializable object sent over the socket, so it is both a JPA
- * entity and a wire type. That dual role is why serialVersionUID below is
- * marked @Transient.
+ * This also gets sent over the socket, so it's both a database entity and a
+ * thing we serialize. That's why serialVersionUID below needs @Transient.
  */
 @Entity
 @Table(name = "person")
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Person implements Serializable {
 	/*
-	 * @Transient keeps Hibernate from trying to map this serialization bookkeeping
-	 * field to a column. Without it, Hibernate would look for a matching column and
-	 * fail at startup.
+	 * @Transient so Hibernate doesn't try to find a column for this. It's just
+	 * serialization bookkeeping, and without the annotation Hibernate goes looking
+	 * for a matching column and falls over at startup.
 	 */
 	@Transient
 	private static final long serialVersionUID = 1L;
 	/*
-	 * A human readable business key, such as a staff or patient ID, rather than a
-	 * generated surrogate. It is assigned by the hospital and typed in at login,
-	 * which is why AuthService normalises it to uppercase before lookup: the value
-	 * stored here is the canonical uppercase form.
+	 * The actual hospital ID (PAT0001, STF0001) rather than a generated number,
+	 * since that's what people type at login. We store it uppercase and AuthService
+	 * uppercases whatever's typed before looking it up, so case doesn't matter to
+	 * whoever's signing in.
 	 */
 	@Id
 	@Column(name = "person_id")
@@ -49,28 +49,27 @@ public abstract class Person implements Serializable {
 	@Column(name = "last_name", nullable = false)
 	protected String lastName;
 	/*
-	 * Email is unique because it is how a person is identified when registering, so
-	 * the constraint lives in the database where it holds regardless of which part
-	 * of the application does the insert.
+	 * Email has to be unique since that's how someone is identified when they
+	 * register. We put the rule in the database rather than in Java so it holds no
+	 * matter which part of the app does the insert.
 	 */
 	@Column(name = "email", nullable = false, unique = true)
 	protected String email;
 	@Column(name = "phone", length = 20)
 	protected String phone;
 	/*
-	 * Stored as plaintext, which is what lets AuthService compare with equals. This
-	 * is the field that would need to hold a salted hash before the system could
-	 * handle real patient data.
+	 * Plain text for now, which is why AuthService can just use equals to check it.
+	 * Obviously this would need hashing before anything real went in the database,
+	 * but the seed logins have to stay readable for the demo.
 	 */
 	@Column(name = "password", length = 255, nullable = false)
 	protected String password;
 
 	/*
-	 * We use EnumType.STRING rather than the ORDINAL default so the database holds
-	 * "DOCTOR" instead of a positional number. With ORDINAL, reordering the
-	 * UserRole constants would change what every existing row means, and the stored
-	 * data would no longer say what it did when it was written. Storing the name
-	 * also makes the table readable when marking or debugging.
+	 * EnumType.STRING, not the default ORDINAL, so the database holds "DOCTOR"
+	 * instead of a number. With ORDINAL, if anyone reordered the UserRole constants
+	 * every row already saved would suddenly mean something else. Storing the name
+	 * also makes the table readable when we're debugging or showing it to someone.
 	 */
 	@Enumerated(EnumType.STRING)
 	@Column(name = "role", nullable = false)
@@ -80,10 +79,10 @@ public abstract class Person implements Serializable {
 	protected LocalDateTime createdAt;
 
 	/*
-	 * Required by both Hibernate and Java serialization to instantiate before
-	 * populating fields. Protected rather than public so application code is pushed
-	 * towards the argument taking constructors, which cannot leave an entity half
-	 * built.
+	 * Hibernate and Java serialization both need a no-arg constructor to build the
+	 * object before filling in the fields. Protected rather than public so the rest
+	 * of our code uses the full constructors instead, which can't leave a half
+	 * built object lying around.
 	 */
 	protected Person() {
 
@@ -173,9 +172,8 @@ public abstract class Person implements Serializable {
 	}
 
 	/*
-	 * The column is mapped updatable = false, so a value set here only reaches the
-	 * database on the initial insert. Changing it on an already persisted Person
-	 * has no effect once the row exists.
+	 * Heads up: the column is updatable = false, so this only actually saves on the
+	 * first insert. Calling it on someone already in the database does nothing.
 	 */
 	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
@@ -188,8 +186,12 @@ public abstract class Person implements Serializable {
 				+ "]";
 	}
 
+	/*
+	 * Two people are the same person if they have the same ID. Everything else
+	 * about them can change, the ID can't.
+	 */
 	@Override
-	public boolean equals(Object obj) {// allows us to compare object instances
+	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
 		}
@@ -203,8 +205,9 @@ public abstract class Person implements Serializable {
 		return personId != null && personId.equals(other.personId);
 	}
 
+	// Matches equals above: hash off the ID and nothing else.
 	@Override
-	public int hashCode() {// use string id hash code
+	public int hashCode() {
 		return (personId == null) ? 0 : personId.hashCode();
 	}
 }

@@ -20,11 +20,12 @@ import com.careplus.common.net.Response;
 
 /*
  * Patients Controller
- * Views patients assigned to a doctor
- * Schedules patient follow-up appointments
+ * Shows the patients assigned to a doctor
+ * Books follow-up appointments for them
  *
- * GET_ASSIGNED_PATIENTS and SCHEDULE_FOLLOWUP are both unrouted on the server, so
- * the patient list is currently empty and follow ups are not persisted.
+ * "Assigned" here means either a complaint a receptionist gave this doctor or an
+ * appointment booked with them. See getAssignedPatients in AppointmentService,
+ * we never built a separate assignment table.
  */
 public class PatientsController {
 	private final PatientsView view;

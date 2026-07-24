@@ -20,12 +20,7 @@ import com.careplus.common.net.Response;
 
 /*
  * Appointment Controller
- * Lets a patient book, cancel and review appointments
- *
- * SCHEDULE_APPOINTMENT, CANCEL_APPOINTMENT, GET_MY_APPOINTMENTS, GET_DOCTORS and
- * GET_DEPARTMENTS are all unrouted on the server, so every call below currently
- * returns an empty Response. The screen is written against the finished protocol
- * and will work once AppointmentService is implemented.
+ * Lets a patient book, cancel and look through their appointments.
  */
 public class AppointmentController {
 	private final AppointmentView view;
@@ -34,9 +29,9 @@ public class AppointmentController {
 	public AppointmentController(AppointmentView view) {
 		this.view = view;
 		/*
-		 * Three blocking server calls run before this frame is shown, two here and one
-		 * in refresh, all on the Event Dispatch Thread. This is the slowest screen in
-		 * the client to open.
+		 * Three blocking server calls before this window even shows up, two in here and
+		 * one in refresh, all on the Swing thread. Easily the slowest screen we have to
+		 * open.
 		 */
 		loadLookups();
 		refresh();
@@ -44,10 +39,10 @@ public class AppointmentController {
 
 
 	/*
-	 * Combo contents come from the server rather than from a local enum, so the
-	 * doctor list reflects who is actually on staff. Failures are silent by design:
-	 * if either lookup fails the combo simply stays empty rather than blocking the
-	 * whole screen from opening.
+	 * These combos are filled from the server rather than a local list, so the
+	 * doctors shown are actually the ones on staff. Failures are quiet on purpose:
+	 * if a lookup fails the combo just stays empty instead of stopping the whole
+	 * screen from opening.
 	 */
 	private void loadLookups() {
 		Response doctors = Client.send(new Request(RequestType.GET_DOCTORS, "role", "doctor"));
@@ -104,9 +99,9 @@ public class AppointmentController {
 
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 			/*
-			 * Throws on any malformed input, which is what the catch below converts into
-			 * the format hint shown to the user. That hint is a hardcoded string and must
-			 * be updated by hand if this pattern ever changes.
+			 * Throws on anything that doesn't match the pattern, and the catch below turns
+			 * that into the format hint the user sees. That hint is a hardcoded string, so
+			 * if you change this pattern remember to change the message too.
 			 */
 			LocalDateTime localDateTime = LocalDateTime.parse(appointmentDateTime, formatter);
 
@@ -115,23 +110,22 @@ public class AppointmentController {
 			appointment.setReason(view.getTxtReason().getText().trim());
 
 			/*
-			 * Every new booking starts SCHEDULED, the only valid entry point of the
-			 * status lifecycle. The client sets it rather than the server, so this is a
-			 * convention rather than an enforced rule.
+			 * Every new booking starts at SCHEDULED. We set it here too, but don't rely on
+			 * that: AppointmentService overwrites it server side anyway, exactly because
+			 * anything set here is only a convention.
 			 */
 			appointment.setStatus(AppointmentStatus.SCHEDULED);
 
 			logger.info("Appointment created: {}", appointment.toString());
 
 			/*
-			 * Doctor and department travel as separate map entries rather than on the
-			 * Appointment itself, because the model has no field for either. Once
-			 * Appointment carries proper patient and doctor references these three extra
-			 * keys should collapse into the object.
+			 * The doctor and department go as their own map entries rather than on the
+			 * Appointment, because the doctor arrives as combo text like
+			 * "STF0001 - Karen Reid" and the server pulls the real ID out of it.
 			 *
-			 * String.valueOf is used deliberately: it yields "null" rather than throwing
-			 * when nothing is selected, so an empty combo produces a bad value instead of
-			 * an exception. The server would need to reject that.
+			 * String.valueOf on purpose: it gives "null" instead of throwing when nothing
+			 * is picked, so an empty combo sends a rubbish value rather than crashing
+			 * here. The server catches that and rejects it.
 			 */
 			req.putMap("appointment", appointment);
 			req.putMap("patientId", MainDashboard.getCurrentUser().getPersonId());

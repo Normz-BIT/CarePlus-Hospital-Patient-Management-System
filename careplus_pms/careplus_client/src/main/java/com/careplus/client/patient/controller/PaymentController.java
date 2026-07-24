@@ -17,11 +17,10 @@ import com.careplus.common.net.Response;
 
 /*
  * Payment Controller
- * Lets a patient record a payment and review their payment history
+ * Lets a patient record a payment and look back at their payment history.
  *
- * Payments are one of only three features the server actually implements, so
- * unlike most controllers in this package this one round trips against a real
- * service rather than receiving empty responses.
+ * This was the first screen we got talking to a real service end to end, so if
+ * you're adding a new one this is a decent example to copy.
  */
 public class PaymentController {
 	private final PaymentView view;
@@ -30,9 +29,9 @@ public class PaymentController {
 	public PaymentController(PaymentView view) {
 		this.view = view;
 		/*
-		 * Populating from the constructor means opening this screen performs a blocking
-		 * server call before the frame is shown. This runs on the Event Dispatch Thread,
-		 * so the dashboard is frozen for the duration of that round trip.
+		 * Loading from the constructor means opening this screen does a blocking server
+		 * call before the window even appears. It runs on the Swing thread, so the whole
+		 * dashboard is frozen for however long that takes.
 		 */
 		refresh();
 	}
@@ -46,16 +45,16 @@ public class PaymentController {
 		try {
 
 			/*
-			 * The patient ID is taken from the session rather than from any input, so a
-			 * patient cannot file a payment against someone else's account from this
-			 * screen. Note the server does not re-verify this, so it is a UI guarantee
-			 * rather than an enforced one.
+			 * The patient ID comes from whoever is signed in, not from anything typed on
+			 * screen, so a patient can't put a payment on someone else's account from
+			 * here. The server doesn't double check this though, so it's really only a
+			 * UI guarantee.
 			 */
 			payment.setPatientId(MainDashboard.getCurrentUser().getPersonId());
 
 			/*
-			 * A non numeric amount throws here and is caught below, which is what turns a
-			 * typo into a message rather than a crash.
+			 * A non-numeric amount throws right here and the catch below turns it into a
+			 * message, so a typo doesn't crash the screen.
 			 */
 			payment.setAmountPaid(Double.parseDouble(view.getTxtAmount().getText().trim()));
 
@@ -75,17 +74,16 @@ public class PaymentController {
 			payment.setDescription(view.getTxtDescription().getText().trim());
 
 			/*
-			 * PLACEHOLDER: the balance is invented at random rather than derived from what
-			 * the patient actually owes, so the figure shown in the history is not real.
-			 * A true balance has to be calculated server side from prior charges and
-			 * payments, since only the server can see the full account.
+			 * PLACEHOLDER, don't forget this one. The balance is a random number rather
+			 * than what the patient actually owes, so the figure in the history is made
+			 * up. A real balance would have to be worked out on the server from previous
+			 * charges and payments, since only the server can see the whole account.
 			 */
-			// simulate outstanding balance
 			payment.setOutstandingBalance(new Random().nextInt(500, 1001));
 
 			/*
-			 * Stamped from the workstation clock rather than the server's, so a
-			 * misconfigured client machine records a misleading payment time.
+			 * Time comes off this machine's clock, not the server's, so a workstation with
+			 * the wrong time records a misleading payment time.
 			 */
 			payment.setPaymentDate(LocalDateTime.now());
 

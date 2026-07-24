@@ -18,10 +18,8 @@ import com.careplus.common.net.Response;
 
 /*
  * Complaint Controller
- * Lets a patient file a complaint and review previous ones with their responses
- *
- * SUBMIT_COMPLAINT, DELETE_COMPLAINT and GET_MY_COMPLAINTS are all unrouted on
- * the server, so every call below currently returns an empty Response.
+ * Lets a patient file a complaint and look back at previous ones with whatever
+ * response they got.
  */
 public class ComplaintController {
 	private final ComplaintView view;
@@ -35,13 +33,12 @@ public class ComplaintController {
 
 
 	/*
-	 * Load the complaint categories straight from the enum
+	 * Fill the categories straight from the enum
 	 *
-	 * Read locally rather than fetched from the server, unlike the doctor and
-	 * department combos in AppointmentController. Categories are a fixed part of the
-	 * domain rather than data, so this costs no round trip and cannot drift out of
-	 * step with the enum. The tradeoff is that adding a category needs a client
-	 * rebuild.
+	 * Done locally instead of asking the server, unlike the doctor combo in
+	 * AppointmentController. Categories are a fixed part of the domain rather than
+	 * data that changes, so there's no round trip and they can never drift out of
+	 * step with the enum. Downside is adding a category means rebuilding the client.
 	 */
 	private void loadCategories() {
 		view.getCboCategory().removeAllItems();

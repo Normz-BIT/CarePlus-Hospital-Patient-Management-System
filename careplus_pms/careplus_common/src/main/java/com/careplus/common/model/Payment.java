@@ -11,9 +11,9 @@ import jakarta.persistence.*;
  */
 
 /*
- * One of only four fully mapped entities, alongside Person, Employee and Patient.
- * It is both persisted by PaymentService and sent over the socket, so it must stay
- * Serializable as well as annotated.
+ * This was the first thing we got working end to end, so the rest of the
+ * services copied its shape. It's saved by PaymentService and sent over the
+ * socket, so it has to stay Serializable as well as mapped.
  */
 @Entity
 @Table(name = "payment")
@@ -22,43 +22,43 @@ public class Payment implements Serializable {
 	@Transient
 	private static final long serialVersionUID = 1L;
 	/*
-	 * IDENTITY delegates key generation to MySQL's AUTO_INCREMENT, so the value is
-	 * unknown until the row is actually inserted. That is why PaymentService uses
-	 * persist for new payments rather than merge.
+	 * IDENTITY lets MySQL's AUTO_INCREMENT make the ID, so we don't know the value
+	 * until the row actually goes in. That's why PaymentService uses persist for
+	 * new payments instead of merge.
 	 */
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	 @Column(name = "payment_id", nullable = false)
 	private int paymentId;
 	/*
-	 * double is a poor fit for currency: binary floating point cannot represent
-	 * values like 0.10 exactly, so repeated arithmetic accumulates rounding error.
-	 * BigDecimal, or storing cents as an integer, is the usual remedy for money.
+	 * Fair warning, double is the wrong type for money. It can't hold values like
+	 * 0.10 exactly, so the rounding errors add up the more arithmetic you do. The
+	 * proper fix is BigDecimal, or storing everything as whole cents in an int.
 	 */
 	@Column(name = "amount_paid", nullable = false)
 	private double amountPaid;
 	/*
-	 * Stored per payment as a snapshot of what was owed at that moment, rather than
-	 * derived from the patient's account. It is therefore historical record, not a
-	 * live figure, and the newest row is what reflects the current balance.
+	 * Saved on each payment as a snapshot of what was owed at that moment, rather
+	 * than worked out from the account. So it's history, not a live number, and the
+	 * newest row is the one showing the current balance.
 	 */
 	@Column(name = "outstanding_balance", nullable = false)
 	private double outstandingBalance;
 	/*
-	 * Nullable, matching the schema: payment.description has no NOT NULL, and a
-	 * payment can legitimately be recorded without a note against it.
+	 * Allowed to be null, matching the schema. A payment can be recorded without
+	 * anyone writing a note against it.
 	 */
 	@Column(name = "description", length = 200)
 	private String description;
 	@Column(name = "payment_date", nullable = false)
 	private LocalDateTime paymentDate;
 	/*
-	 * A plain String copy of Person.personId rather than a mapped @ManyToOne
-	 * relationship. That keeps the object graph flat, which matters because these
-	 * objects are serialized over the socket and an association would risk dragging
-	 * a lazy proxy across the wire. The cost is that no foreign key constraint is
-	 * expressed here, so referential integrity depends on the schema alone. The HQL
-	 * in PaymentService filters on this field.
+	 * Just a copy of the person_id String instead of a @ManyToOne to Patient. This
+	 * is the decision the other models copied: keeping the object flat matters
+	 * because these go over the socket, and an association risks dragging a lazy
+	 * proxy across with it. The tradeoff is the foreign key isn't expressed in Java
+	 * at all, so we're relying on the database for that. PaymentService filters on
+	 * this field in its HQL.
 	 */
 	@Column(name = "patient_id", nullable = false)
     private String patientId;

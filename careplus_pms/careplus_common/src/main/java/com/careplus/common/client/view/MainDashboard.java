@@ -35,11 +35,11 @@ public class MainDashboard extends JFrame {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Client property that tags an open internal frame with its feature label.
+	 * A tag we stick on each open internal frame saying which feature it is.
 	 *
-	 * Tagging the frame itself is what makes reopening a menu item re-focus the
-	 * existing window instead of stacking duplicates, without this class having to
-	 * maintain a separate registry of what is open.
+	 * Tagging the frame itself is what lets clicking a menu item a second time jump
+	 * back to the window that's already open instead of piling up duplicates, and
+	 * we don't have to keep a separate list of what's open to do it.
 	 */
 	private static final String FEATURE_KEY = "careplus.feature";
 
@@ -200,13 +200,12 @@ public class MainDashboard extends JFrame {
 	}
 
 	/*
-	 * Assign the first available character as the component mnemonic.
+	 * Use the first usable character of the label as the keyboard shortcut.
 	 *
-	 * Derived from the label rather than specified per feature, so adding a menu
-	 * item cannot forget its keyboard shortcut. The tradeoff is that two labels
-	 * starting with the same letter collide, and Swing resolves a collision by
-	 * cycling between them rather than reporting it. Hand picking mnemonics would be
-	 * the fix if the menu bar grows.
+	 * Working it out from the label means nobody can add a menu item and forget to
+	 * give it a shortcut. The catch is that two labels starting with the same
+	 * letter clash, and Swing just cycles between them instead of telling you. If
+	 * the menu bar gets much bigger we should pick these by hand.
 	 */
 	private void setMnemonicFromText(AbstractButton component, String text) {
 

@@ -9,14 +9,13 @@ import com.careplus.common.enums.UserRole;
 import jakarta.persistence.*;
 
 /*
- * Doctor is one of the three staff types in our Person hierarchy, alongside
- * Nurse and Receptionist. Doctors are the clinical decision makers in the
- * system: they record diagnoses, write medical records and attend appointments.
+ * One of the three staff types, alongside Nurse and Receptionist. Doctors are
+ * the ones making the clinical calls: they write diagnoses and medical records
+ * and take appointments.
  *
- * We chose an enum for specialization rather than free text so the scheduling
- * and directory screens can group doctors reliably, and a String for licenseNo
- * because a licence number is an identifier we display and never calculate with.
- *
+ * specialization is an enum rather than free text so the booking and directory
+ * screens can group doctors properly. licenseNo stays a String since it's just
+ * an identifier we show on screen and never do maths with.
  */
 
 @Entity
@@ -35,10 +34,10 @@ public class Doctor extends Employee {
 	private String licenseNo;
 
 	/*
-	 * We fix the role inside the constructor rather than accepting it as a
-	 * parameter, so a Doctor can never be built carrying the wrong UserRole. This
-	 * matters because the client reads role to decide which dashboard features to
-	 * open, and a mismatch there would show a doctor the wrong workspace.
+	 * We set the role in here instead of taking it as a parameter, so nobody can
+	 * accidentally build a Doctor with the wrong UserRole. That matters because the
+	 * client reads the role to decide which menus to show, so getting it wrong
+	 * would drop a doctor into somebody else's dashboard.
 	 */
 	public Doctor() {
 		super();
@@ -46,20 +45,17 @@ public class Doctor extends Employee {
 	}
 
 	/*
-	 * The full constructor passes the role up to super instead of calling setRole,
-	 * so the two constructors reach the same state by different routes. Both are
-	 * kept because Hibernate needs the no-arg version while application code is
-	 * clearer building a doctor in one step.
+	 * This one passes the role up to super instead of calling setRole, so both
+	 * constructors end up in the same place by different routes. We keep both
+	 * because Hibernate needs the empty one, but our own code is clearer building
+	 * a doctor in one go.
 	 */
-
+	public Doctor(String personId, String firstName, String lastName, String email, String phone, String password, LocalDateTime createdAt) {
+		super(personId, firstName, lastName, email, phone, password, UserRole.DOCTOR, createdAt);
+	}
 
 	public DoctorSpecialization getSpecialization() {
 		return specialization;
-	}
-
-	public Doctor(String personId, String firstName, String lastName, String email, String phone, String password, LocalDateTime createdAt) {
-		super(personId, firstName, lastName, email, phone, password, UserRole.DOCTOR, createdAt);
-		// TODO Auto-generated constructor stub
 	}
 
 	public void setSpecialization(DoctorSpecialization specialization) {

@@ -23,10 +23,9 @@ import jakarta.persistence.Transient;
  */
 
 /*
- * Unlike the three staff subclasses, this one is fully mapped, which is why
- * patient login and patient lookups work while staff equivalents do not. It sits
- * one level below Person rather than under Employee, so a patient read costs a
- * single join instead of two.
+ * Sits directly under Person rather than under Employee, so reading a patient is
+ * one join instead of two. Staff go through Employee because they share the
+ * department and hire date columns, patients don't need any of that.
  */
 @Entity
 @Table(name = "patient")
@@ -37,20 +36,19 @@ public class Patient extends Person {
 	private static final long serialVersionUID = 1L;
 
 	/*
-	 * We store the date of birth and work age out when it is needed, because a
-	 * stored age would be wrong from the patient's next birthday onwards.
+	 * We save the date of birth and work the age out when we need it. Saving the
+	 * age itself would go stale on the patient's next birthday.
 	 *
-	 * patient.date_of_birth is a DATE column, so the time half of this value is
-	 * not stored: MySQL discards it on write and a read comes back at midnight.
-	 * Only the date part is meaningful.
+	 * Note the column is a DATE, so the time half of this never gets saved. MySQL
+	 * throws it away on write and reads come back at midnight. Only the date part
+	 * means anything.
 	 */
 	@Column(name = "date_of_birth")
 	private LocalDateTime dateOfBirth;
 
     /*
-     * Stored by name rather than ordinal, for the same reason as role on Person:
-     * reordering the Gender constants must not change what rows already in the
-     * database mean.
+     * Saved by name not number, same reason as role on Person: reordering the
+     * Gender constants shouldn't change what's already in the database.
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "gender", nullable = false)
@@ -60,9 +58,9 @@ public class Patient extends Person {
     private String address;
 
     /*
-     * TEXT rather than a bounded VARCHAR because clinical history is free form and
-     * accumulates over time, so any column limit would eventually truncate a
-     * patient's record.
+     * TEXT instead of a VARCHAR with a limit, since medical history is free
+     * writing that keeps getting added to. Any limit we picked would eventually
+     * chop off part of someone's record.
      */
     @Column(name = "medical_history", columnDefinition = "TEXT")
     private String medicalHistory;
@@ -78,7 +76,6 @@ public class Patient extends Person {
 
 	public Patient(String personId, String firstName, String lastName, String email, String phone, String password, LocalDateTime createdAt) {
 		super(personId, firstName, lastName, email, phone, password, UserRole.PATIENT, createdAt);
-		// TODO Auto-generated constructor stub
 	}
 
 

@@ -6,11 +6,9 @@ import jakarta.persistence.*;
 /*
  * Chat Messages for all users
  *
- * A single message in the patient to staff conversation, carrying who sent it,
- * what they said, when, and whether it has been read. The read flag is what lets
- * the interface show a patient that staff have seen their message.
- *
- * A wire type for now, gaining its JPA mapping when ChatService is completed.
+ * One message in a patient/staff conversation: who sent it, what they said, when,
+ * and whether it's been read. The read flag is what lets us show a patient that
+ * staff have actually seen their message.
  * */
 
 @Entity
@@ -25,19 +23,17 @@ public class ChatMessage implements Serializable {
 	@Column(name = "message_id", nullable = false)
 	private Integer messageId;
 	/*
-	 * A String matching Person.personId, so patients and staff share one identifier
-	 * space and either can be a sender. Note ChatService.poll takes an int, an
-	 * inconsistency that has to be resolved before the two can be wired together.
+	 * Both are person_id Strings, so patients and staff share one set of IDs and
+	 * either end can be the sender.
 	 *
-	 * Both are plain @Column person_id values rather than mapped associations, for
-	 * the reason set out on Payment: a ChatMessage is serialized across the socket,
-	 * and a lazy association would risk putting an uninitialised proxy on the wire.
-	 * Loading a whole Person for each end of a conversation would also carry that
-	 * person's password with it. fk_chat_sender and fk_chat_receiver enforce both.
+	 * Plain @Column rather than @ManyToOne, same reasoning as Payment, plus loading
+	 * a whole Person for each end of a conversation would carry their password
+	 * along with it. fk_chat_sender and fk_chat_receiver enforce both in the
+	 * database.
 	 *
-	 * These carried @ManyToOne while typed as Strings, which is not a legal
-	 * mapping: the target of an association has to be an entity, and String is not
-	 * one.
+	 * These used to have @ManyToOne on them while typed as Strings, which isn't a
+	 * legal mapping at all: an association has to point at an entity, and String
+	 * obviously isn't one.
 	 */
 	@Column(name = "sender_id", nullable = false)
 	private String senderId;
@@ -48,16 +44,15 @@ public class ChatMessage implements Serializable {
 	@Column(name = "content", nullable = false, columnDefinition = "TEXT")
 	private String content;
 	/*
-	 * Orders the conversation, and is also what any operating hours rule would be
-	 * evaluated against. That check belongs on the server rather than here, since a
-	 * client clock can be wrong or deliberately altered.
+	 * Puts the conversation in order. Note this comes off the client's clock, which
+	 * is exactly why the 8-to-7 opening hours check lives in ChatService on the
+	 * server and not here: a client's clock can be wrong or changed on purpose.
 	 */
 	@Column(name = "sent_at", nullable = false)
 	private LocalDateTime sentAt = LocalDateTime.now();
 	/*
-	 * Boxed rather than primitive, so null means "never set" as distinct from an
-	 * explicit unread. Callers should treat null as unread rather than assume it is
-	 * populated.
+	 * Boolean rather than boolean, so null means "never set" as opposed to a real
+	 * unread. Treat null as unread rather than assuming it's always filled in.
 	 */
 	  @Column(name = "is_read", nullable = false)
 	    private Boolean isRead = false;

@@ -12,19 +12,24 @@ import org.apache.logging.log4j.Logger;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
+import com.careplus.server.service.AppointmentService;
 import com.careplus.server.service.AuthService;
+import com.careplus.server.service.ChatService;
+import com.careplus.server.service.ComplaintService;
+import com.careplus.server.service.MedicalRecordService;
 import com.careplus.server.service.PaymentService;
+import com.careplus.server.service.ReportService;
 
 /*
  * ClientHandler
- * One instance per connected client, each running on its own thread.
+ * One of these per connected client, each on its own thread. This is what makes
+ * the server handle several clients at once.
  *
- * This is the server side entry point of the wire protocol: it reads Request
- * objects in a loop, routes them to a service by RequestType, and writes back a
- * Response. Because every client gets a dedicated instance, nothing in this class
- * is shared across connections, and the services it owns hold per request state
- * only. The single piece of genuinely shared state in the request path is the
- * Hibernate SessionFactory reached through HibernateUtil.
+ * It's the server end of our protocol: read a Request in a loop, pick a service
+ * based on the RequestType, write back a Response. Since every client gets its
+ * own instance, nothing in here is shared between connections. The only thing in
+ * the whole request path that really is shared is the Hibernate SessionFactory,
+ * and we get at that through HibernateUtil.
  */
 public class ClientHandler extends Thread {
 	private Socket socket;
@@ -32,40 +37,54 @@ public class ClientHandler extends Thread {
 	private ObjectInputStream inputStream;
 
 	/*
-	 * Services are instantiated per handler rather than shared or static, which is
-	 * what keeps BaseService's session and transaction fields safe. Those fields are
-	 * plain instance state with no locking, so a single shared service instance
-	 * across client threads would let one request commit or close another's
-	 * transaction.
+	 * Each handler builds its own services rather than sharing them or making them
+	 * static. That's what keeps BaseService's session and transaction fields safe:
+	 * they're plain fields with no locking, so if two client threads shared one
+	 * service object, one request could commit or close the other one's transaction
+	 * out from under it.
 	 */
 	private AuthService authservice;
 	private PaymentService paymentService;
+	private ComplaintService complaintService;
+	private AppointmentService appointmentService;
+	private MedicalRecordService medicalRecordService;
+	private ChatService chatService;
+	private ReportService reportService;
 
 	private static final Logger logger = LogManager.getLogger(Server.class);
-	
+
 	public ClientHandler(Socket socket) {
 		this.socket = socket;
 		authservice = new AuthService();
 		paymentService = new PaymentService();
+		complaintService = new ComplaintService();
+		appointmentService = new AppointmentService();
+		medicalRecordService = new MedicalRecordService();
+		chatService = new ChatService();
+		reportService = new ReportService();
 
 	}
 
-	private void getStreams() {
+	/*
+	 * Says whether the handshake worked, so run() can bail out cleanly instead of
+	 * carrying on with null streams and crashing on the first read.
+	 */
+	private boolean getStreams() {
 		try {
 			/*
-			 * Output before input, mirroring the client. Both ends must agree on this order:
-			 * an ObjectInputStream constructor blocks waiting for the header that the peer's
-			 * ObjectOutputStream constructor emits, so if both sides built their input
-			 * stream first the connection would deadlock on handshake.
+			 * Output first, then input, and the client does the same. Don't swap these:
+			 * building an ObjectInputStream blocks until it reads a header that the other
+			 * side's ObjectOutputStream sends when it's created. If both ends built their
+			 * input stream first they'd sit there waiting on each other forever.
 			 */
 			outputStream = new ObjectOutputStream(socket.getOutputStream());
 			inputStream = new ObjectInputStream(socket.getInputStream());
+
+			return true;
 		} catch (IOException ex) {
-			/*
-			 * TODO: report the handshake failure to the caller instead of only printing
-			 * it, so run() does not continue with unset streams.
-			 */
-			ex.printStackTrace();
+			logger.error("Stream handshake failed for {}", socket.getRemoteSocketAddress(), ex);
+
+			return false;
 		}
 	}
 
@@ -83,34 +102,37 @@ public class ClientHandler extends Thread {
 	}
 
 	/*
-	 * Closes this client's socket so the blocked read in run() unblocks and the
-	 * thread finishes. Called by Server.stop().
+	 * Shuts this client's socket so the blocked read in run() wakes up and the
+	 * thread can finish. Server.stop() calls this on everyone.
 	 */
 	public void disconnect() {
 		closeConnection();
 	}
 
 	/*
-	 * The protocol is strictly one Response per Request, in order. Our client
-	 * blocks on its own read after every write, so this loop answers every request
-	 * exactly once: missing a write would leave that client waiting, and writing
-	 * twice would put the stream out of step so later replies arrived against the
-	 * wrong request.
+	 * Strictly one Response per Request, in order. The client blocks waiting for a
+	 * reply after every send, so this loop has to answer exactly once every time.
+	 * Miss a write and that client hangs forever. Write twice and the stream gets
+	 * out of step, so every reply after that lands against the wrong request.
 	 *
-	 * The loop is infinite by design. It ends when the socket closes, which makes
-	 * readObject() throw and passes control to the finally block below. That is how
-	 * Server.stop() brings handler threads down without needing a shared flag.
+	 * The while(true) is deliberate. It ends when the socket closes, which makes
+	 * readObject() throw and drops us into the finally below. That's how
+	 * Server.stop() shuts these threads down without needing a shared flag.
 	 */
 	@Override
 	
 	public void run() {
 		try {
 
-			this.getStreams();
+			if (!this.getStreams()) {
+				// Handshake failed, so there's no stream to read. The finally below
+				// still closes the socket.
+				return;
+			}
 
 			while (true) {
 
-				System.out.println("Waiting for input..");
+				logger.debug("Waiting for the next request...");
 				Request req = (Request) inputStream.readObject();
 
 				RequestType reqtype = req.getType();
@@ -118,53 +140,128 @@ public class ClientHandler extends Thread {
 				Response resp = new Response();
 
 				/*
-				 * Routing by RequestType keeps the protocol open to extension: adding a
-				 * feature means adding an enum value and a case here, without touching the
-				 * read and write loop around it.
-				 *
-				 * Login and the two payment operations are the paths we completed first,
-				 * because together they exercise the whole stack end to end: a read query, a
-				 * write that generates a key, and the authentication that guards both.
+				 * Switching on RequestType keeps this easy to add to: a new feature means a
+				 * new enum value and a new case here, and the read/write loop around it
+				 * doesn't get touched.
 				 */
 				switch (reqtype) {
 
 				case LOGIN:
 					resp = authservice.login(req);
 					break;
-				case MAKE_PAYMENT:
 
+				// Payments
+				case MAKE_PAYMENT:
 					resp = paymentService.pay(req);
 					break;
-
 				case GET_MY_PAYMENTS:
 					resp = paymentService.getPayments(req);
 					break;
-				
-					
-					
+
+				// Complaints
+				case SUBMIT_COMPLAINT:
+					resp = complaintService.submit(req);
+					break;
+				case GET_MY_COMPLAINTS:
+					resp = complaintService.getMyComplaints(req);
+					break;
+				case GET_ALL_COMPLAINTS:
+					resp = complaintService.getAllComplaints(req);
+					break;
+				case DELETE_COMPLAINT:
+					resp = complaintService.delete(req);
+					break;
+				case RESPOND_TO_COMPLAINT:
+					resp = complaintService.respond(req);
+					break;
+
+				// Appointments and the lookups the booking screen needs
+				case SCHEDULE_APPOINTMENT:
+					resp = appointmentService.schedule(req);
+					break;
+				case SCHEDULE_FOLLOWUP:
+					resp = appointmentService.scheduleFollowUp(req);
+					break;
+				case GET_MY_APPOINTMENTS:
+					resp = appointmentService.getMyAppointments(req);
+					break;
+				case CANCEL_APPOINTMENT:
+					resp = appointmentService.cancel(req);
+					break;
+				case GET_DOCTORS:
+					resp = appointmentService.getDoctors(req);
+					break;
+				case GET_PATIENTS:
+					resp = appointmentService.getPatients(req);
+					break;
+				case GET_DEPARTMENTS:
+					resp = appointmentService.getDepartments(req);
+					break;
+				case GET_ASSIGNED_PATIENTS:
+					resp = appointmentService.getAssignedPatients(req);
+					break;
+
+				// Medical records and vitals
+				case ADD_DIAGNOSIS:
+					resp = medicalRecordService.addDiagnosis(req);
+					break;
+				case UPDATE_DIAGNOSIS:
+					resp = medicalRecordService.updateDiagnosis(req);
+					break;
+				case GET_DIAGNOSIS_RECORDS:
+					resp = medicalRecordService.getDiagnosisRecords(req);
+					break;
+				case GET_MEDICAL_RECORDS:
+					resp = medicalRecordService.getMedicalRecords(req);
+					break;
+				case RECORD_VITALS:
+					resp = medicalRecordService.recordVitals(req);
+					break;
+				case GET_ASSIGNED_CASES:
+					resp = medicalRecordService.getAssignedCases(req);
+					break;
+
+				// Chat
+				case CHAT_SEND:
+					resp = chatService.send(req);
+					break;
+				case CHAT_POLL:
+					resp = chatService.poll(req);
+					break;
+
+				// The JDBC side: assignments and the dashboard numbers
+				case ASSIGN_STAFF:
+					resp = reportService.assignStaff(req);
+					break;
+				case GET_STAFF_ASSIGNMENTS:
+					resp = reportService.getStaffAssignments(req);
+					break;
+				case GET_DASHBOARD_STATS:
+					resp = reportService.getDashboardStats(req);
+					break;
 
 				default:
 					/*
-					 * The remaining request types fall through to the empty Response built
-					 * above. The appointment, chat, complaint, medical record and vitals
-					 * services are written as stubs so far, so their cases are added here as
-					 * each one is finished.
-					 *
-					 * TODO: route the remaining RequestType values to their services as those
-					 * services are completed, working through appointments, medical records,
-					 * complaints, vitals and chat.
+					 * UPDATE_APPOINTMENT and UPDATE_COMPLAINT exist in RequestType but no
+					 * screen actually sends them, so they end up here. Better to say so
+					 * plainly than to write handlers nothing ever calls.
 					 */
+					resp.setSuccess(false);
+					resp.setMessage("The server has no handler for " + reqtype);
+
+					logger.warn("Unhandled request type {}", reqtype);
 					break;
 
 				}
 
 				/*
-				 * A fresh Response is built on every pass of the loop rather than reusing one
-				 * instance. That is deliberate: ObjectOutputStream remembers objects by
-				 * identity, so writing the same instance twice would send the client the
-				 * first version again even after we changed its contents.
+				 * New Response object every time round the loop, never reused. This matters:
+				 * ObjectOutputStream remembers objects it has already written, so if we sent
+				 * the same instance twice the client would just get the first version again
+				 * even after we'd changed what was in it.
 				 *
-				 *call flush() after this write to clear the output
+				 * flush() after the write or the reply can sit in the buffer and the client
+				 * waits for something we already "sent".
 				 */
 				outputStream.writeObject(resp);
 				outputStream.flush();
@@ -172,16 +269,17 @@ public class ClientHandler extends Thread {
 
 		} catch (ClassNotFoundException e) {
 			/*
-			 * The client sent a class this server cannot resolve, which in practice means
-			 * the two sides were built against different versions of careplus_common.
+			 * The client sent a class this server doesn't have. In practice that means the
+			 * two sides were built against different versions of careplus_common, so
+			 * rebuild both.
 			 */
 			logger.error("Class not found Exception:" + e.getMessage());
 
 		} catch (IOException e) {
 			/*
-			 * Normal termination path as well as the error path: this is what a client
-			 * disconnecting, or Server.stop() closing the socket, looks like from inside
-			 * the blocked read. It is not necessarily a fault.
+			 * This is the normal way things end as well as the error path. A client
+			 * disconnecting, or Server.stop() closing the socket, both look exactly like
+			 * this from inside the blocked read, so it isn't necessarily a problem.
 			 */
 			logger.error("Error:" + e.getMessage());
 		}
@@ -189,9 +287,9 @@ public class ClientHandler extends Thread {
 		finally {
 
 			/*
-			 * Runs even when the socket is already closed, since closeConnection guards on
-			 * isClosed(). Closing twice is harmless and guarantees the descriptor is
-			 * released no matter which path ended the loop.
+			 * Runs even if the socket is already shut, since closeConnection checks
+			 * isClosed() first. Closing twice does no harm and this way the socket is
+			 * always released no matter which path ended the loop.
 			 */
 			closeConnection();
 		}

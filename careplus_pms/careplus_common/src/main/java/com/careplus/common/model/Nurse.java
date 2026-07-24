@@ -8,9 +8,8 @@ import com.careplus.common.enums.UserRole;
 import jakarta.persistence.*;
 
 /*
- * Nurse is the staff type responsible for the bedside record: nurses take
- * patients' vital signs and write the nursing notes that go with them.
- *
+ * The staff type that handles the bedside record: nurses take vital signs and
+ * write the nursing notes that go with them.
  */
 
 @Entity
@@ -21,19 +20,21 @@ public class Nurse extends Employee {
 	@Transient
 	private static final long serialVersionUID = 1L;
 	/*
-	 * Ward is what scopes a nurse to a set of patients, so this field is what the
-	 * "assigned cases" list is built from once the server side query is written. We
-	 * made it an enum rather than free text so two nurses on the same ward always
-	 * match exactly, which a typed ward name could not guarantee.
+	 * Which ward the nurse is posted to. An enum rather than free text so two
+	 * nurses on the same ward always match exactly, which typed-in ward names
+	 * would never guarantee.
+	 *
+	 * Note the assigned-cases list doesn't actually use this: it goes by who
+	 * recorded the reading, since vitals carry a nurse_id and patients have no
+	 * ward on them. Scoping by ward would need a ward column on patient first.
 	 */
 	@Enumerated(EnumType.STRING)
 	@Column(name = "ward", nullable = false)
 	private NurseWard ward;
 
 	/*
-	 * As with Doctor, the role is fixed here rather than passed in so a Nurse
-	 * cannot be built with the wrong UserRole, which is what drives the dashboard
-	 * features the client shows.
+	 * Same as Doctor: role is set here rather than passed in, so a Nurse can't be
+	 * built with the wrong one. The client reads it to pick the dashboard menus.
 	 */
 	public Nurse() {
 		super();
@@ -43,7 +44,6 @@ public class Nurse extends Employee {
 	
 	public Nurse(String personId, String firstName, String lastName, String email, String phone, String password, LocalDateTime createdAt) {
 		super(personId, firstName, lastName, email, phone, password, UserRole.NURSE, createdAt);
-		// TODO Auto-generated constructor stub
 	}
 
 

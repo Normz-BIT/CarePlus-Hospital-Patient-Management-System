@@ -95,9 +95,10 @@ public class PaymentView extends JInternalFrame {
 		txtDescription.setWrapStyleWord(true);
 
 		/*
-		 * setLabelFor is what makes the mnemonic actually work: pressing Alt+A moves
-		 * focus to the field rather than to the label, which cannot hold focus itself.
-		 * It also lets screen readers announce the label when the field is focused.
+		 * setLabelFor is the bit that makes the mnemonic actually do something. Alt+A
+		 * moves focus to the text field rather than the label, since a label can't hold
+		 * focus by itself. It also means screen readers read the label out when you're
+		 * in the field.
 		 */
 		lblAmount.setDisplayedMnemonic(KeyEvent.VK_A);
 		lblAmount.setLabelFor(txtAmount);
@@ -251,14 +252,14 @@ public class PaymentView extends JInternalFrame {
 	}
 
 	/*
-	 * Attaches this view's controls to the controller that handles them.
+	 * Hooks this view's buttons up to the controller.
 	 *
-	 * Called by ClientApp after both objects exist, which is what breaks the
-	 * circular dependency between them: the controller needs the view to read its
-	 * inputs, and the view needs the controller to handle its buttons.
+	 * ClientApp calls this once both objects exist, which is how we get around them
+	 * needing each other: the controller needs the view to read the inputs, and the
+	 * view needs the controller to handle the clicks.
 	 *
-	 * Note Clear is wired to this view's own method rather than to the controller,
-	 * because emptying the form is presentation only and needs no server round trip.
+	 * Clear goes to this view's own method rather than the controller, because
+	 * emptying the form is just a screen thing and doesn't need the server.
 	 */
 	public void registerActionListener(PaymentController controller) {
 

@@ -2,17 +2,18 @@ package com.careplus.common.enums;
 /*
  * Status of Complaints
  *
- * The intended progression is SUBMITTED, ASSIGNED, IN_PROGRESS, RESOLVED, with
- * REOPENED available from RESOLVED to send a complaint back into the queue. Nothing
- * enforces these transitions: any code holding a Complaint can set any value, so
- * the rule lives in ComplaintService once that is written rather than in the type.
+ * Meant to go SUBMITTED, ASSIGNED, IN_PROGRESS, RESOLVED, with REOPENED
+ * available from RESOLVED to push one back into the queue. Nothing actually
+ * enforces that order though: anything holding a Complaint can set any value it
+ * likes, so if we want the rule it has to go in ComplaintService where the
+ * server can see the current state.
  *
- * The receptionist dashboard's "outstanding" count means everything that is not
- * RESOLVED, which is why REOPENED has to exist as a distinct value rather than
- * being modelled by clearing the status.
+ * The dashboard's "outstanding" count is everything that isn't RESOLVED, which
+ * is why REOPENED needs to be its own value rather than us just clearing the
+ * status.
  *
- * Persisted by name via EnumType.STRING wherever it is mapped, so reordering these
- * constants is safe but renaming one orphans existing rows.
+ * Saved by name with EnumType.STRING, so reordering these is safe but renaming
+ * one leaves existing rows pointing at nothing.
  * */
 public enum ComplaintStatus {
 	SUBMITTED,

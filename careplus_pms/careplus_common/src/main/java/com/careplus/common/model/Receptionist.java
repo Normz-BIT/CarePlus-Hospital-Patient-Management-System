@@ -5,11 +5,10 @@ import java.time.LocalDateTime;
 import com.careplus.common.enums.UserRole;
 import jakarta.persistence.*;
 /*
- * Receptionist is the front desk staff type and the triage point of our
- * complaint workflow. Receptionists are the only role that assigns a complaint
- * to a doctor or nurse, which is the step that moves it from SUBMITTED to
- * ASSIGNED. Keeping that permission to one role is what stops two members of
- * staff picking up the same complaint.
+ * Front desk staff, and the triage point of the whole complaint workflow.
+ * Receptionists are the only ones who assign a complaint to a doctor or nurse,
+ * which is the step that moves it from SUBMITTED to ASSIGNED. Keeping that to
+ * one role is what stops two people picking up the same complaint.
  */
 
 @Entity
@@ -20,16 +19,15 @@ public class Receptionist extends Employee {
 	private static final long serialVersionUID = 1L;
 
 	/*
-	 * Desk number is a String rather than an int because desks are labelled rather
-	 * than numbered in sequence, so values like "A2" need to be valid.
+	 * A String, not an int, because desks are labelled rather than numbered in
+	 * order, so things like "A2" and "D-01" have to work.
 	 */
-
 	@Column(name = "desk_no", length = 20)
 	private String deskNo;
 
 	/*
-	 * As with the other staff types, the role is fixed here so a Receptionist
-	 * cannot be built carrying the wrong UserRole.
+	 * Same as the other two staff types: role is set here so a Receptionist can't
+	 * end up carrying the wrong one.
 	 */
 	public Receptionist() {
 		super();
@@ -40,7 +38,6 @@ public class Receptionist extends Employee {
 	
 	public Receptionist(String personId, String firstName, String lastName, String email, String phone, String password, LocalDateTime createdAt) {
 		super(personId, firstName, lastName, email, phone, password, UserRole.RECEPTIONIST, createdAt);
-		// TODO Auto-generated constructor stub
 	}
 
 

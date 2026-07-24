@@ -12,13 +12,15 @@ import jakarta.persistence.*;
  * Patient files Complaints
  * Receptionist handles Complaints
  *
- * Complaint carries the whole triage workflow: a patient files one, a
- * receptionist assigns it, and a doctor or nurse responds. The status field is
- * what tracks its position in that sequence.
+ * This one carries the whole triage workflow: a patient files it, a receptionist
+ * assigns it, then a doctor or nurse answers it. The status field is how we
+ * track where it's got to.
  *
- * Like Appointment, MedicalRecord, VitalSigns and ChatMessages, this is a wire
- * type for now and gains its JPA mapping when ComplaintService is completed.
+ * Gets sent over the socket as well as saved, so it's Serializable and an entity
+ * at the same time.
  */
+
+
 
 @Entity
 @Table(name = "complaint")
@@ -31,32 +33,31 @@ public class Complaint implements Serializable {
 	private int complaintId;
 
 	/*
-	 * Self reference that makes a complaint thread: a reply is another Complaint
-	 * row pointing at the one it answers, rather than a separate reply type.
+	 * Points back at another complaint, which is how we thread replies: a follow up
+	 * is just another Complaint row pointing at the one it answers, instead of us
+	 * building a separate reply class.
 	 *
-	 * Boxed rather than a primitive int because the column is a nullable foreign
-	 * key back to complaint.complaint_id. A primitive would default to zero, and
-	 * zero is not a complaint, so every original complaint would be rejected by
-	 * fk_complaint_parent on insert. Null is what marks an original complaint.
+	 * Integer not int, because the column can be null and a primitive would default
+	 * to 0. Zero isn't a complaint, so the foreign key would reject every single
+	 * original complaint on insert. Null is what marks "this is the first one".
 	 */
 	@Column(name = "complaintParentId")
 	private Integer complaintParentId;
 
 	/*
-	 * The patient who filed the complaint, held as the person_id String rather
-	 * than a mapped association, for the same reason set out on Payment: these
-	 * objects are serialized across the socket, and an association would risk
-	 * dragging a lazy proxy onto the wire. The foreign key is enforced by the
-	 * schema through fk_complaint_patient.
+	 * Who filed it, kept as the plain person_id String rather than a @ManyToOne to
+	 * Patient. Same reasoning as Payment: this gets serialized over the socket and
+	 * a lazy association could put a half-loaded proxy on the wire. The database
+	 * still enforces the key through fk_complaint_patient.
 	 */
 	@Column(name = "patient_id", nullable = false)
 	private String patientId;
 
 	/*
-	 * Both are employee person_id values and both are nullable: a complaint that
-	 * nobody has picked up yet has neither. respondedBy is who wrote the response
-	 * text, assignedTo is who owns the case, and they are not always the same
-	 * person, since a receptionist can reply while assigning it to a doctor.
+	 * Both are staff IDs and both can be null, since a complaint nobody has picked
+	 * up yet has neither. They're separate on purpose: respondedBy is whoever wrote
+	 * the reply, assignedTo is whoever owns the case, and they're often different
+	 * people. A receptionist can answer a patient while assigning it to a doctor.
 	 */
 	@Column(name = "responded_by")
 	private String respondedBy;
@@ -70,10 +71,10 @@ public class Complaint implements Serializable {
 	@Column(name = "date_submitted", nullable = false)
 	private LocalDateTime dateSubmitted = LocalDateTime.now();
 	/*
-	 * Duplicates what the parentId threading above already expresses, giving two
-	 * competing ways to record a reply. Whichever is chosen, the pair should be
-	 * consistent, since the patient's "view responses" screen reads the response
-	 * and its date together.
+	 * Worth knowing we've ended up with two ways of recording a reply: this pair of
+	 * fields, and the parent ID threading above. Keep them in step if you touch
+	 * either, because the patient's "view responses" screen reads the response and
+	 * its date together.
 	 */
 	@Column(name = "response", columnDefinition = "TEXT")
 	private String response;
@@ -82,9 +83,11 @@ public class Complaint implements Serializable {
 	private LocalDateTime responseDate;
 
 	/*
-	 * Lifecycle is SUBMITTED, ASSIGNED, IN_PROGRESS, RESOLVED, with REOPENED
-	 * available afterwards. Nothing in the codebase enforces legal transitions
-	 * today, so that rule has to live in ComplaintService once it is written.
+	 * Goes SUBMITTED, ASSIGNED, IN_PROGRESS, RESOLVED, and REOPENED is available
+	 * after that. Nothing stops an illegal jump like SUBMITTED straight to
+	 * RESOLVED yet, since the receptionist picks the status off a combo. If we add
+	 * that rule it belongs in ComplaintService, because only the server can see
+	 * what state the complaint is actually in.
 	 */
 
 	@Enumerated(EnumType.STRING)
@@ -121,8 +124,8 @@ public class Complaint implements Serializable {
 	}
 
 	/*
-	 * Returns null for an original complaint, rather than zero as the previous
-	 * primitive did. Callers testing whether this is a reply must check for null.
+	 * Careful: this gives back null for an original complaint, not 0 like the old
+	 * primitive version did. Check for null if you're testing whether it's a reply.
 	 */
 	public Integer getComplaintParentId() {
 		return complaintParentId;

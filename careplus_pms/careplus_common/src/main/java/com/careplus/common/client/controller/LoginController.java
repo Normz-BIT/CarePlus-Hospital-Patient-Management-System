@@ -35,21 +35,21 @@ public class LoginController {
 	public void login() {
 
 		/*
-		 * Trimmed because IDs are typed by hand and trailing whitespace would otherwise
-		 * reach the server and fail the lookup. The password is deliberately not
-		 * trimmed, since leading or trailing spaces are legitimate characters in one.
+		 * We trim the ID because people type them by hand and a stray space would go to
+		 * the server and fail the lookup. We deliberately don't trim the password, since
+		 * a space at either end is a perfectly valid character in one.
 		 *
-		 * JPasswordField returns char[] specifically so a password need not linger in
-		 * the String pool. Converting it here gives that protection up, and the value
-		 * then travels to the server as plaintext anyway.
+		 * JPasswordField hands back a char[] on purpose so the password doesn't sit
+		 * around in the String pool. Turning it into a String here throws that away,
+		 * though it goes to the server as plain text anyway so it hardly matters here.
 		 */
 		String id = view.getTxtId().getText().trim();
 		String password = String.valueOf(view.getTxtPassword().getPassword());
 
 		/*
-		 * Rejected locally so an obviously incomplete form never costs a network round
-		 * trip. This is a convenience check, not a security boundary: the server
-		 * validates independently.
+		 * Caught here so an obviously empty form doesn't cost a round trip to the
+		 * server. This is just convenience, not security: the server checks properly
+		 * on its own regardless.
 		 */
 		if (id.isEmpty() || password.isEmpty()) {
 			view.showMessage("ID and password are required.");
@@ -72,18 +72,18 @@ public class LoginController {
 			logger.info("Login request submitted for user ID: {}", id);
 
 			/*
-			 * Blocking call on the Event Dispatch Thread, so the login window is frozen
-			 * until the server answers. Acceptable for a single request at startup, but
-			 * see the threading note on Client.send.
+			 * This blocks on the Swing thread, so the login window freezes until the
+			 * server answers. Fine for one request at startup, but see the note on
+			 * Client.send.
 			 */
 			Response response = Client.send(request);
 
 			/*
-			 * getSuccess returns a boxed Boolean that is null for any request the server
-			 * does not handle, so this unboxing throws a NullPointerException rather than
-			 * evaluating false. The generic catch below turns that into a user facing
-			 * message, which is why an unhandled response still fails safely instead of
-			 * letting anyone in.
+			 * Careful with this line. getSuccess gives back a Boolean, and it's null for
+			 * anything the server didn't handle, so unboxing it throws a
+			 * NullPointerException rather than just being false. The catch below turns
+			 * that into a message on screen, so at least an unhandled response fails
+			 * safely instead of letting someone in.
 			 */
 			if (response != null && response.getSuccess()) {
 
@@ -108,7 +108,6 @@ public class LoginController {
 				dashboard.setVisible(true);
 				view.dispose();
 				
-				//TODO log4j2
 				logger.info(
 						"Login successful for user ID: {} with role: {}",
 						user.getPersonId(),
@@ -122,7 +121,6 @@ public class LoginController {
 				 */
 				view.showMessage(response == null ? "No response from server." : response.getMessage());
 
-			     //TODO log4j2
 				if (response == null) {
 					logger.error("No response received from server during login");
 				} else {

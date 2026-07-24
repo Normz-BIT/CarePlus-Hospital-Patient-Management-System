@@ -22,10 +22,8 @@ import com.careplus.common.net.Response;
  * three staff roles because any of them may need to answer a patient. It follows
  * the same poll based design described there.
  *
- * TODO: choose the patient from a list rather than a typed ID, matching how the
- * patient side selects its recipient.
- *
- * 
+ * The patient comes from a combo filled by GET_PATIENTS rather than a typed ID,
+ * so a typo can't send a message to nobody or poll an empty conversation.
  */
 public class StaffChatController {
 	private final StaffChatView view;
@@ -33,7 +31,45 @@ public class StaffChatController {
 
 	public StaffChatController(StaffChatView view) {
 		this.view = view;
+		loadPatients();
 		refresh();
+	}
+
+	/*
+	 * Fill the patient combo with "PAT0001 - Name" strings from the server. If the
+	 * lookup fails the combo just stays empty, same silent-failure style as the
+	 * booking screen's combos.
+	 */
+	private void loadPatients() {
+		Response res = Client.send(new Request(RequestType.GET_PATIENTS, "all", true));
+
+		view.getCboPatient().removeAllItems();
+
+		if (res != null && Boolean.TRUE.equals(res.getSuccess()) && res.getData() instanceof List<?> patients) {
+
+			for (Object patient : patients) {
+				view.getCboPatient().addItem(String.valueOf(patient));
+			}
+		} else {
+			logger.warn("The patient list could not be loaded for the staff chat combo");
+		}
+	}
+
+	/*
+	 * Pulls "PAT0001" back off the front of the combo's "PAT0001 - Name" display
+	 * string. Empty when nothing is selected.
+	 */
+	private String selectedPatientId() {
+		Object selected = view.getCboPatient().getSelectedItem();
+
+		if (selected == null) {
+			return "";
+		}
+
+		String display = String.valueOf(selected);
+		int dash = display.indexOf(" - ");
+
+		return (dash < 0 ? display : display.substring(0, dash)).trim();
 	}
 
 	/*
@@ -41,7 +77,7 @@ public class StaffChatController {
 	 */
 	public void sendMessage() {
 		String message = view.getTxtMessage().getText().trim();
-		String patient = view.getTxtPatient().getText().trim();
+		String patient = selectedPatientId();
 
 		if (message.isEmpty()) {
 			view.showMessage("Message is required.");
@@ -51,8 +87,8 @@ public class StaffChatController {
 		}
 
 		if (patient.isEmpty()) {
-			view.showMessage("Enter the patient ID to chat with.");
-			logger.warn("Staff chat message rejected because the patient ID was empty");
+			view.showMessage("Select the patient to chat with.");
+			logger.warn("Staff chat message rejected because no patient was selected");
 
 			return;
 		}
@@ -64,8 +100,7 @@ public class StaffChatController {
 
 		try {
 
-			chatMessage.setSenderId(
-					String.valueOf(MainDashboard.getCurrentUser().getPersonId()));
+			chatMessage.setSenderId(String.valueOf(MainDashboard.getCurrentUser().getPersonId()));
 
 			chatMessage.setContent(message);
 
@@ -73,9 +108,7 @@ public class StaffChatController {
 
 			chatMessage.setIsRead(false);
 
-			logger.info(
-					"Staff chat message created for patient ID: {}",
-					patient);
+			logger.info("Staff chat message created for patient ID: {}", patient);
 
 			req.putMap("chatMessage", chatMessage);
 			req.putMap("recipient", patient);
@@ -83,10 +116,7 @@ public class StaffChatController {
 			Response res = Client.send(req);
 
 			if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
-				view.showMessage(
-						res == null
-								? "No response from server."
-								: res.getMessage());
+				view.showMessage(res == null ? "No response from server." : res.getMessage());
 
 				logger.error("Staff chat message could not be sent");
 				return;
@@ -108,18 +138,16 @@ public class StaffChatController {
 
 	/*
 	 * View Patient Conversation
+	 *
+	 * Polls the selected patient's conversation, or our own when the combo is
+	 * still empty (say the patient list failed to load).
 	 */
 	@SuppressWarnings("unchecked")
 	public void refresh() {
-		String patient = view.getTxtPatient().getText().trim();
+		String patient = selectedPatientId();
 
-		Response res = Client.send(
-				new Request(
-						RequestType.CHAT_POLL,
-						"user",
-						patient.isEmpty()
-								? MainDashboard.getCurrentUser().getPersonId()
-								: patient));
+		Response res = Client.send(new Request(RequestType.CHAT_POLL, "user",
+				patient.isEmpty() ? MainDashboard.getCurrentUser().getPersonId() : patient));
 
 		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 
@@ -131,13 +159,8 @@ public class StaffChatController {
 
 		for (ChatMessage msg : (List<ChatMessage>) res.getData()) {
 
-			String viewMessage =
-					"Message ID: " + msg.getMessageId()
-					+ "\nSender: " + msg.getSenderId()
-					+ "\nMessage: " + msg.getContent()
-					+ "\nTime: " + msg.getSentAt()
-					+ "\nRead: " + msg.getIsRead()
-					+ "\n";
+			String viewMessage = "Message ID: " + msg.getMessageId() + "\nSender: " + msg.getSenderId() + "\nMessage: "
+					+ msg.getContent() + "\nTime: " + msg.getSentAt() + "\nRead: " + msg.getIsRead() + "\n";
 
 			view.appendMessage(viewMessage);
 		}

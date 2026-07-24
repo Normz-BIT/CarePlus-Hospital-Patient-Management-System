@@ -1,31 +1,35 @@
 package com.careplus.server.service;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.careplus.common.model.Person;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.Response;
 
 /*
  * AuthService
- * Handles the single LOGIN request for both patients and staff.
+ * Handles the one LOGIN request for both patients and staff.
  *
- * One method serves every kind of user because Person is the root of our joined
- * inheritance hierarchy: a single lookup resolves a Patient, Doctor, Nurse or
- * Receptionist without this class needing to know which it will get. The
- * concrete object travels back inside the Response, and the client reads its
- * UserRole to decide which dashboard features to open.
+ * One method covers every kind of user because Person is the top of our joined
+ * hierarchy: a single lookup comes back as a Patient, Doctor, Nurse or
+ * Receptionist without this class caring which. The actual object goes back
+ * inside the Response and the client reads its role to work out which menus to
+ * show.
  *
- * This is the design decision the rest of the client depends on. Because the
- * role arrives with the signed in user, no screen has to ask the server what a
- * user is allowed to do.
+ * The rest of the client leans on this: because the role arrives with the user,
+ * no screen has to go back and ask the server what someone is allowed to do.
  */
 public class AuthService extends BaseService {
+
+	private static final Logger logger = LogManager.getLogger(AuthService.class);
 
 	public Response login(Request request) {
 
 		/*
-		 * These two keys are the contract between LoginController and this method. The
-		 * parameter map is untyped, so the names have to match on both sides, which is
-		 * why they are kept short and identical to the field names on the login form.
+		 * These two key names are the deal between LoginController and this method.
+		 * The parameter map is untyped so nothing checks them at compile time, they
+		 * just have to match on both sides. Don't rename one without the other.
 		 */
 		String id = (String) request.getParams().get("id");
 
@@ -35,55 +39,57 @@ public class AuthService extends BaseService {
 
 		try {
 			/*
-			 * IDs are normalised to uppercase because that is how they are stored, so a
-			 * member of staff can type their ID in any case and still sign in.
+			 * We uppercase the ID because that's how they're stored, so someone can type
+			 * "pat0001" or "PAT0001" and still get in.
 			 *
-			 * Looking the user up on Person rather than a specific subclass is what lets
-			 * one method log in patients and all three staff types: the joined inheritance
-			 * mapping returns whichever concrete type the row belongs to.
+			 * Looking it up on Person rather than a specific subclass is what lets this
+			 * one method log in patients and all three staff types: the joined mapping
+			 * hands back whichever type the row actually is.
 			 */
 			Person person = (Person) session.find(Person.class, id.toUpperCase());
 
 			/*
-			 * An unknown ID gives back null here, and the resulting failure is caught below
-			 * and reported with the same message as a wrong password.
-			 
-			 * Passwords are compared as plaintext
+			 * An unknown ID comes back null here, so this line throws and the catch below
+			 * reports it with the same message as a wrong password. Passwords are still
+			 * plain text, so a straight equals is all we need.
 			 */
 			if (person.getPassword().equals(password)) {
 
 				resp.setData(person);
 				resp.setSuccess(true);
 
-				// TODO add log4j2
-				resp.setMessage("Login Successfull");
+				resp.setMessage("Login Successful");
+
+				logger.info("{} logged in as {}", person.getPersonId(), person.getRole());
 
 			} else {
 
 				/*
-				 * Throwing here sends a wrong password down the same path as an unknown ID, so
-				 * both produce an identical response. That is deliberate: telling the user
-				 * which of the two was wrong would let someone work out which patient and staff
-				 * IDs exist by trying them one at a time.
+				 * Throwing here sends a wrong password down the same path as an unknown ID so
+				 * both get an identical answer. That's on purpose: if we said which one was
+				 * wrong, someone could sit there guessing IDs and work out which ones exist.
 				 */
 				throw new Exception("Invalid Login");
 			}
 
 		} catch (Exception e) {
 			/*
-			 * Login only reads, so the rollback changes no data. It is kept so every
-			 * service ends a failed request the same way, which keeps the pattern
-			 * consistent as the remaining services are written.
+			 * Login only reads so this rollback doesn't undo anything. We kept it so every
+			 * service ends a failed request the exact same way.
 			 */
 			transaction.rollback();
 			resp.setSuccess(false);
 
 			/*
-			 * One message for every failure, whether the ID was unknown, the password was
-			 * wrong or the lookup itself failed. See the note on the throw above.
+			 * Same message no matter what went wrong: unknown ID, wrong password, or the
+			 * lookup itself failing. See the note on the throw above.
+			 *
+			 * The log doesn't say which part was wrong either, for the same reason: no
+			 * point hiding it from the screen and then writing it into the log file.
 			 */
-			resp.setMessage("Login Unsuccessfull: Incorrect Password or Username");
-			
+			resp.setMessage("Login Unsuccessful: Incorrect Password or Username");
+
+			logger.warn("Failed login attempt for ID {}", id);
 
 		}
 

@@ -3,13 +3,12 @@ package com.careplus.common.enums;
 /*
  * Category of Complaint
  *
- * The three categories a patient chooses from when filing, and the axis the
- * receptionist dashboard groups its totals by.
+ * The three the brief asks for. A patient picks one when filing, and it's what
+ * the receptionist dashboard groups its totals by.
  *
- * Note that the receptionist's filter control also offers an "All" option, which
- * is deliberately not a constant here: it is a UI concept meaning "no filter"
- * rather than a category a complaint can be filed under. That is why
- * ComplaintService.findByCategory takes a String rather than this enum.
+ * The receptionist's filter also has an "All" option, which is deliberately not
+ * in here: that's a screen thing meaning "don't filter", not something a
+ * complaint can actually be filed under.
  * **/
 public enum ComplaintCategory {
 	GENERAL_HEALTH,

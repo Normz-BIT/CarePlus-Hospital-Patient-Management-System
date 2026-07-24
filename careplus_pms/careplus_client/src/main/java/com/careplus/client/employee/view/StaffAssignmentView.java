@@ -20,7 +20,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.table.DefaultTableModel;
@@ -48,13 +47,11 @@ public class StaffAssignmentView extends JInternalFrame {
 	private JLabel lblStaffId;
 	private JLabel lblDepartment;
 	private JLabel lblStatus;
-	private JLabel lblNotes;
 
 	private JTextField txtComplaintId;
 	private JTextField txtStaffId;
 	private JComboBox<String> cboDepartment;
 	private JComboBox<String> cboStatus;
-	private JTextArea txtNotes;
 
 	private JButton btnAssign;
 	private JButton btnUpdate;
@@ -83,17 +80,12 @@ public class StaffAssignmentView extends JInternalFrame {
 		lblStaffId = new JLabel("Employee ID");
 		lblDepartment = new JLabel("Employee Department");
 		lblStatus = new JLabel("Complaint Status");
-		lblNotes = new JLabel("Assignment Notes");
 
 		txtComplaintId = new JTextField(20);
 		txtStaffId = new JTextField(20);
 
 		cboDepartment = new JComboBox<>();
 		cboStatus = new JComboBox<>();
-
-		txtNotes = new JTextArea(4, 30);
-		txtNotes.setLineWrap(true);
-		txtNotes.setWrapStyleWord(true);
 
 		lblComplaintId.setDisplayedMnemonic(KeyEvent.VK_I);
 		lblComplaintId.setLabelFor(txtComplaintId);
@@ -107,14 +99,10 @@ public class StaffAssignmentView extends JInternalFrame {
 		lblStatus.setDisplayedMnemonic(KeyEvent.VK_S);
 		lblStatus.setLabelFor(cboStatus);
 
-		lblNotes.setDisplayedMnemonic(KeyEvent.VK_N);
-		lblNotes.setLabelFor(txtNotes);
-
 		txtComplaintId.setToolTipText("Enter the complaint ID to be assigned. Shortcut: Alt+I.");
 		txtStaffId.setToolTipText("Enter the employee ID receiving the complaint. Shortcut: Alt+E.");
 		cboDepartment.setToolTipText("Select the employee's department. Shortcut: Alt+D.");
 		cboStatus.setToolTipText("Select the complaint status. Shortcut: Alt+S.");
-		txtNotes.setToolTipText("Enter optional assignment notes. Shortcut: Alt+N.");
 
 		btnAssign = new JButton("Assign");
 		btnUpdate = new JButton("Update");
@@ -133,7 +121,7 @@ public class StaffAssignmentView extends JInternalFrame {
 
 		tableModel = new DefaultTableModel();
 		tableModel.setColumnIdentifiers(
-				new Object[] { "Complaint ID", "Employee ID", "Department", "Complaint Status", "Assignment Notes" });
+				new Object[] { "Complaint ID", "Employee ID", "Department", "Complaint Status" });
 
 		tblAssignments = new JTable(tableModel);
 		tblAssignments.setRowHeight(25);
@@ -184,14 +172,6 @@ public class StaffAssignmentView extends JInternalFrame {
 
 		gbc.gridx = 1;
 		formPanel.add(cboStatus, gbc);
-
-		gbc.gridx = 0;
-		gbc.gridy = 5;
-		gbc.anchor = GridBagConstraints.NORTHWEST;
-		formPanel.add(lblNotes, gbc);
-
-		gbc.gridx = 1;
-		formPanel.add(new JScrollPane(txtNotes), gbc);
 
 		JPanel buttonPanel = new JPanel(new FlowLayout());
 
@@ -283,13 +263,22 @@ public class StaffAssignmentView extends JInternalFrame {
 
 	}
 
+	/*
+	 * Clear resets the selections rather than calling removeAllItems: the combos
+	 * are only filled once when the controller is built, so emptying them here
+	 * would leave the screen with nothing to pick until it was reopened.
+	 */
 	public void clearFields() {
 		txtComplaintId.setText("");
 		txtStaffId.setText("");
-		txtNotes.setText("");
 
-		cboDepartment.removeAllItems();
-		cboStatus.removeAllItems();
+		if (cboDepartment.getItemCount() > 0) {
+			cboDepartment.setSelectedIndex(0);
+		}
+
+		if (cboStatus.getItemCount() > 0) {
+			cboStatus.setSelectedIndex(0);
+		}
 	}
 
 	public void showMessage(String message) {
@@ -310,10 +299,6 @@ public class StaffAssignmentView extends JInternalFrame {
 
 	public JComboBox<String> getCboStatus() {
 		return cboStatus;
-	}
-
-	public JTextArea getTxtNotes() {
-		return txtNotes;
 	}
 
 	public DefaultTableModel getTableModel() {

@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import com.careplus.client.employee.view.StaffAssignmentView;
 import com.careplus.common.client.net.Client;
 import com.careplus.common.enums.ComplaintStatus;
+import com.careplus.common.enums.Department;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
@@ -17,22 +18,13 @@ import com.careplus.common.net.Response;
  * Assigns complaints to employees
  * Updates and views staff assignments
  *
- * Note: there is no StaffAssignment model in careplus_common and the server does
- * not implement ASSIGN_STAFF / GET_STAFF_ASSIGNMENTS yet, so this controller
- * works with raw Object[] rows rather than a typed model.
+ * Note: there is no StaffAssignment model in careplus_common. The server side
+ * (ReportService) answers GET_STAFF_ASSIGNMENTS with plain Object[] rows from a
+ * JDBC query, and this controller renders them straight into the table. An
+ * assignment is really just two columns on complaint, so a model class never
+ * felt worth it.
  */
 public class StaffAssignmentController {
-
-	/*
-	 * The four departments a member of staff can be assigned to. These are listed
-	 * here so the combo is populated without a round trip to the server, since the
-	 * set of departments is part of how the hospital is organised rather than data
-	 * that changes during use.
-	 *
-	 * TODO: make department an enum on Employee, as DoctorSpecialization already
-	 * is, so this list and the stored values come from one definition.
-	 */
-	private static final String[] DEPARTMENTS = { "Medical", "Billing", "Reception", "Administration" };
 
 	private final StaffAssignmentView view;
 	private static final Logger logger = LogManager.getLogger(StaffAssignmentController.class);
@@ -46,16 +38,16 @@ public class StaffAssignmentController {
 	/*
 	 * Load Department and Complaint Status
 	 *
-	 * Both combos are filled locally rather than from the server, the departments
-	 * from the constant above and the statuses from the ComplaintStatus enum. Both
-	 * describe the domain rather than stored data, so the screen opens without
-	 * waiting on a request.
+	 * Both combos are filled from enums rather than from the server: departments
+	 * from Department and statuses from ComplaintStatus. Both describe the domain
+	 * rather than stored data, so the screen opens without waiting on a request,
+	 * and the department list is the same definition Employee stores.
 	 */
 	private void loadCombos() {
 		view.getCboDepartment().removeAllItems();
 
-		for (String department : DEPARTMENTS)
-			view.getCboDepartment().addItem(department);
+		for (Department department : Department.values())
+			view.getCboDepartment().addItem(department.name());
 
 		view.getCboStatus().removeAllItems();
 
@@ -92,13 +84,15 @@ public class StaffAssignmentController {
 
 			req.putMap("complaintId", Integer.parseInt(view.getTxtComplaintId().getText().trim()));
 
-			req.putMap("employeeId", Integer.parseInt(view.getTxtStaffId().getText().trim()));
+			/*
+			 * The staff ID goes as a String: employee IDs look like STF0001, so parsing
+			 * this as a number could never work. Only the complaint ID is numeric.
+			 */
+			req.putMap("employeeId", view.getTxtStaffId().getText().trim());
 
 			req.putMap("department", String.valueOf(view.getCboDepartment().getSelectedItem()));
 
 			req.putMap("status", String.valueOf(view.getCboStatus().getSelectedItem()));
-
-			req.putMap("notes", view.getTxtNotes().getText().trim());
 
 			logger.info("Assigning complaint ID: {} to employee ID: {}", view.getTxtComplaintId().getText().trim(),
 					view.getTxtStaffId().getText().trim());
@@ -116,7 +110,7 @@ public class StaffAssignmentController {
 		} catch (Exception e) {
 
 			logger.error("An error occurred while assigning staff", e);
-			view.showMessage("Complaint ID and employee ID must be valid numbers.");
+			view.showMessage("The complaint ID must be a valid number.");
 		}
 
 		refresh();

@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.careplus.client.employee.view.DiagnosisView;
 import com.careplus.common.client.net.Client;
+import com.careplus.common.client.view.MainDashboard;
 import com.careplus.common.model.MedicalRecord;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
@@ -16,10 +17,7 @@ import com.careplus.common.net.Response;
 
 /*
  * Diagnosis Controller
- * Lets a doctor record a diagnosis, treatment note and follow up date
- *
- * ADD_DIAGNOSIS, UPDATE_DIAGNOSIS and GET_DIAGNOSIS_RECORDS are all unrouted on
- * the server, so nothing written here is persisted yet.
+ * Lets a doctor write up a diagnosis, treatment note and follow up date.
  */
 public class DiagnosisController {
 	private final DiagnosisView view;
@@ -72,6 +70,14 @@ public class DiagnosisController {
 
 		try {
 
+			/*
+			 * The record has to carry which patient it's for, or the server has nothing
+			 * to attach it to. The doctor goes on the request separately below, since
+			 * that's the signed-in user rather than something typed on this form.
+			 */
+			medicalRecord.setPatientId(
+					view.getTxtPatientId().getText().trim().toUpperCase());
+
 			medicalRecord.setDiagnosis(
 					view.getTxtDiagnosis().getText().trim());
 
@@ -121,7 +127,8 @@ public class DiagnosisController {
 			logger.info("Medical record created: {}", medicalRecord.toString());
 
 			req.putMap("medicalRecord", medicalRecord);
-			
+			req.putMap("doctorId", MainDashboard.getCurrentUser().getPersonId());
+
 			Response res = Client.send(req);
 			
 			

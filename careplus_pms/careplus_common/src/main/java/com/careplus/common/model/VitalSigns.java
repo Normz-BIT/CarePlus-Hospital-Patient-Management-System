@@ -9,13 +9,10 @@ import jakarta.persistence.*;
  * Patient has Vital Records
  * Nurse records Vital signs
  *
- * Each instance is a timestamped observation rather than a set of current
- * values, so readings build up as a series. We modelled it this way because
- * vital signs are read as a trend: what matters clinically is how a temperature
- * or pulse moved across a shift, not only its latest figure.
- *
- * A wire type for now, gaining its JPA mapping alongside MedicalRecordService.
- *
+ * Every one of these is a single timestamped reading rather than the patient's
+ * "current" values, so they pile up as a series. We did it that way because
+ * vitals are read as a trend: what a doctor actually wants is how a temperature
+ * or pulse moved across a shift, not just the latest number.
  */
 
 @Entity
@@ -30,16 +27,14 @@ public class VitalSigns implements Serializable {
 	private int vitalId;
 
 	/*
-	 * The patient observed and the nurse who took the reading, held as person_id
-	 * Strings with @Column rather than as mapped associations, for the reason set
-	 * out on Payment: a VitalSigns row is serialized across the socket, and a lazy
-	 * association would risk putting an uninitialised proxy on the wire. The schema
-	 * enforces both keys through fk_vitals_patient and fk_vitals_nurse.
+	 * The patient the reading is for and the nurse who took it, as plain person_id
+	 * Strings rather than @ManyToOne links, same reasoning as Payment. The database
+	 * enforces both through fk_vitals_patient and fk_vitals_nurse.
 	 *
-	 * patientId previously carried @ManyToOne while typed as a String, which is not
-	 * a legal mapping: an association target has to be an entity. nurseId carried a
-	 * bare @JoinColumn with no association at all, so it fell back to Hibernate's
-	 * default naming and looked for a "nurseId" column that does not exist.
+	 * These were both broken before: patientId had @ManyToOne on it while typed as
+	 * a String, which isn't legal since an association has to point at an entity.
+	 * nurseId had a bare @JoinColumn with no association at all, so it went looking
+	 * for a "nurseId" column that doesn't exist.
 	 */
 	@Column(name = "patient_id", nullable = false)
 	private String patientId;
@@ -47,21 +42,20 @@ public class VitalSigns implements Serializable {
 	@Column(name = "nurse_id", nullable = false)
 	private String nurseId;
 	/*
-	 * No unit is recorded alongside the value, so Celsius against Fahrenheit is an
-	 * unwritten convention between whoever enters the reading and whoever reads it.
-	 * VitalsController only validates that the input parses as a number, so nothing
-	 * currently rejects a physiologically impossible temperature.
+	 * We don't save a unit with this, so Celsius versus Fahrenheit is an unwritten
+	 * agreement between whoever types it and whoever reads it. The screen label
+	 * says Celsius, which is all that's holding that together.
 	 *
-	 * Boxed, because the column is nullable and a primitive would report an absent
-	 * reading as 0.0. The chk_vitals_temp constraint rejects a stored zero, so that
-	 * default would have been written as a real value and then refused.
+	 * Double not double, because the column allows null and a primitive would turn
+	 * a missing reading into 0.0. The chk_vitals_temp constraint rejects a stored
+	 * zero, so that default would get written as if it were real and then bounced.
 	 */
 	@Column(name = "temperature")
 	private Double temperature;
 	/*
-	 * A String because blood pressure is a systolic over diastolic pair rather than
-	 * one number. The tradeoff is that it cannot be compared or averaged without
-	 * parsing, and no format is enforced on entry.
+	 * A String because blood pressure is two numbers over each other, not one. The
+	 * downside is you can't compare or average these without splitting the string
+	 * first, and nothing forces the "120/80" format on the way in.
 	 */
 	@Column(name = "blood_pressure", length = 10)
 	private String bloodPressure;
@@ -72,9 +66,9 @@ public class VitalSigns implements Serializable {
 	@Column(name = "respiratory_rate")
 	private Integer respiratoryRate;
 	/*
-	 * Two separate free text fields by design: observations are what the nurse saw
-	 * about the patient, nursing notes are the care given. Keeping them apart
-	 * preserves that distinction in the clinical record.
+	 * Two separate boxes on purpose: observations are what the nurse saw about the
+	 * patient, nursing notes are the care they gave. Keeping them apart keeps that
+	 * difference in the record instead of mushing it into one field.
 	 */
 
 	@Column(name = "observations", columnDefinition = "TEXT")
@@ -83,9 +77,8 @@ public class VitalSigns implements Serializable {
 	@Column(name = "nursing_notes", columnDefinition = "TEXT")
 	private String nursingNotes;
 	/*
-	 * When the reading was taken, which is what orders the trend. Set from the
-	 * client clock at entry time, so it reflects the workstation's time rather than
-	 * the server's.
+	 * When the reading was taken, which is what puts the trend in order. Comes off
+	 * the client's clock, so it's really the workstation's time, not the server's.
 	 */
 	@Column(name = "recorded_at", nullable = false)
 	private LocalDateTime recordedAt = LocalDateTime.now();
@@ -150,10 +143,10 @@ public class VitalSigns implements Serializable {
 	}
 
 	/*
-	 * These four accessors return the boxed type rather than unboxing to a
-	 * primitive. Both columns are nullable, so a reading that was never taken comes
-	 * back as null, and the previous "public int getHeartRate()" would have thrown
-	 * a NullPointerException on that row rather than reporting the absence.
+	 * These give back Integer rather than int on purpose. Both columns allow null,
+	 * so a reading that was never taken comes back as null, and the old
+	 * "public int getHeartRate()" would have thrown a NullPointerException on that
+	 * row instead of just telling us it wasn't there.
 	 */
 	public Integer getHeartRate() {
 		return heartRate;

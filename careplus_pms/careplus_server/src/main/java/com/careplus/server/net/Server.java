@@ -14,10 +14,10 @@ import com.careplus.server.util.ServerConsole;
 
 /*
  * Server
- * Accepts client connections and hands each one to a ClientHandler thread.
+ * Takes client connections and gives each one to its own ClientHandler thread.
  *
- * The accept loop blocks, so start() runs it on its own thread. Constructing a
- * Server no longer starts it - the caller decides when to listen.
+ * The accept loop blocks, so start() runs it on a separate thread. Building a
+ * Server doesn't start it listening, the caller decides when with start().
  */
 public class Server {
 
@@ -25,27 +25,27 @@ public class Server {
 	private Thread acceptThread;
 
 	/*
-	 * Touched by the accept thread on every new connection and by whichever thread
-	 * calls stop(), so every access below is wrapped in synchronized (handlers). A
-	 * plain ArrayList is deliberate rather than a concurrent collection: stop()
-	 * needs to iterate the whole list and clear it as one atomic unit, which a
-	 * CopyOnWriteArrayList would not give without an outer lock anyway. Both
-	 * critical sections are short enough that lock contention is not a concern.
+	 * The accept thread adds to this on every new connection and whoever calls
+	 * stop() reads it, so every use below is inside synchronized (handlers). We
+	 * stuck with a plain ArrayList rather than a concurrent one on purpose: stop()
+	 * has to walk the whole list and clear it as one go, and a
+	 * CopyOnWriteArrayList wouldn't give us that without an outer lock anyway.
+	 * Neither block holds the lock long enough for it to matter.
 	 */
 	private final List<ClientHandler> handlers = new ArrayList<>();
 
 	/*
-	 * volatile because it is written by the thread calling stop() and read by the
-	 * accept thread's loop condition. Without it the accept thread could cache a
-	 * stale true and keep looping after shutdown. It also tells the SocketException
-	 * handler whether a failure was our own doing or a genuine fault.
+	 * volatile because stop() writes it from one thread and the accept loop reads
+	 * it from another. Without it the accept thread could hang onto a stale true
+	 * and keep looping after we've shut down. It also tells the SocketException
+	 * handler whether the failure was us closing the socket or something real.
 	 */
 	private volatile boolean running = false;
 
 	/*
-	 * Must match the port compiled into the client's Client class. The backlog caps
-	 * how many connections the OS queues while accept() is busy; beyond this,
-	 * further clients are refused rather than queued.
+	 * Has to match the port hardcoded in the client's Client class. The backlog is
+	 * how many connections the OS will queue up while accept() is busy; past that
+	 * clients get refused rather than queued.
 	 */
 	private final int port = 8888;
 	private final int backlogCount = 50;
@@ -97,16 +97,16 @@ public class Server {
 		}
 
 		/*
-		 * Set before the thread starts so the loop condition cannot observe false and
-		 * exit immediately.
+		 * Set this before starting the thread, or the loop could read false straight
+		 * away and exit before it does anything.
 		 */
 		running = true;
 
 		acceptThread = new Thread(this::waitForRequests, "careplus-accept");
 		/*
-		 * Daemon so that closing the server window terminates the JVM even if stop()
-		 * was never called. A non daemon accept thread parked in accept() would keep
-		 * the process alive indefinitely with no visible window.
+		 * Daemon thread so closing the server window actually kills the program even if
+		 * nobody called stop(). A normal thread sat waiting in accept() would keep the
+		 * whole process alive with no window to close.
 		 */
 		acceptThread.setDaemon(true);
 		acceptThread.start();
@@ -129,9 +129,9 @@ public class Server {
 		}
 
 		/*
-		 * Cleared first so that the accept thread, if it happens to be mid loop, sees
-		 * the shutdown and treats the SocketException below as expected rather than
-		 * logging it as a fault.
+		 * Clear this first so that if the accept thread is mid-loop it sees we're
+		 * shutting down and treats the SocketException below as expected instead of
+		 * logging it like something went wrong.
 		 */
 		running = false;
 
@@ -139,10 +139,10 @@ public class Server {
 		closeConnection();
 
 		/*
-		 * Disconnecting each handler closes its socket, which is what unblocks that
-		 * thread's readObject() and lets it run its finally block. There is no join()
-		 * here, so stop() returns before the handler threads have necessarily died;
-		 * they terminate on their own shortly after.
+		 * Disconnecting a handler closes its socket, which is what wakes up that
+		 * thread's blocked readObject() and lets it run its finally block. We don't
+		 * join() them, so stop() returns before the handler threads have actually
+		 * finished. They die off on their own a moment later.
 		 */
 		synchronized (handlers) {
 
@@ -172,11 +172,11 @@ public class Server {
 	}
 
 	/*
-	 * The accept loop. Runs one thread per connected client with no upper bound and
-	 * no thread pool, which satisfies the multi client requirement and keeps a slow
-	 * database call from blocking anyone but the client that made it. The tradeoff
-	 * is that N clients cost N threads, so this design would need an ExecutorService
-	 * before it could handle a large ward.
+	 * The accept loop. One thread per connected client, no pool and no upper limit.
+	 * That covers the multi-client requirement from the brief and means a slow
+	 * database call only holds up the client that asked for it. The catch is that
+	 * ten clients means ten threads, so this would want an ExecutorService before it
+	 * could handle a whole hospital.
 	 */
 	private void waitForRequests() {
 
@@ -195,8 +195,8 @@ public class Server {
 
 				ClientHandler clientHandler = new ClientHandler(socket);
 				/*
-				 * Naming the thread after the client's address and port makes thread dumps and
-				 * log output traceable back to a specific connection.
+				 * Naming the thread after the client's address and port means we can trace a
+				 * log line or a thread dump back to a specific connection.
 				 */
 				clientHandler.setName(clientId);
 
@@ -237,7 +237,7 @@ public class Server {
 	private void report(String message) {
 
 		if (console != null) {
-			console.println(message);
+			console.showln(message);
 		}
 	}
 }

@@ -7,14 +7,14 @@ import java.util.Map;
 /**
  * Request Sent From the client to the server
  *
- * This is one half of our wire protocol. Instances are written straight onto an
- * ObjectOutputStream by Client.send and read back by ClientHandler, so the shape
- * of this class is shared by both sides and has to stay in step between them.
+ * One half of our protocol. These get written straight onto an
+ * ObjectOutputStream by Client.send and read back by ClientHandler, so both
+ * sides share this class and it has to stay in step between them.
  *
- * We set serialVersionUID by hand rather than letting the compiler generate one,
- * so the value only changes when we decide it should. A generated identifier
- * would change whenever the class was edited, and every client built against an
- * older jar would stop being able to read it.
+ * We set serialVersionUID ourselves instead of letting the compiler make one up,
+ * so it only changes when we say so. A generated one changes every time the
+ * class is edited, and then any client built against an older jar can't read it
+ * any more.
  */
 
 public class Request implements Serializable {
@@ -23,14 +23,14 @@ public class Request implements Serializable {
 	private RequestType type;
 
 	/*
-	 * We chose a general map of parameters rather than a separate request class per
-	 * action. One envelope serves every RequestType, so adding a feature does not
-	 * mean adding a new class to both modules, and the protocol stays small enough
-	 * to reason about as a group.
+	 * We went with one general map of parameters instead of a separate request
+	 * class for every action. One envelope covers every RequestType, so adding a
+	 * feature doesn't mean adding a class to both modules, and the whole protocol
+	 * stays small enough for all of us to keep in our heads.
 	 *
-	 * The trade off we accepted is that parameter names and value types are a
-	 * convention between client and server rather than something the compiler
-	 * checks, so both sides have to agree on the keys each request uses.
+	 * The tradeoff we accepted is that the key names and value types are just an
+	 * agreement between client and server, nothing the compiler checks. So if you
+	 * change a key name on one side you have to change it on the other.
 	 */
 	private Map<String, Object> params;
 
@@ -40,9 +40,9 @@ public class Request implements Serializable {
 	}
 
 	/*
-	 * Takes the caller's map by reference rather than copying it. The caller must
-	 * not mutate the map after handing it over, since serialization happens later
-	 * on whichever thread calls Client.send.
+	 * This keeps the caller's map rather than copying it, so don't change the map
+	 * after handing it over. It doesn't get serialized until later on whatever
+	 * thread calls Client.send.
 	 */
 	public Request(RequestType type, Map<String, Object> params) {
 		this.type = type;
@@ -50,16 +50,16 @@ public class Request implements Serializable {
 	}
 
 	/*
-	 * Convenience path for the common single-parameter case, such as looking up
-	 * records by patient ID.
+	 * Shortcut for the common one-parameter case, like looking records up by
+	 * patient ID.
 	 */
 	public Request(RequestType type, String key, Object Value) {
 		this.type = type;
 
 		/*
-		 * params carries no field initializer, so it is always null on entry here and
-		 * this branch always fires. The guard is redundant but harmless, and removing
-		 * it would leave putMap dereferencing null.
+		 * params has no initializer on the field, so it's always null by the time we
+		 * get here and this if always runs. Looks pointless but don't delete it,
+		 * putMap below would hit a null map without it.
 		 */
 		if (params == null) {
 			params = new HashMap<>();
@@ -68,9 +68,9 @@ public class Request implements Serializable {
 	}
 
 	/*
-	 * Callers must go through a constructor first. Invoking this on an instance
-	 * built by a path that left params null would throw, which is why every
-	 * constructor above guarantees a non-null map.
+	 * Always build a Request through one of the constructors above first. Every one
+	 * of them makes sure params isn't null, because this method would throw if it
+	 * were.
 	 */
 	public void putMap(String key, Object value) {
 		params.put(key, value);

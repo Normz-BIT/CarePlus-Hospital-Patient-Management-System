@@ -3,26 +3,19 @@ package com.careplus.common.model;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
+import com.careplus.common.enums.Department;
 import com.careplus.common.enums.UserRole;
 
 /*
  * Employee Abstract Class
  *
- * The staff branch of the Person hierarchy and itself the root of a second JOINED
- * level, so the full chain is person then employee then the concrete role table.
- * Abstract because no one is employed as a generic "employee": every staff row
- * must resolve to a Doctor, Nurse or Receptionist.
+ * The staff side of the Person hierarchy, and itself the parent of another
+ * JOINED level, so the full chain is person then employee then doctor/nurse/
+ * receptionist. Abstract because nobody is hired as just an "employee": every
+ * staff member has to actually be one of the three.
  *
- * IMPORTANT: that resolution does not currently work. Doctor, Nurse and
- * Receptionist carry no @Entity annotation, so Hibernate does not know they
- * exist and cannot instantiate this abstract class to satisfy a staff row.
- * Annotating those three subclasses is what completes the mapping declared here.
- * */
-
-/*
- * Ties the employee table's primary key back to person.person_id rather than
- * giving staff a separate identifier. One person, one ID, across all three
- * levels of the hierarchy.
+ * The primary key points back at person.person_id instead of staff getting
+ * their own separate ID. One person, one ID, all the way down.
  */
 
 @Entity
@@ -33,12 +26,16 @@ public abstract class Employee extends Person {
 	@Transient
 	private static final long serialVersionUID = 1L;
 
-	@Column(name = "department", length = 80)
-	protected String department;
 	/*
-	 * employee.hire_date is a DATE column, so the time half of this value is not
-	 * stored: MySQL discards it on write and a read comes back at midnight. Treat
-	 * the date part as the only meaningful component.
+	 * Saved by name, same reason as role on Person: reordering the Department
+	 * constants shouldn't change what's already saved.
+	 */
+	@Enumerated(EnumType.STRING)
+	@Column(name = "department")
+	protected Department department;
+	/*
+	 * hire_date is a DATE column so the time half never gets saved. MySQL drops it
+	 * on write and reads come back at midnight. Only the date part counts.
 	 */
 	@Column(name = "hire_date")
 	protected LocalDateTime hireDate;
@@ -53,11 +50,11 @@ public abstract class Employee extends Person {
 
 	}
 
-	public String getDepartment() {
+	public Department getDepartment() {
 		return department;
 	}
 
-	public void setDepartment(String department) {
+	public void setDepartment(Department department) {
 		this.department = department;
 	}
 

@@ -1,5 +1,7 @@
 package com.careplus.server.service;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -7,27 +9,33 @@ import com.careplus.common.net.Response;
 import com.careplus.server.util.HibernateUtil;
 
 /*
- * BaseService holds the Hibernate session and transaction handling that every
- * service needs, so the individual services are left to express only their own
- * query logic. Pulling this up into a parent class keeps the open, commit and
- * close sequence identical everywhere and means a change to how we manage
- * transactions is made in one place.
+ * Holds the Hibernate session and transaction handling that every service needs,
+ * so each service only has to write its own queries. Putting it in one parent
+ * class keeps the open/commit/close the same everywhere, and if we ever change
+ * how transactions work we change it here once.
  *
- * The three fields below are ordinary instance state, so each service instance
- * belongs to a single request at a time. This is why ClientHandler creates its
- * own services per connection rather than sharing them: it gives each client
- * thread its own session without any locking.
+ * The three fields below are normal instance fields with no locking on them, so
+ * one service object can only handle one request at a time. That's why
+ * ClientHandler builds its own set of services per connection instead of sharing
+ * them: each client thread gets its own session and they can't tread on each
+ * other.
  */
 public abstract class BaseService {
+
+	/*
+	 * This logs under BaseService, so we stick the subclass name in the message to
+	 * show which service the problem actually came from.
+	 */
+	private static final Logger logger = LogManager.getLogger(BaseService.class);
 
 	Transaction transaction;
 	Session session;
 	Response resp;
 
 	/*
-	 * Opens a fresh session and transaction per request. Sessions are deliberately
-	 * short lived rather than held open for the life of the connection, so a client
-	 * sitting idle does not pin a database connection from the pool.
+	 * New session and transaction for every request. We keep them short on purpose
+	 * rather than holding one open for the whole connection, otherwise a client
+	 * sitting there doing nothing would tie up a database connection from the pool.
 	 */
 	protected void startSession() {
 
@@ -39,26 +47,36 @@ public abstract class BaseService {
 
 	}
 
+	/*
+	 * Every service calls this from a finally block, so it runs whether the work
+	 * went through or the catch already rolled us back.
+	 *
+	 * We only commit if the transaction is still going. When a service catches an
+	 * error it rolls back itself, and there's nothing left to commit after that.
+	 * Asking Hibernate to commit anyway just throws, and we'd end up logging a
+	 * "commit failed" error on every request that already failed for its own
+	 * reason, which just buries the real problem.
+	 */
 	protected void endSession() {
 
 		try {
-			/*
-			 * Every service calls this from a finally block so the session is always tidied
-			 * up, including on paths where the catch has already rolled back. Committing an
-			 * transaction that was rolled back throws, which is why the catch below is
-			 * broad: the rollback has already decided the outcome and the data is correct
-			 * either way.
-			 */
-			transaction.commit();
 
+			if (transaction.isActive()) {
+				transaction.commit();
+			}
+
+		} catch (Exception e) {
+
+			logger.error("Could not commit the transaction in {}", getClass().getSimpleName(), e);
+
+		} finally {
 			/*
-			 * TODO: move this close into its own finally block so the session and its
-			 * database connection are released even when the commit above throws.
+			 * The close gets its own finally so the session always goes back to the pool,
+			 * even when the commit above throws. It used to sit right after the commit,
+			 * which meant a failed commit skipped it and leaked the connection. Do that
+			 * enough times and the pool runs dry and the server stops answering anyone.
 			 */
 			session.close();
-		} catch (Exception e) {
-			// TODO add log4j2
-			e.printStackTrace();
 		}
 
 	}
