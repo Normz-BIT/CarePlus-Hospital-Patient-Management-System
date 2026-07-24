@@ -199,8 +199,7 @@ public class ReportService {
 
 	/*
 	 * Reads the same config as Hibernate does (hibernate.cfg.xml plus the login
-	 * details in hibernate.properties), so the JDBC side can never end up pointing
-	 * at a different database from the Hibernate side. Unlike DatabaseResetService
+	 * details in hibernate.properties).
 	 * we leave the database name in the url, since these queries actually run
 	 * against careplus_db rather than the bare server.
 	 */
