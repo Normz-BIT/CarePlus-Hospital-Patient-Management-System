@@ -1,8 +1,6 @@
 package com.careplus.client.employee.controller;
 
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -17,6 +15,7 @@ import com.careplus.common.model.Patient;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
+import com.careplus.common.util.DateDisplay;
 
 /*
  * Patients Controller
@@ -51,9 +50,13 @@ public class PatientsController {
 			patientId = selectedPatientId();
 		}
 
-		if (patientId.isEmpty() || view.getTxtDate().getText().trim().isEmpty()) {
-			view.showMessage("Patient ID and follow-up date are required.");
-			logger.warn("Follow-up rejected because the patient ID or date was empty");
+		/*
+		 * Only the patient needs checking now. The date spinners always hold a real
+		 * date, so there's nothing left that can be blank.
+		 */
+		if (patientId.isEmpty()) {
+			view.showMessage("Select a patient or enter a patient ID.");
+			logger.warn("Follow-up rejected because no patient was given");
 
 			return;
 		}
@@ -66,18 +69,12 @@ public class PatientsController {
 		try {
 
 			/*
-			 * This date and time parsing duplicates AppointmentController exactly, pattern
-			 * string included. The two are unrelated code that must nonetheless stay in
-			 * step, since both feed the same Appointment model. A shared formatter constant
-			 * would remove the duplication, and note DiagnosisController uses a third,
-			 * date only convention.
+			 * Straight off the Day/Month/Year/Hour/Min spinners. This used to be a copy of
+			 * AppointmentController's parsing, pattern string and all, which meant two
+			 * unrelated bits of code had to be kept in step by hand. Both screens share
+			 * the one DateTimePicker now.
 			 */
-			String appointmentDateTime = view.getTxtDate().getText().trim()
-					+ " " + view.getTxtTime().getText().trim();
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-			LocalDateTime localDateTime = LocalDateTime.parse(appointmentDateTime, formatter);
-
-			appointment.setAppointmentDate(localDateTime);
+			appointment.setAppointmentDate(view.getPickerDate().getDateTime());
 
 			appointment.setReason(view.getTxtReason().getText().trim());
 
@@ -111,7 +108,7 @@ public class PatientsController {
 		} catch (Exception e) {
 
 			logger.error("An error occurred while scheduling follow-up", e);
-			view.showMessage("Use the date and time format: yyyy-MM-dd HH:mm:ss");
+			view.showMessage("Unable to schedule the follow-up: " + e.getMessage());
 		}
 
 		refresh();
@@ -161,7 +158,7 @@ public class PatientsController {
 					row.getLastName(),
 					row.getEmail(),
 					row.getPhone(),
-					row.getDateOfBirth(),
+					DateDisplay.dateOnly(row.getDateOfBirth()),
 					row.getGender(),
 					row.getAddress(),
 					row.getMedicalHistory()

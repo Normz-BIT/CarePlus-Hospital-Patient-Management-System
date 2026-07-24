@@ -14,6 +14,7 @@ import com.careplus.common.model.Payment;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
+import com.careplus.common.util.DateDisplay;
 
 /*
  * Payment Controller
@@ -151,7 +152,7 @@ public class PaymentController {
 		    		row.getAmountPaid(),
 		    		row.getOutstandingBalance(),
 		    		row.getDescription(),
-		    		row.getPaymentDate()
+		    		DateDisplay.withTime(row.getPaymentDate())
 		    };
 		    
 		    view.addPayment(viewRow);

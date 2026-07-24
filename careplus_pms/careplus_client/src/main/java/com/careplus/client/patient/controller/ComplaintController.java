@@ -15,6 +15,7 @@ import com.careplus.common.model.Complaint;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
+import com.careplus.common.util.DateDisplay;
 
 /*
  * Complaint Controller
@@ -167,9 +168,9 @@ public class ComplaintController {
 					row.getComplaintParentId(),
 					row.getCategory(),
 					row.getDescription(),
-					row.getDateSubmitted(),
+					DateDisplay.withTime(row.getDateSubmitted()),
 					row.getResponse(),
-					row.getResponseDate(),
+					DateDisplay.withTime(row.getResponseDate()),
 					row.getStatus()
 			};
 

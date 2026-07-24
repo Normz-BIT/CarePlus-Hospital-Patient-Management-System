@@ -24,6 +24,7 @@ import javax.swing.KeyStroke;
 import javax.swing.table.DefaultTableModel;
 
 import com.careplus.client.employee.controller.PatientsController;
+import com.careplus.common.client.view.DateTimePicker;
 /**
  * Doctor's assigned-patients directory: lists patient id, name, contact,
  * complaint and history, and lets the doctor schedule a follow-up.
@@ -42,12 +43,11 @@ public class PatientsView extends JInternalFrame {
 	private JLabel lblTitle;
 	private JLabel lblPatientId;
 	private JLabel lblDate;
-	private JLabel lblTime;
 	private JLabel lblReason;
 
 	private JTextField txtPatientId;
-	private JTextField txtDate;
-	private JTextField txtTime;
+	/* Day/Month/Year/Hour/Min spinners, replacing the old typed date and time boxes. */
+	private DateTimePicker pickerDate;
 	private JTextField txtReason;
 
 	private JButton btnFollowUp;
@@ -76,29 +76,24 @@ public class PatientsView extends JInternalFrame {
 
 		lblPatientId = new JLabel("Patient ID");
 		lblDate = new JLabel("Follow-up Date");
-		lblTime = new JLabel("Follow-up Time");
 		lblReason = new JLabel("Follow-up Reason");
 
 		txtPatientId = new JTextField(20);
-		txtDate = new JTextField(20);
-		txtTime = new JTextField(20);
+		// true because appointment_date is a DATETIME, so the time really is saved.
+		pickerDate = new DateTimePicker(true);
 		txtReason = new JTextField(20);
 
 		lblPatientId.setDisplayedMnemonic(KeyEvent.VK_P);
 		lblPatientId.setLabelFor(txtPatientId);
 
 		lblDate.setDisplayedMnemonic(KeyEvent.VK_D);
-		lblDate.setLabelFor(txtDate);
-
-		lblTime.setDisplayedMnemonic(KeyEvent.VK_T);
-		lblTime.setLabelFor(txtTime);
+		lblDate.setLabelFor(pickerDate);
 
 		lblReason.setDisplayedMnemonic(KeyEvent.VK_E);
 		lblReason.setLabelFor(txtReason);
 
 		txtPatientId.setToolTipText("Enter or select the patient's ID. Shortcut: Alt+P.");
-		txtDate.setToolTipText("Enter the follow-up date using yyyy-MM-dd. Shortcut: Alt+D.");
-		txtTime.setToolTipText("Enter the follow-up time using HH:mm. Shortcut: Alt+T.");
+		pickerDate.setToolTipText("Pick the follow-up day, month, year and time. Shortcut: Alt+D.");
 		txtReason.setToolTipText("Enter the reason for the follow-up appointment. Shortcut: Alt+E.");
 
 		btnFollowUp = new JButton("Schedule Follow-up");
@@ -154,17 +149,15 @@ public class PatientsView extends JInternalFrame {
 		gbc.gridx = 1;
 		formPanel.add(txtPatientId, gbc);
 
+		/*
+		 * One row now instead of two, since the picker brings its own Day/Month/Year/
+		 * Hour/Min labels and does what the separate time box used to.
+		 */
 		gbc.gridx = 0;
 		gbc.gridy = 2;
 		formPanel.add(lblDate, gbc);
 		gbc.gridx = 1;
-		formPanel.add(txtDate, gbc);
-
-		gbc.gridx = 0;
-		gbc.gridy = 3;
-		formPanel.add(lblTime, gbc);
-		gbc.gridx = 1;
-		formPanel.add(txtTime, gbc);
+		formPanel.add(pickerDate, gbc);
 
 		gbc.gridx = 0;
 		gbc.gridy = 4;
@@ -248,8 +241,7 @@ public class PatientsView extends JInternalFrame {
 
 	public void clearFields() {
 		txtPatientId.setText("");
-		txtDate.setText("");
-		txtTime.setText("");
+		pickerDate.reset();
 		txtReason.setText("");
 	}
 
@@ -261,12 +253,8 @@ public class PatientsView extends JInternalFrame {
 		return txtPatientId;
 	}
 
-	public JTextField getTxtDate() {
-		return txtDate;
-	}
-
-	public JTextField getTxtTime() {
-		return txtTime;
+	public DateTimePicker getPickerDate() {
+		return pickerDate;
 	}
 
 	public JTextField getTxtReason() {

@@ -20,6 +20,7 @@ import com.careplus.common.model.Complaint;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
+import com.careplus.common.util.DateDisplay;
 
 /*
  * Employee Complaint Controller
@@ -171,9 +172,9 @@ public class EmployeeComplaintController {
 					row.getComplaintParentId(),
 					row.getCategory(),
 					row.getDescription(),
-					row.getDateSubmitted(),
+					DateDisplay.withTime(row.getDateSubmitted()),
 					row.getResponse(),
-					row.getResponseDate(),
+					DateDisplay.withTime(row.getResponseDate()),
 					row.getStatus()
 			};
 
@@ -334,9 +335,7 @@ public class EmployeeComplaintController {
 
 	/*
 	 * Guards against all three things that could go wrong (null row, row too short,
-	 * null cell) and just gives back an empty String instead of throwing. Worth it
-	 * because the summary walks every loaded complaint, so one bad row would kill
-	 * the whole count and leave the dashboard blank.
+	 * null cell)
 	 */
 	private String cell(Object[] row, int index) {
 		return (row != null && row.length > index && row[index] != null) ? String.valueOf(row[index]) : "";

@@ -12,6 +12,7 @@ import com.careplus.common.model.MedicalRecord;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
+import com.careplus.common.util.DateDisplay;
 
 /*
  * Medical Record Controller
@@ -79,7 +80,7 @@ public class MedicalRecordController {
 		for (MedicalRecord row : (List<MedicalRecord>) res.getData()) {
 
 			Object[] viewRow = new Object[] { row.getRecordId(), row.getDiagnosis(), row.getTreatmentNote(),
-					row.getFollowUpDate(), row.getCreatedDate() };
+					DateDisplay.dateOnly(row.getFollowUpDate()), DateDisplay.withTime(row.getCreatedDate()) };
 
 			view.addMedicalRecord(viewRow);
 		}

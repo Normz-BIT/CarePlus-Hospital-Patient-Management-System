@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
@@ -25,6 +26,7 @@ import javax.swing.KeyStroke;
 import javax.swing.table.DefaultTableModel;
 
 import com.careplus.client.patient.controller.AppointmentController;
+import com.careplus.common.client.view.DateTimePicker;
 
 /**
  * Patient appointment workspace: book a consultation, cancel one, and review
@@ -48,14 +50,13 @@ public class AppointmentView extends JInternalFrame {
 	private JLabel lblDoctor;
 	private JLabel lblDepartment;
 	private JLabel lblDate;
-	private JLabel lblTime;
 	private JLabel lblReason;
 
 	// Fields
 	private JComboBox<String> cboDoctor;
 	private JComboBox<String> cboDepartment;
-	private JTextField txtDate;
-	private JTextField txtTime;
+	/* Day/Month/Year/Hour/Min spinners, replacing the old typed date and time boxes. */
+	private DateTimePicker pickerDate;
 	private JTextField txtReason;
 
 	// Buttons
@@ -90,14 +91,13 @@ public class AppointmentView extends JInternalFrame {
 		lblDoctor = new JLabel("Doctor");
 		lblDepartment = new JLabel("Department");
 		lblDate = new JLabel("Appointment Date");
-		lblTime = new JLabel("Appointment Time");
 		lblReason = new JLabel("Reason");
 
 		cboDoctor = new JComboBox<>();
 		cboDepartment = new JComboBox<>();
 
-		txtDate = new JTextField(15);
-		txtTime = new JTextField(15);
+		// true because appointment_date is a DATETIME, so the time is really saved.
+		pickerDate = new DateTimePicker(true);
 		txtReason = new JTextField(15);
 
 		lblDoctor.setDisplayedMnemonic(KeyEvent.VK_D);
@@ -107,18 +107,14 @@ public class AppointmentView extends JInternalFrame {
 		lblDepartment.setLabelFor(cboDepartment);
 
 		lblDate.setDisplayedMnemonic(KeyEvent.VK_A);
-		lblDate.setLabelFor(txtDate);
-
-		lblTime.setDisplayedMnemonic(KeyEvent.VK_T);
-		lblTime.setLabelFor(txtTime);
+		lblDate.setLabelFor(pickerDate);
 
 		lblReason.setDisplayedMnemonic(KeyEvent.VK_E);
 		lblReason.setLabelFor(txtReason);
 
 		cboDoctor.setToolTipText("Select the doctor for the appointment. Shortcut: Alt+D.");
 		cboDepartment.setToolTipText("Select the hospital department. Shortcut: Alt+P.");
-		txtDate.setToolTipText("Enter the appointment date. Shortcut: Alt+A.");
-		txtTime.setToolTipText("Enter the appointment time. Shortcut: Alt+T.");
+		pickerDate.setToolTipText("Pick the appointment day, month, year and time. Shortcut: Alt+A.");
 		txtReason.setToolTipText("Enter the reason for the appointment. Shortcut: Alt+E.");
 
 		btnSchedule = new JButton("Schedule");
@@ -184,19 +180,16 @@ public class AppointmentView extends JInternalFrame {
 		gbc.gridx = 1;
 		formPanel.add(cboDepartment, gbc);
 
+		/*
+		 * One row now instead of two, since the picker carries its own Day/Month/Year/
+		 * Hour/Min labels and covers what the separate time box used to do.
+		 */
 		gbc.gridx = 0;
 		gbc.gridy = 3;
 		formPanel.add(lblDate, gbc);
 
 		gbc.gridx = 1;
-		formPanel.add(txtDate, gbc);
-
-		gbc.gridx = 0;
-		gbc.gridy = 4;
-		formPanel.add(lblTime, gbc);
-
-		gbc.gridx = 1;
-		formPanel.add(txtTime, gbc);
+		formPanel.add(pickerDate, gbc);
 
 		gbc.gridx = 0;
 		gbc.gridy = 5;
@@ -231,7 +224,7 @@ public class AppointmentView extends JInternalFrame {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void actionPerformed(java.awt.event.ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
 				btnSchedule.doClick();
 			}
 		});
@@ -244,7 +237,7 @@ public class AppointmentView extends JInternalFrame {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void actionPerformed(java.awt.event.ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
 				btnUpdate.doClick();
 			}
 		});
@@ -257,7 +250,7 @@ public class AppointmentView extends JInternalFrame {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void actionPerformed(java.awt.event.ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
 				btnCancel.doClick();
 			}
 		});
@@ -270,7 +263,7 @@ public class AppointmentView extends JInternalFrame {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void actionPerformed(java.awt.event.ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
 				btnRefresh.doClick();
 			}
 		});
@@ -283,7 +276,7 @@ public class AppointmentView extends JInternalFrame {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void actionPerformed(java.awt.event.ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
 				btnClear.doClick();
 			}
 		});
@@ -316,8 +309,7 @@ public class AppointmentView extends JInternalFrame {
 		cboDoctor.removeAllItems();
 		cboDepartment.removeAllItems();
 
-		txtDate.setText("");
-		txtTime.setText("");
+		pickerDate.reset();
 		txtReason.setText("");
 
 	}
@@ -334,12 +326,8 @@ public class AppointmentView extends JInternalFrame {
 		return cboDepartment;
 	}
 
-	public JTextField getTxtDate() {
-		return txtDate;
-	}
-
-	public JTextField getTxtTime() {
-		return txtTime;
+	public DateTimePicker getPickerDate() {
+		return pickerDate;
 	}
 
 	public JTextField getTxtReason() {

@@ -25,6 +25,7 @@ import javax.swing.KeyStroke;
 import javax.swing.table.DefaultTableModel;
 
 import com.careplus.client.employee.controller.DiagnosisController;
+import com.careplus.common.client.view.DateTimePicker;
 
 /**
  * Doctor's clinical workspace: record a diagnosis and treatment note against a
@@ -53,7 +54,8 @@ public class DiagnosisView extends JInternalFrame {
 	private JTextField txtPatientId;
 	private JTextField txtDiagnosis;
 	private JTextArea txtTreatment;
-	private JTextField txtFollowUpDate;
+	/* Day/Month/Year spinners. No time: follow_up_date is a DATE column. */
+	private DateTimePicker pickerFollowUpDate;
 
 	// Buttons
 	private JButton btnSave;
@@ -86,7 +88,7 @@ public class DiagnosisView extends JInternalFrame {
 		lblPatientId = new JLabel("Patient ID");
 		lblDiagnosis = new JLabel("Diagnosis");
 		lblTreatment = new JLabel("Treatment Note");
-		lblFollowUpDate = new JLabel("Follow-up Date (yyyy-MM-dd)");
+		lblFollowUpDate = new JLabel("Follow-up Date");
 
 		txtPatientId = new JTextField(20);
 		txtDiagnosis = new JTextField(20);
@@ -95,7 +97,8 @@ public class DiagnosisView extends JInternalFrame {
 		txtTreatment.setLineWrap(true);
 		txtTreatment.setWrapStyleWord(true);
 
-		txtFollowUpDate = new JTextField(20);
+		// false: the column can't hold a time, so don't offer hour and min and then bin them.
+		pickerFollowUpDate = new DateTimePicker(false);
 
 		lblPatientId.setDisplayedMnemonic(KeyEvent.VK_P);
 		lblPatientId.setLabelFor(txtPatientId);
@@ -107,12 +110,12 @@ public class DiagnosisView extends JInternalFrame {
 		lblTreatment.setLabelFor(txtTreatment);
 
 		lblFollowUpDate.setDisplayedMnemonic(KeyEvent.VK_F);
-		lblFollowUpDate.setLabelFor(txtFollowUpDate);
+		lblFollowUpDate.setLabelFor(pickerFollowUpDate);
 
 		txtPatientId.setToolTipText("Enter the patient's unique ID. Shortcut: Alt+P.");
 		txtDiagnosis.setToolTipText("Enter the patient's diagnosis. Shortcut: Alt+D.");
 		txtTreatment.setToolTipText("Enter the doctor's treatment note. Shortcut: Alt+T.");
-		txtFollowUpDate.setToolTipText("Enter the follow-up date using yyyy-MM-dd. Shortcut: Alt+F.");
+		pickerFollowUpDate.setToolTipText("Pick the follow-up day, month and year. Shortcut: Alt+F.");
 
 		btnSave = new JButton("Save");
 		btnUpdate = new JButton("Update");
@@ -193,7 +196,7 @@ public class DiagnosisView extends JInternalFrame {
 		formPanel.add(lblFollowUpDate, gbc);
 
 		gbc.gridx = 1;
-		formPanel.add(txtFollowUpDate, gbc);
+		formPanel.add(pickerFollowUpDate, gbc);
 
 		JPanel buttonPanel = new JPanel(new FlowLayout());
 
@@ -291,7 +294,7 @@ public class DiagnosisView extends JInternalFrame {
 		txtPatientId.setText("");
 		txtDiagnosis.setText("");
 		txtTreatment.setText("");
-		txtFollowUpDate.setText("");
+		pickerFollowUpDate.reset();
 
 	}
 
@@ -311,8 +314,8 @@ public class DiagnosisView extends JInternalFrame {
 		return txtTreatment;
 	}
 
-	public JTextField getTxtFollowUpDate() {
-		return txtFollowUpDate;
+	public DateTimePicker getPickerFollowUpDate() {
+		return pickerFollowUpDate;
 	}
 
 	public JTable getTblDiagnosis() {

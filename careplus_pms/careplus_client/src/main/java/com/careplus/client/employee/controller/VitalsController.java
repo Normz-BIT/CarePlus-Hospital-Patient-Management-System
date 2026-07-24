@@ -13,6 +13,7 @@ import com.careplus.common.model.VitalSigns;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
+import com.careplus.common.util.DateDisplay;
 
 /*
  * Vitals Controller
@@ -186,7 +187,7 @@ public class VitalsController {
 					row.getRespiratoryRate(),
 					row.getObservations(),
 					row.getNursingNotes(),
-					row.getRecordedAt()
+					DateDisplay.withTime(row.getRecordedAt())
 			};
 
 			view.addCase(viewRow);

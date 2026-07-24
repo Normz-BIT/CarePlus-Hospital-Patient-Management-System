@@ -13,6 +13,7 @@ import com.careplus.common.model.ChatMessage;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
+import com.careplus.common.util.DateDisplay;
 
 /*
  * Chat Controller
@@ -133,7 +134,7 @@ public class ChatController {
 					"Message ID: " + msg.getMessageId()
 					+ "\nSender: " + msg.getSenderId()
 					+ "\nMessage: " + msg.getContent()
-					+ "\nTime: " + msg.getSentAt()
+					+ "\nTime: " + DateDisplay.withTime(msg.getSentAt())
 					+ "\nRead: " + msg.getIsRead()
 					+ "\n";
 

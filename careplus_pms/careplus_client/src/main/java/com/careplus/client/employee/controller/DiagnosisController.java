@@ -1,6 +1,5 @@
 package com.careplus.client.employee.controller;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -14,6 +13,7 @@ import com.careplus.common.model.MedicalRecord;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
+import com.careplus.common.util.DateDisplay;
 
 /*
  * Diagnosis Controller
@@ -85,21 +85,18 @@ public class DiagnosisController {
 					view.getTxtTreatment().getText().trim());
 
 			/*
-			 * Follow up is optional, and left blank the field stays null, which is what
-			 * distinguishes a record needing no return visit from one that does.
+			 * Comes straight off the Day/Month/Year spinners, already at midnight since
+			 * that picker has no hour or min on it. follow_up_date is a DATE column so
+			 * the time half never gets saved anyway.
 			 *
-			 * Parsed as a date only value, unlike AppointmentController and
-			 * PatientsController which both expect yyyy-MM-dd HH:mm:ss. This is the third
-			 * distinct date convention in the client, so the expected input differs from
-			 * screen to screen with nothing shared between them. atStartOfDay then pads
-			 * the value to midnight, so the time component here carries no meaning and
-			 * must not be read as an appointment time.
+			 * This used to be a third different date format on top of the two the booking
+			 * screens each used. All three share the one DateTimePicker now.
+			 *
+			 * Note the follow-up is no longer optional: the spinners always hold a date,
+			 * so every record gets one whether the doctor wants it or not. If we need
+			 * "no follow-up" back, add a tick box next to the picker.
 			 */
-			if (!view.getTxtFollowUpDate().getText().trim().isEmpty()) {
-				medicalRecord.setFollowUpDate(
-						LocalDate.parse(view.getTxtFollowUpDate().getText().trim())
-								.atStartOfDay());
-			}
+			medicalRecord.setFollowUpDate(view.getPickerFollowUpDate().getDateTime());
 
 			medicalRecord.setCreatedDate(LocalDateTime.now());
 
@@ -144,7 +141,7 @@ public class DiagnosisController {
 		} catch (Exception e) {
 
 			logger.error("An error occurred while saving medical record", e);
-			view.showMessage("Use the follow-up date format: yyyy-MM-dd");
+			view.showMessage("Unable to save the medical record: " + e.getMessage());
 		}
 
 		refresh();
@@ -173,8 +170,8 @@ public class DiagnosisController {
 					row.getRecordId(),
 					row.getDiagnosis(),
 					row.getTreatmentNote(),
-					row.getFollowUpDate(),
-					row.getCreatedDate()
+					DateDisplay.dateOnly(row.getFollowUpDate()),
+					DateDisplay.withTime(row.getCreatedDate())
 			};
 
 			view.addDiagnosis(viewRow);

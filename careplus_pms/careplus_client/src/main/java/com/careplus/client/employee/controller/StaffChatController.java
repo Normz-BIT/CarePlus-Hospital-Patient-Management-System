@@ -13,6 +13,7 @@ import com.careplus.common.model.ChatMessage;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
+import com.careplus.common.util.DateDisplay;
 
 /*
  * Staff Chat Controller
@@ -160,7 +161,8 @@ public class StaffChatController {
 		for (ChatMessage msg : (List<ChatMessage>) res.getData()) {
 
 			String viewMessage = "Message ID: " + msg.getMessageId() + "\nSender: " + msg.getSenderId() + "\nMessage: "
-					+ msg.getContent() + "\nTime: " + msg.getSentAt() + "\nRead: " + msg.getIsRead() + "\n";
+					+ msg.getContent() + "\nTime: " + DateDisplay.withTime(msg.getSentAt())
+					+ "\nRead: " + msg.getIsRead() + "\n";
 
 			view.appendMessage(viewMessage);
 		}

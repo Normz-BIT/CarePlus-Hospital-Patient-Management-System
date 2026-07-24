@@ -1,7 +1,5 @@
 package com.careplus.client.patient.controller;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import javax.swing.JComboBox;
@@ -17,6 +15,7 @@ import com.careplus.common.model.Appointment;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
+import com.careplus.common.util.DateDisplay;
 
 /*
  * Appointment Controller
@@ -77,35 +76,14 @@ public class AppointmentController {
 
 		try {
 
-			if (view.getTxtDate().getText().trim().isEmpty()
-					|| view.getTxtTime().getText().trim().isEmpty()) {
-
-				view.showMessage("Date and time are required.");
-				logger.warn("Appointment rejected because the date or time was empty");
-
-				return;
-			}
-
 			/*
-			 * Date and time are captured as two free text fields and joined before parsing,
-			 * so the user is required to type an exact format with no picker to guide them.
-			 * The same yyyy-MM-dd HH:mm:ss convention is duplicated in PatientsController,
-			 * while DiagnosisController parses a date only value. Those three parsing rules
-			 * are unrelated code that must nonetheless stay mutually consistent, and a
-			 * shared formatter constant would be the natural fix.
+			 * Straight off the Day/Month/Year/Hour/Min spinners, so there's nothing to
+			 * parse and nothing to validate. The old version joined two typed boxes and
+			 * ran them through a yyyy-MM-dd HH:mm:ss formatter, which meant an empty check
+			 * and a parse error message on every screen that took a date, all three of
+			 * them expecting a slightly different format.
 			 */
-			String appointmentDateTime = view.getTxtDate().getText().trim()
-					+ " " + view.getTxtTime().getText().trim();
-
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-			/*
-			 * Throws on anything that doesn't match the pattern, and the catch below turns
-			 * that into the format hint the user sees. That hint is a hardcoded string, so
-			 * if you change this pattern remember to change the message too.
-			 */
-			LocalDateTime localDateTime = LocalDateTime.parse(appointmentDateTime, formatter);
-
-			appointment.setAppointmentDate(localDateTime);
+			appointment.setAppointmentDate(view.getPickerDate().getDateTime());
 
 			appointment.setReason(view.getTxtReason().getText().trim());
 
@@ -145,7 +123,7 @@ public class AppointmentController {
 		} catch (Exception e) {
 
 			logger.error("An error occurred while scheduling appointment", e);
-			view.showMessage("Use the date and time format: yyyy-MM-dd HH:mm:ss");
+			view.showMessage("Unable to schedule the appointment: " + e.getMessage());
 		}
 
 		refresh();
@@ -206,7 +184,7 @@ public class AppointmentController {
 
 			Object[] viewRow = new Object[] {
 					row.getAppointmentId(),
-					row.getAppointmentDate(),
+					DateDisplay.withTime(row.getAppointmentDate()),
 					row.getReason(),
 					row.getStatus()
 			};

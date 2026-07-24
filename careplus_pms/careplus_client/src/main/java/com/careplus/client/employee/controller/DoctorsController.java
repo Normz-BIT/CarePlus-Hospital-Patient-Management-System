@@ -11,6 +11,7 @@ import com.careplus.common.model.Doctor;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.RequestType;
 import com.careplus.common.net.Response;
+import com.careplus.common.util.DateDisplay;
 
 /*
  * Doctors Controller
@@ -63,7 +64,7 @@ public class DoctorsController {
                     row.getEmail(),
                     row.getPhone(),
                     row.getDepartment(),
-                    row.getHireDate(),
+                    DateDisplay.dateOnly(row.getHireDate()),
                     row.getSpecialization(),
                     row.getLicenseNo()
             };
