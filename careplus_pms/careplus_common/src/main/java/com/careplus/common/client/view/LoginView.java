@@ -188,8 +188,8 @@ public class LoginView extends JFrame {
 		});
 
 		/*
-		 * Exits the JVM outright rather than disposing the window, since abandoning
-		 * login means there is nothing left to return to.
+		 * Exits the JVM outright rather than disposing the window, since 
+		 *  we are closing the app
 		 */
 		btnExit.addActionListener(e -> System.exit(0));
 

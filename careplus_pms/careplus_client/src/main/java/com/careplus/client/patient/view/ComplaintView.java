@@ -35,9 +35,9 @@ import com.careplus.client.patient.controller.ComplaintController;
  * widgets and controller owns decisions split.
  *
  * The category combo is filled from the ComplaintCategory enum rather than from
- * the server, so it needs no round trip. The optional parent ID field is what
- * turns a submission into a follow up on an earlier complaint rather than a new
- * case.
+ * the server. 
+ * The optional parent ID field is what turns a submission
+ * into a follow up on an earlier complaint rather than a new case.
  */
 public class ComplaintView extends JInternalFrame {
 
@@ -271,9 +271,7 @@ public class ComplaintView extends JInternalFrame {
 
 	}
 
-	/*
-	 * ===================== Helper Methods =====================
-	 */
+
 
 	public void clearTable() {
 		tableModel.setRowCount(0);
@@ -311,9 +309,6 @@ public class ComplaintView extends JInternalFrame {
 		JOptionPane.showMessageDialog(this, message);
 	}
 
-	/*
-	 * ===================== Getters =====================
-	 */
 
 	public JComboBox<String> getCboCategory() {
 		return cboCategory;

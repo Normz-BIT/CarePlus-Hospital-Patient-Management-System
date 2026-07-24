@@ -50,17 +50,14 @@ public class ServerController {
 			 * MySQL that's never had it. Hibernate can't build a factory against a
 			 * database that isn't there, so this has to go first.
 			 *
-			 * If the database already exists this does nothing at all, so it's a no-op on
-			 * every run after the first. We ignore the return value on purpose: any
-			 * failure is already printed to the console, and the check below handles a
-			 * missing connection by leaving the Reset button available.
+			 * If the database already exists this does nothing at all.
 			 */
 			databaseResetService.ensureDatabaseExists(view);
 
 			/*
-			 * We build one of these purely for the side effect of filling in the static
+			 * We build one of these for filling in the static
 			 * factory. The object itself gets thrown away, because everything else reaches
-			 * Hibernate through HibernateUtil's static methods anyway.
+			 * Hibernate through HibernateUtil's static methods.
 			 */
 			new HibernateUtil();
 
@@ -70,28 +67,25 @@ public class ServerController {
 				logger.info("Hibernate session factory created");
 				/*
 				 * Called straight from this worker thread instead of through invokeLater.
-				 * That's only safe because ServerView.showln puts itself on the Swing thread
-				 * internally. See the note on the ServerConsole interface.
 				 */
 				view.showln("Database connection established.");
 			} else {
 				logger.error("The Hibernate session factory could not be created");
 				/*
-				 * A failed connection isn't fatal on purpose. We leave the Reset button
-				 * enabled below so somebody can rebuild a missing or broken database, which
-				 * is usually why you end up here on a fresh checkout.
+				 * A failed connection isn't fatal. We leave the Reset button
+				 * enabled below so somebody can rebuild a missing or broken database
 				 */
 				view.showln("Database connection failed - check hibernate.properties. "
 						+ "You can still use Clear/Reset Database to rebuild the schema.");
 			}
 
 			/*
-			 * Enabling a button actually changes Swing state, so unlike showln above this
-			 * one really does have to go through invokeLater.
+			 * Enabling a button actually changes Swing state so it has
+			 * to go through invokeLater.
 			 */
 			SwingUtilities.invokeLater(() -> view.setResetEnabled(true));
 
-		}, "careplus-db-init").start();
+		}, "careplus-db-start").start();
 	}
 
 	/*
@@ -136,8 +130,7 @@ public class ServerController {
 
 		/*
 		 * Grabbed before the stop below, so afterwards we can put the server back the
-		 * way we found it instead of always leaving it stopped. It also has to be
-		 * effectively final for the lambda further down to use it.
+		 * way we found it instead of always leaving it stopped. 
 		 */
 		boolean wasRunning = server.isRunning();
 
@@ -201,7 +194,6 @@ public class ServerController {
 
 			ServerView view = new ServerView();
 			ServerController controller = new ServerController(view);
-
 			view.registerActionListener(controller);
 		});
 	}

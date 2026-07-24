@@ -36,10 +36,6 @@ import com.careplus.common.client.view.DateTimePicker;
  * exposes helpers such as clearTable and addAppointment, while every decision and
  * server call lives in AppointmentController.
  *
- * The doctor and department combos are filled from the server rather than from
- * local enums, so they are empty until that lookup succeeds. Date and time are
- * plain text fields, which is why the controller has to parse and validate them
- * by hand against a fixed yyyy-MM-dd HH:mm:ss pattern.
  */
 public class AppointmentView extends JInternalFrame {
 
@@ -55,7 +51,7 @@ public class AppointmentView extends JInternalFrame {
 	// Fields
 	private JComboBox<String> cboDoctor;
 	private JComboBox<String> cboDepartment;
-	/* Day/Month/Year/Hour/Min spinners, replacing the old typed date and time boxes. */
+	/* Day/Month/Year/Hour/Min spinners, */
 	private DateTimePicker pickerDate;
 	private JTextField txtReason;
 

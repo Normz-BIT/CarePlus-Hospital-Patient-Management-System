@@ -12,9 +12,10 @@ import jakarta.persistence.*;
  * Patient files Complaints
  * Receptionist handles Complaints
  *
- * This one carries the whole triage workflow: a patient files it, a receptionist
- * assigns it, then a doctor or nurse answers it. The status field is how we
- * track where it's got to.
+ *  A patient files it, 
+ *  A receptionist assigns it, 
+ *  then a doctor or nurse answers it. 
+ *  The status field is how we track where it's got to.
  *
  * Gets sent over the socket as well as saved, so it's Serializable and an entity
  * at the same time.
@@ -38,26 +39,24 @@ public class Complaint implements Serializable {
 	 * building a separate reply class.
 	 *
 	 * Integer not int, because the column can be null and a primitive would default
-	 * to 0. Zero isn't a complaint, so the foreign key would reject every single
-	 * original complaint on insert. Null is what marks "this is the first one".
+	 * to 0. 
 	 */
 	@Column(name = "complaintParentId")
 	private Integer complaintParentId;
 
 	/*
-	 * Who filed it, kept as the plain person_id String rather than a @ManyToOne to
-	 * Patient. Same reasoning as Payment: this gets serialized over the socket and
-	 * a lazy association could put a half-loaded proxy on the wire. The database
-	 * still enforces the key through fk_complaint_patient.
+	 * Who filed it, kept as the plain person_id String 
+	 *  The database still enforces the key through fk_complaint_patient.
 	 */
 	@Column(name = "patient_id", nullable = false)
 	private String patientId;
 
 	/*
 	 * Both are staff IDs and both can be null, since a complaint nobody has picked
-	 * up yet has neither. They're separate on purpose: respondedBy is whoever wrote
-	 * the reply, assignedTo is whoever owns the case, and they're often different
-	 * people. A receptionist can answer a patient while assigning it to a doctor.
+	 * up yet has neither.
+	 * respondedBy is whoever wrote the reply,
+	 * assignedTo is whoever owns the case, and they're often different people.
+	 * A receptionist can answer a patient while assigning it to a doctor.
 	 */
 	@Column(name = "responded_by")
 	private String respondedBy;
@@ -70,12 +69,7 @@ public class Complaint implements Serializable {
 
 	@Column(name = "date_submitted", nullable = false)
 	private LocalDateTime dateSubmitted = LocalDateTime.now();
-	/*
-	 * Worth knowing we've ended up with two ways of recording a reply: this pair of
-	 * fields, and the parent ID threading above. Keep them in step if you touch
-	 * either, because the patient's "view responses" screen reads the response and
-	 * its date together.
-	 */
+	
 	@Column(name = "response", columnDefinition = "TEXT")
 	private String response;
 
@@ -84,10 +78,7 @@ public class Complaint implements Serializable {
 
 	/*
 	 * Goes SUBMITTED, ASSIGNED, IN_PROGRESS, RESOLVED, and REOPENED is available
-	 * after that. Nothing stops an illegal jump like SUBMITTED straight to
-	 * RESOLVED yet, since the receptionist picks the status off a combo. If we add
-	 * that rule it belongs in ComplaintService, because only the server can see
-	 * what state the complaint is actually in.
+	 * after that.
 	 */
 
 	@Enumerated(EnumType.STRING)

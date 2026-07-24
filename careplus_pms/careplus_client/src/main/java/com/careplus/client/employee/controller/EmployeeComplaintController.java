@@ -28,18 +28,14 @@ import com.careplus.common.util.DateDisplay;
  *
  * Unlike the other controllers, this one keeps its own copy of the loaded
  * complaints so it can filter by category without going back to the server.
- * That makes category switching instant. The summary numbers are the exception:
- * they come from the server so they cover every complaint, not just the loaded
- * rows.
+ * That makes category switching instant. 
  */
 public class EmployeeComplaintController {
 
 	/*
 	 * Which column is which in the complaint table. They're constants because the
 	 * cached rows are plain Object arrays, so these numbers are the only thing
-	 * connecting how refresh builds a row to how the filter reads it. If you
-	 * reorder the columns you have to change these too, and nothing will fail to
-	 * compile to remind you.
+	 * connecting how refresh builds a row to how the filter reads it.
 	 */
 	private static final int CATEGORY_COL = 2;
 	private static final int STATUS_COL = 7;
@@ -48,10 +44,10 @@ public class EmployeeComplaintController {
 	/*
 	 * Everything the last refresh returned, kept separate from the table model
 	 * because the model only ever holds the rows currently being shown. Filtering
-	 * rebuilds the table from this list, so we don't throw away rows we'll want
-	 * back when the filter changes.
+	 * rebuilds the table from this list
 	 */
 	private final List<Object[]> allComplaints = new ArrayList<>();
+	
 	private static final Logger logger = LogManager.getLogger(EmployeeComplaintController.class);
 
 	public EmployeeComplaintController(EmployeeComplaintView view) {
@@ -114,13 +110,7 @@ public class EmployeeComplaintController {
 
 			complaint.setResponseDate(LocalDateTime.now());
 
-			/*
-			 * The receptionist can pick any status off the combo, so there's nothing
-			 * stopping a silly jump like SUBMITTED straight to RESOLVED, or reopening
-			 * something that was never resolved in the first place. If we want to police
-			 * that it has to go in ComplaintService, since only the server knows what
-			 * state the complaint is actually in.
-			 */
+		
 			complaint.setStatus(
 					ComplaintStatus.valueOf(
 							String.valueOf(view.getCboStatus().getSelectedItem())));
@@ -199,8 +189,7 @@ public class EmployeeComplaintController {
 	 *
 	 * The options come from the complaints we actually have rather than from the
 	 * ComplaintCategory enum, so the receptionist never gets offered a category
-	 * with nothing behind it. Side effect is that a category vanishes off the
-	 * filter once its last complaint is gone.
+	 * with nothing behind it. 
 	 */
 	private void populateFilter() {
 		/*

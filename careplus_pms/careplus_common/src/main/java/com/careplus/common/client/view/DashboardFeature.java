@@ -11,9 +11,9 @@ import com.careplus.common.enums.UserRole;
  * Base Dashboard class
  *
  * Describes one menu item on the dashboard without knowing anything about the
- * screen behind it. That's what lets the MDI shell live in careplus_common while
- * all the actual screens live in careplus_client: the shell just gets handed a
- * list of these and never imports a single patient or employee view.
+ * screen behind it.  MDI shell live in careplus_common while
+ * all the actual screens live in careplus_client
+ * The shell just gets handed a list of these and never imports a single patient or employee view.
  *
  * So adding a new feature is just registering one of these, and ClientApp is the
  * only place that does it.
@@ -57,13 +57,10 @@ public class DashboardFeature {
     }
 
     /*
-     * The only permission check in the whole client. A null role hides the feature
-     * rather than showing it, which is the safer way round if a Person ever turns
-     * up without one.
+     * A null role hides the feature rather than showing it
      *
-     * Important: this only controls what's visible. The server doesn't check
-     * anyone's role before acting on a Request, so this hides a menu item, it
-     * doesn't actually stop the action underneath.
+     * this only controls what's visible. The server doesn't check
+     * anyone's role before acting on a Request as this only hides a menu item
      */
     public boolean visibleFor(UserRole role) {
         return role != null && roles.contains(role);

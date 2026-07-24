@@ -30,11 +30,10 @@ import com.careplus.client.employee.controller.StaffChatController;
  * Available to all three staff roles, since any of them may need to answer a
  * patient directly. The conversation is a read only JTextArea rather than a
  * table because a chat reads as continuous text, and making it non editable
- * keeps the transcript a faithful record of what was actually sent.
+ * keeps the transcript a true record of what was actually sent.
  *
  * The patient is picked from a combo the controller fills from the server,
- * matching how the patient side chooses its recipient. It used to be a typed
- * ID, which meant a typo could start a chat with nobody.
+ * matching how the patient side chooses its recipient. 
  */
 public class StaffChatView extends JInternalFrame {
 

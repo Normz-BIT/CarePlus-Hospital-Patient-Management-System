@@ -52,8 +52,7 @@ public class DoctorsController {
         /*
          * Casting straight to Doctor instead of Person so we can reach the
          * specialization and licence columns below. This only works because the request
-         * specifically asked for doctors: anything else coming back would blow up here
-         * with a ClassCastException.
+         * specifically asked for doctors
          */
         for (Doctor row : (List<Doctor>) res.getData()) {
 

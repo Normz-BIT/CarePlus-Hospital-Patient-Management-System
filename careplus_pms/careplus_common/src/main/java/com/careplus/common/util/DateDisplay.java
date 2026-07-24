@@ -7,13 +7,6 @@ import java.util.Locale;
 /*
  * How we show dates on screen, in one place.
  *
- * Before this we were dropping LocalDateTime straight into tables, so cells came
- * out as "2026-06-25T10:30" which nobody wants to read. Everything goes through
- * here now: day, month, year, then hour and minute.
- *
- * Locale.UK so the month always comes out in English no matter what the machine
- * running it is set to. Without it the same table could read "Jun" on one
- * laptop and something else on another.
  */
 public final class DateDisplay {
 

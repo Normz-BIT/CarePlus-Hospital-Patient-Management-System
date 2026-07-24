@@ -12,9 +12,6 @@ package com.careplus.common.net;
  * everyone could build their client screens against the protocol we'd agreed as
  * a group instead of waiting on the server side to catch up.
  *
- * These serialize by name and not by position, so reordering this list between
- * builds is fine. Renaming one is not: the other side would no longer recognise
- * the old name.
  */
 public enum RequestType {
     LOGIN,

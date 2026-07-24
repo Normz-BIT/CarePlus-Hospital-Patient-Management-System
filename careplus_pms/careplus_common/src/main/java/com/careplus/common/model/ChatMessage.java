@@ -22,19 +22,6 @@ public class ChatMessage implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "message_id", nullable = false)
 	private Integer messageId;
-	/*
-	 * Both are person_id Strings, so patients and staff share one set of IDs and
-	 * either end can be the sender.
-	 *
-	 * Plain @Column rather than @ManyToOne, same reasoning as Payment, plus loading
-	 * a whole Person for each end of a conversation would carry their password
-	 * along with it. fk_chat_sender and fk_chat_receiver enforce both in the
-	 * database.
-	 *
-	 * These used to have @ManyToOne on them while typed as Strings, which isn't a
-	 * legal mapping at all: an association has to point at an entity, and String
-	 * obviously isn't one.
-	 */
 	@Column(name = "sender_id", nullable = false)
 	private String senderId;
 
@@ -43,17 +30,9 @@ public class ChatMessage implements Serializable {
 
 	@Column(name = "content", nullable = false, columnDefinition = "TEXT")
 	private String content;
-	/*
-	 * Puts the conversation in order. Note this comes off the client's clock, which
-	 * is exactly why the 8-to-7 opening hours check lives in ChatService on the
-	 * server and not here: a client's clock can be wrong or changed on purpose.
-	 */
+
 	@Column(name = "sent_at", nullable = false)
 	private LocalDateTime sentAt = LocalDateTime.now();
-	/*
-	 * Boolean rather than boolean, so null means "never set" as opposed to a real
-	 * unread. Treat null as unread rather than assuming it's always filled in.
-	 */
 	  @Column(name = "is_read", nullable = false)
 	    private Boolean isRead = false;
 

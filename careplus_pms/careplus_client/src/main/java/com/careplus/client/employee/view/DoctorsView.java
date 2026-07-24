@@ -26,9 +26,8 @@ import com.careplus.client.employee.controller.DoctorsController;
  * The only feature visible to two roles, and the only one with no form: it is a
  * table and a refresh button, so DoctorsController exposes just a refresh method.
  *
- * Read only is an intent rather than an enforced property. The underlying
- * DefaultTableModel reports every cell as editable, so the directory can be typed
- * into; those edits are never sent anywhere and disappear on the next refresh.
+ * The DefaultTableModel reports every cell as editable, so the directory can be typed
+ * into but those edits are never sent anywhere and disappear on the next refresh.
  */
 public class DoctorsView extends JInternalFrame {
 

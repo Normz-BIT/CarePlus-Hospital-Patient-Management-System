@@ -36,8 +36,7 @@ import com.careplus.common.client.view.DateTimePicker;
  * create does not.
  *
  * The follow up date field takes a date only value, unlike the appointment
- * screens which expect a full date and time. That difference lives in
- * DiagnosisController's parsing and is not signalled by the form itself.
+ * screens which expect a full date and time.
  */
 public class DiagnosisView extends JInternalFrame {
 
@@ -97,7 +96,7 @@ public class DiagnosisView extends JInternalFrame {
 		txtTreatment.setLineWrap(true);
 		txtTreatment.setWrapStyleWord(true);
 
-		// false: the column can't hold a time, so don't offer hour and min and then bin them.
+		// false: the column can't hold a time
 		pickerFollowUpDate = new DateTimePicker(false);
 
 		lblPatientId.setDisplayedMnemonic(KeyEvent.VK_P);

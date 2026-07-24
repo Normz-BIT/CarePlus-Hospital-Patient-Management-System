@@ -20,9 +20,9 @@ import com.careplus.common.util.DateDisplay;
  * Allows nurses to record and view patient vital signs
  *
  * Each submission creates a new timestamped observation rather than overwriting
- * a current reading. We modelled it this way because a patient's vital signs are
+ * a current reading. We made it this way because a patient's vital signs are
  * only meaningful as a series: a doctor reading the record needs to see how a
- * temperature moved over a shift, not just its latest value.
+ * temperature moved over a shift.
  */
 public class VitalsController {
 	private final VitalsView view;
@@ -99,11 +99,6 @@ public class VitalsController {
 					Double.parseDouble(
 							view.getTxtTemperature().getText().trim()));
 
-			/*
-			 * Blood pressure stays as text because it is a systolic over diastolic pair
-			 * rather than a single number, so no numeric type would hold it without
-			 * splitting it into two fields.
-			 */
 			vitalSigns.setBloodPressure(
 					view.getTxtBloodPressure().getText().trim());
 

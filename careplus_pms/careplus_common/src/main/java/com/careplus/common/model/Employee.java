@@ -34,8 +34,7 @@ public abstract class Employee extends Person {
 	@Column(name = "department")
 	protected Department department;
 	/*
-	 * hire_date is a DATE column so the time half never gets saved. MySQL drops it
-	 * on write and reads come back at midnight. Only the date part counts.
+	 * hire_date is a DATE column so the time half never gets saved.
 	 */
 	@Column(name = "hire_date")
 	protected LocalDateTime hireDate;

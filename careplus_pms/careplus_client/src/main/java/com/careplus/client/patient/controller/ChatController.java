@@ -42,11 +42,7 @@ public class ChatController {
 	/*
 	 * Fill the recipient combo with the actual staff from the server.
 	 *
-	 * This used to be three hardcoded role names, and the server turned "Doctor"
-	 * into whichever doctor happened to sort first, so a patient could never reach
-	 * the second one. Now they pick the person.
-	 *
-	 * Quiet on failure, same as the booking screen's combos: an empty combo is
+	 * Doesn't crash on  failure as an empty combo is
 	 * better than refusing to open the screen.
 	 */
 	private void loadStaff() {
@@ -158,8 +154,6 @@ public class ChatController {
 	 * Chat is pull based: the server never pushes to an idle client, so new messages
 	 * only appear when this runs. It fires on open, after a send, and on the manual
 	 * refresh button, with no timer, so a patient sees a reply only by clicking.
-	 * A Swing Timer polling this would make the conversation feel live, but each tick
-	 * would block the Event Dispatch Thread on a socket round trip.
 	 */
 	@SuppressWarnings("unchecked")
 	public void refresh() {

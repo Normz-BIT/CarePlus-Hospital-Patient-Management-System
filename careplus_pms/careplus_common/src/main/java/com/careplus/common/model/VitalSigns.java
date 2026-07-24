@@ -11,8 +11,7 @@ import jakarta.persistence.*;
  *
  * Every one of these is a single timestamped reading rather than the patient's
  * "current" values, so they pile up as a series. We did it that way because
- * vitals are read as a trend: what a doctor actually wants is how a temperature
- * or pulse moved across a shift, not just the latest number.
+ * vitals are read as a trend.
  */
 
 @Entity
@@ -25,37 +24,18 @@ public class VitalSigns implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "vital_id", nullable = false)
 	private int vitalId;
-
-	/*
-	 * The patient the reading is for and the nurse who took it, as plain person_id
-	 * Strings rather than @ManyToOne links, same reasoning as Payment. The database
-	 * enforces both through fk_vitals_patient and fk_vitals_nurse.
-	 *
-	 * These were both broken before: patientId had @ManyToOne on it while typed as
-	 * a String, which isn't legal since an association has to point at an entity.
-	 * nurseId had a bare @JoinColumn with no association at all, so it went looking
-	 * for a "nurseId" column that doesn't exist.
-	 */
 	@Column(name = "patient_id", nullable = false)
 	private String patientId;
 
 	@Column(name = "nurse_id", nullable = false)
 	private String nurseId;
-	/*
-	 * We don't save a unit with this, so Celsius versus Fahrenheit is an unwritten
-	 * agreement between whoever types it and whoever reads it. The screen label
-	 * says Celsius, which is all that's holding that together.
-	 *
-	 * Double not double, because the column allows null and a primitive would turn
-	 * a missing reading into 0.0. The chk_vitals_temp constraint rejects a stored
-	 * zero, so that default would get written as if it were real and then bounced.
-	 */
+
 	@Column(name = "temperature")
 	private Double temperature;
 	/*
 	 * A String because blood pressure is two numbers over each other, not one. The
 	 * downside is you can't compare or average these without splitting the string
-	 * first, and nothing forces the "120/80" format on the way in.
+	 * first.
 	 */
 	@Column(name = "blood_pressure", length = 10)
 	private String bloodPressure;
@@ -67,8 +47,7 @@ public class VitalSigns implements Serializable {
 	private Integer respiratoryRate;
 	/*
 	 * Two separate boxes on purpose: observations are what the nurse saw about the
-	 * patient, nursing notes are the care they gave. Keeping them apart keeps that
-	 * difference in the record instead of mushing it into one field.
+	 * patient, nursing notes are the care they gave.
 	 */
 
 	@Column(name = "observations", columnDefinition = "TEXT")

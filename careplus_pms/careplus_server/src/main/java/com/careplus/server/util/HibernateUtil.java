@@ -16,9 +16,6 @@ public class HibernateUtil {
 	 * are NOT safe to share, which is why getSession() below hands out a new one
 	 * every call instead of passing the same one around.
 	 *
-	 * The field isn't final on purpose, so DatabaseResetService can close the
-	 * factory and build a new one around dropping the database. That's what lets
-	 * the reset button work without restarting the server.
 	 */
 	public static SessionFactory sessionFactory = null;
 
@@ -28,8 +25,8 @@ public class HibernateUtil {
 	}
 
 	/*
-	 * Only builds the factory if there isn't one already, so calling this twice
-	 * does no harm. It runs once at server startup, before any client can connect.
+	 * Only builds the factory if there isn't one already.
+	 *  It runs once at server startup, before any client can connect.
 	 */
 	private static SessionFactory buildSessionFactory() {
 
@@ -54,9 +51,7 @@ public class HibernateUtil {
 
 	/*
 	 * Builds the factory again from scratch. We need this after
-	 * DatabaseResetService drops and recreates the database, because the old
-	 * factory's pooled connections are still pointing at a database that isn't
-	 * there any more.
+	 * DatabaseResetService drops and recreates the database.
 	 */
 	public static void reconnect() {
 		try {
@@ -65,8 +60,7 @@ public class HibernateUtil {
 			}
 			/*
 			 * Setting it to null is what lets buildSessionFactory() actually do anything,
-			 * since it only builds when it finds nothing there. Without this line a
-			 * reconnect on an already closed factory would just leave it closed.
+			 * since it only builds when it finds nothing there.
 			 */
 			sessionFactory = null;
 			buildSessionFactory();

@@ -102,13 +102,7 @@ public class ServerView extends JFrame implements ServerConsole {
 		});
 	}
 
-	/*
-	 * Careful with this one. Unlike showln above it touches the text area directly
-	 * with no invokeLater, so it's only safe to call from the Swing thread. Fine
-	 * right now because the only thing calling it is a button handler, but don't
-	 * call it from the server or database worker threads the way you can with
-	 * showln.
-	 */
+
 	public void clearConsole() {
 		txtConsole.setText("");
 	}

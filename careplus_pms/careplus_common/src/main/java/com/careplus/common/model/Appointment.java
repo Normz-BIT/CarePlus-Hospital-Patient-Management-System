@@ -11,10 +11,6 @@ import jakarta.persistence.*;
  * Patient Books Appointments
  * Doctor Attends Appointments
  *
- * We wrote this one as a plain serializable class first so the booking screens
- * could be built and shown off while the server side was still being written,
- * then added the mapping once AppointmentService was done. It still travels
- * between client and server as a serialized object.
  */
 @Entity
 @Table(name = "appointment")
@@ -25,11 +21,6 @@ public class Appointment implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "appointment_id", nullable = false)
 	private int appointmentId;
-	/*
-	 * LocalDateTime has no time zone on it, so every appointment is just assumed to
-	 * be hospital local time. Fine for one hospital, but it would get confusing
-	 * across time zones or over a daylight saving change.
-	 */
 
 	@Column(name = "appointment_date", nullable = false)
 	private LocalDateTime appointmentDate;
@@ -44,16 +35,6 @@ public class Appointment implements Serializable {
 	@Column(name = "status", nullable = false)
 	private AppointmentStatus status;
 
-	/*
-	 * Both of these are plain person_id Strings rather than @ManyToOne links, same
-	 * reasoning as Payment: an Appointment gets serialized over the socket, and a
-	 * lazy association could put a half-loaded proxy on the wire. The database
-	 * still enforces both keys through fk_appt_patient and fk_appt_doctor.
-	 *
-	 * These used to have @JoinColumn on them with no @ManyToOne, which does nothing
-	 * on its own. Both fields fell back to Hibernate's default naming and went
-	 * looking for "patientId" and "doctorId" columns that don't exist.
-	 */
 	@Column(name = "patient_id", nullable = false)
 	private String patientId;
 

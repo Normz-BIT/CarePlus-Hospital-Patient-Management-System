@@ -12,12 +12,10 @@ import jakarta.persistence.*;
  * and all three staff types.
  *
  * We went with JOINED so each subclass gets its own table with just its extra
- * columns, joined back here on the same ID. That keeps us at 3NF like the brief
- * asks. SINGLE_TABLE would've been quicker to read but then every
- * doctor-only and patient-only column has to allow nulls in one huge table,
- * which felt worse.
+ * columns, joined back here on the same ID. That keeps us at 3NF like the project
+ * asks. 
  *
- * Where this really pays off is login: AuthService does one lookup on Person and
+ * AuthService does one lookup on Person and
  * gets back a Patient, Doctor, Nurse or Receptionist without having to know
  * which it's looking for, and the role comes with it.
  *
@@ -29,9 +27,7 @@ import jakarta.persistence.*;
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Person implements Serializable {
 	/*
-	 * @Transient so Hibernate doesn't try to find a column for this. It's just
-	 * serialization bookkeeping, and without the annotation Hibernate goes looking
-	 * for a matching column and falls over at startup.
+	 * @Transient so Hibernate doesn't try to find a column for this.
 	 */
 	@Transient
 	private static final long serialVersionUID = 1L;
@@ -50,17 +46,14 @@ public abstract class Person implements Serializable {
 	protected String lastName;
 	/*
 	 * Email has to be unique since that's how someone is identified when they
-	 * register. We put the rule in the database rather than in Java so it holds no
-	 * matter which part of the app does the insert.
+	 * register.
 	 */
 	@Column(name = "email", nullable = false, unique = true)
 	protected String email;
 	@Column(name = "phone", length = 20)
 	protected String phone;
 	/*
-	 * Plain text for now, which is why AuthService can just use equals to check it.
-	 * Obviously this would need hashing before anything real went in the database,
-	 * but the seed logins have to stay readable for the demo.
+	 * Plain text for now, which is why AuthService can just use equals to check it..
 	 */
 	@Column(name = "password", length = 255, nullable = false)
 	protected String password;
@@ -81,8 +74,7 @@ public abstract class Person implements Serializable {
 	/*
 	 * Hibernate and Java serialization both need a no-arg constructor to build the
 	 * object before filling in the fields. Protected rather than public so the rest
-	 * of our code uses the full constructors instead, which can't leave a half
-	 * built object lying around.
+	 * of our code uses the full constructors instead.
 	 */
 	protected Person() {
 

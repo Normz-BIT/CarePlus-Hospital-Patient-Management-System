@@ -39,48 +39,40 @@ public class Patient extends Person {
 	 * We save the date of birth and work the age out when we need it. Saving the
 	 * age itself would go stale on the patient's next birthday.
 	 *
-	 * Note the column is a DATE, so the time half of this never gets saved. MySQL
-	 * throws it away on write and reads come back at midnight. Only the date part
-	 * means anything.
+	 * Note the column is a DATE, so the time half of this never gets saved. Only
+	 * the date part means anything.
 	 */
 	@Column(name = "date_of_birth")
 	private LocalDateTime dateOfBirth;
 
-    /*
-     * Saved by name not number, same reason as role on Person: reordering the
-     * Gender constants shouldn't change what's already in the database.
-     */
-    @Enumerated(EnumType.STRING)
-    @Column(name = "gender", nullable = false)
-    private Gender gender;
+	/*
+	 * Saved by name not number, same reason as role on Person: reordering the
+	 * Gender constants shouldn't change what's already in the database.
+	 */
+	@Enumerated(EnumType.STRING)
+	@Column(name = "gender", nullable = false)
+	private Gender gender;
 
-    @Column(name = "address", length = 200)
-    private String address;
+	@Column(name = "address", length = 200)
+	private String address;
 
-    /*
-     * TEXT instead of a VARCHAR with a limit, since medical history is free
-     * writing that keeps getting added to. Any limit we picked would eventually
-     * chop off part of someone's record.
-     */
-    @Column(name = "medical_history", columnDefinition = "TEXT")
-    private String medicalHistory;
+	/*
+	 * TEXT instead of a VARCHAR with a limit, since medical history is free writing
+	 * that keeps getting added to. Any limit we picked would eventually chop off
+	 * part of someone's record.
+	 */
+	@Column(name = "medical_history", columnDefinition = "TEXT")
+	private String medicalHistory;
 
 	public Patient() {
 		super();
 		setRole(UserRole.PATIENT);
 	}
 
-	
-
-
-
-	public Patient(String personId, String firstName, String lastName, String email, String phone, String password, LocalDateTime createdAt) {
+	public Patient(String personId, String firstName, String lastName, String email, String phone, String password,
+			LocalDateTime createdAt) {
 		super(personId, firstName, lastName, email, phone, password, UserRole.PATIENT, createdAt);
 	}
-
-
-
-
 
 	public LocalDateTime getDateOfBirth() {
 		return dateOfBirth;
@@ -122,6 +114,4 @@ public class Patient extends Person {
 				+ ", role=" + role + "]";
 	}
 
-	
-	
 }

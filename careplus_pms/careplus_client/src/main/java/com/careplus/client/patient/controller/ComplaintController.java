@@ -32,14 +32,12 @@ public class ComplaintController {
 		refresh();
 	}
 
-
 	/*
 	 * Fill the categories straight from the enum
 	 *
 	 * Done locally instead of asking the server, unlike the doctor combo in
-	 * AppointmentController. Categories are a fixed part of the domain rather than
-	 * data that changes, so there's no round trip and they can never drift out of
-	 * step with the enum. Downside is adding a category means rebuilding the client.
+	 * AppointmentController. 
+	 * Categories are a fixed so there's no round trip
 	 */
 	private void loadCategories() {
 		view.getCboCategory().removeAllItems();
@@ -67,9 +65,7 @@ public class ComplaintController {
 
 			complaint.setDescription(desc);
 
-			complaint.setCategory(
-					ComplaintCategory.valueOf(
-							String.valueOf(view.getCboCategory().getSelectedItem())));
+			complaint.setCategory(ComplaintCategory.valueOf(String.valueOf(view.getCboCategory().getSelectedItem())));
 
 			/*
 			 * Every complaint enters at SUBMITTED, the only valid entry point of the
@@ -81,15 +77,14 @@ public class ComplaintController {
 
 			/*
 			 * An optional parent ID is what turns this complaint into a follow up on an
-			 * earlier one rather than a new case. Left unset it stays zero, since the
-			 * field is a primitive int, and zero is what marks an original complaint.
+			 * earlier one rather than a new case. Left unset it stays zero, since the field
+			 * is a primitive int, and zero is what marks an original complaint.
 			 *
 			 * The ID is typed by hand with no validation that it exists or belongs to this
 			 * patient, so the server would need to verify ownership before linking.
 			 */
 			if (!view.getTxtParentId().getText().trim().isEmpty()) {
-				complaint.setComplaintParentId(
-						Integer.parseInt(view.getTxtParentId().getText().trim()));
+				complaint.setComplaintParentId(Integer.parseInt(view.getTxtParentId().getText().trim()));
 			}
 
 			logger.info("Complaint created: {}", complaint.toString());
@@ -127,10 +122,7 @@ public class ComplaintController {
 			return;
 		}
 
-		Request req = new Request(
-				RequestType.DELETE_COMPLAINT,
-				"complaintId",
-				view.getTableModel().getValueAt(row, 0));
+		Request req = new Request(RequestType.DELETE_COMPLAINT, "complaintId", view.getTableModel().getValueAt(row, 0));
 
 		Response res = Client.send(req);
 
@@ -148,10 +140,7 @@ public class ComplaintController {
 	@SuppressWarnings("unchecked")
 	public void refresh() {
 		Response res = Client.send(
-				new Request(
-						RequestType.GET_MY_COMPLAINTS,
-						"patientId",
-						MainDashboard.getCurrentUser().getPersonId()));
+				new Request(RequestType.GET_MY_COMPLAINTS, "patientId", MainDashboard.getCurrentUser().getPersonId()));
 
 		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 
@@ -163,16 +152,9 @@ public class ComplaintController {
 
 		for (Complaint row : (List<Complaint>) res.getData()) {
 
-			Object[] viewRow = new Object[] {
-					row.getComplaintId(),
-					row.getComplaintParentId(),
-					row.getCategory(),
-					row.getDescription(),
-					DateDisplay.withTime(row.getDateSubmitted()),
-					row.getResponse(),
-					DateDisplay.withTime(row.getResponseDate()),
-					row.getStatus()
-			};
+			Object[] viewRow = new Object[] { row.getComplaintId(), row.getComplaintParentId(), row.getCategory(),
+					row.getDescription(), DateDisplay.withTime(row.getDateSubmitted()), row.getResponse(),
+					DateDisplay.withTime(row.getResponseDate()), row.getStatus() };
 
 			view.addComplaint(viewRow);
 		}
