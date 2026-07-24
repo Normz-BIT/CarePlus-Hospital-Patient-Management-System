@@ -207,6 +207,9 @@ public class ChatView extends JInternalFrame {
 		btnRefresh.addActionListener(e -> controller.refresh());
 		btnClear.addActionListener(e -> clearMessageField());
 
+		// Changing who you're messaging swaps straight to that conversation.
+		cboRecipient.addActionListener(e -> controller.refresh());
+
 	}
 
 	public void clearMessageField() {

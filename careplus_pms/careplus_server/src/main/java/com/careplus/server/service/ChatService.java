@@ -79,22 +79,45 @@ public class ChatService extends BaseService {
 	}
 
 	/*
-	 * The user's whole conversation, both directions, oldest first so it reads top
-	 * to bottom like a chat should. While we're in here we also flip isRead on
-	 * anything addressed to them, since polling is the moment they've actually seen
-	 * it, and that flag is what tells the other side their message was read.
+	 * A conversation, both directions, oldest first so it reads top to bottom like
+	 * a chat should. While we're in here we also flip isRead on anything addressed
+	 * to this user, since polling is the moment they've actually seen it, and that
+	 * flag is what tells the other side their message was read.
+	 *
+	 * The optional "with" param narrows it to the conversation with one specific
+	 * person. Without it you get every message the user has ever sent or received
+	 * jumbled into one list, which was fine back when a patient could only really
+	 * reach one member of staff, but reads as a mess now they can pick who they're
+	 * talking to. Left out, it still returns everything, so a screen that wants the
+	 * lot can just not send it.
 	 */
 	public Response poll(Request request) {
 
 		String userId = (String) request.getParams().get("user");
+		String withId = (String) request.getParams().get("with");
 
 		startSession();
 
 		try {
-			List<ChatMessage> messages = session
-					.createQuery("FROM ChatMessage WHERE senderId = ?1 OR receiverId = ?1 ORDER BY sentAt",
-							ChatMessage.class)
-					.setParameter(1, userId).list();
+			List<ChatMessage> messages;
+
+			if (withId == null || withId.trim().isEmpty()) {
+
+				messages = session
+						.createQuery("FROM ChatMessage WHERE senderId = ?1 OR receiverId = ?1 ORDER BY sentAt",
+								ChatMessage.class)
+						.setParameter(1, userId).list();
+
+			} else {
+				/*
+				 * Both directions between exactly these two people: what they sent us and what
+				 * we sent them, nothing else.
+				 */
+				messages = session
+						.createQuery("FROM ChatMessage WHERE (senderId = ?1 AND receiverId = ?2) "
+								+ "OR (senderId = ?2 AND receiverId = ?1) ORDER BY sentAt", ChatMessage.class)
+						.setParameter(1, userId).setParameter(2, withId.trim().toUpperCase()).list();
+			}
 
 			for (ChatMessage message : messages) {
 

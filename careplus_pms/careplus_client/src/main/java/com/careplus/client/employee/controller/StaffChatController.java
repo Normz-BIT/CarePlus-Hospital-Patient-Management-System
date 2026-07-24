@@ -147,8 +147,20 @@ public class StaffChatController {
 	public void refresh() {
 		String patient = selectedPatientId();
 
-		Response res = Client.send(new Request(RequestType.CHAT_POLL, "user",
-				patient.isEmpty() ? MainDashboard.getCurrentUser().getPersonId() : patient));
+		/*
+		 * We poll as ourselves and narrow it with "with" to the selected patient, so
+		 * this shows our conversation with them rather than every message that patient
+		 * has had with anyone. That's what it used to do, because it polled as the
+		 * patient instead of as us.
+		 */
+		Request req = new Request(
+				RequestType.CHAT_POLL,
+				"user",
+				MainDashboard.getCurrentUser().getPersonId());
+
+		req.putMap("with", patient);
+
+		Response res = Client.send(req);
 
 		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 

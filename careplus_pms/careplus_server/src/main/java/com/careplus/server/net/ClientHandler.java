@@ -194,6 +194,9 @@ public class ClientHandler extends Thread {
 				case GET_PATIENTS:
 					resp = appointmentService.getPatients(req);
 					break;
+				case GET_STAFF:
+					resp = appointmentService.getStaff(req);
+					break;
 				case GET_DEPARTMENTS:
 					resp = appointmentService.getDepartments(req);
 					break;

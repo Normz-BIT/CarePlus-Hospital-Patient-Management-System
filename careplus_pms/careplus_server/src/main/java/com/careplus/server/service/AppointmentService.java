@@ -10,6 +10,7 @@ import com.careplus.common.enums.AppointmentStatus;
 import com.careplus.common.enums.Department;
 import com.careplus.common.model.Appointment;
 import com.careplus.common.model.Doctor;
+import com.careplus.common.model.Employee;
 import com.careplus.common.model.Patient;
 import com.careplus.common.net.Request;
 import com.careplus.common.net.Response;
@@ -264,6 +265,45 @@ public class AppointmentService extends BaseService {
 			resp.setMessage("Failed to get patients");
 
 			logger.error("Could not load the patient list", e);
+
+		} finally {
+			endSession();
+		}
+
+		return resp;
+	}
+
+	/*
+	 * "STF0001 - Karen Reid (DOCTOR)" text for the patient's chat screen, so a
+	 * patient can pick the actual person they want instead of just a job title.
+	 *
+	 * The role goes on the end because someone looking at a list of names has no
+	 * other way of telling which one is the doctor and which is the receptionist.
+	 *
+	 * Employee not Person, so this is staff only. A patient has no business being
+	 * offered other patients to message.
+	 */
+	public Response getStaff(Request request) {
+
+		startSession();
+
+		try {
+			List<Employee> staff = session.createQuery("FROM Employee ORDER BY personId", Employee.class).list();
+
+			resp.setData(staff.stream()
+					.map(e -> e.getPersonId() + " - " + e.getFullName() + " (" + e.getRole() + ")")
+					.toList());
+
+			resp.setSuccess(true);
+			resp.setMessage("Staff found");
+
+		} catch (Exception e) {
+
+			transaction.rollback();
+			resp.setSuccess(false);
+			resp.setMessage("Failed to get staff");
+
+			logger.error("Could not load the staff list", e);
 
 		} finally {
 			endSession();

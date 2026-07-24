@@ -35,15 +35,66 @@ public class ChatController {
 
 	public ChatController(ChatView view) {
 		this.view = view;
+		loadStaff();
 		refresh();
+	}
+
+	/*
+	 * Fill the recipient combo with the actual staff from the server.
+	 *
+	 * This used to be three hardcoded role names, and the server turned "Doctor"
+	 * into whichever doctor happened to sort first, so a patient could never reach
+	 * the second one. Now they pick the person.
+	 *
+	 * Quiet on failure, same as the booking screen's combos: an empty combo is
+	 * better than refusing to open the screen.
+	 */
+	private void loadStaff() {
+		Response res = Client.send(new Request(RequestType.GET_STAFF, "all", true));
+
+		view.getCboRecipient().removeAllItems();
+
+		if (res != null && Boolean.TRUE.equals(res.getSuccess()) && res.getData() instanceof List<?> staff) {
+
+			for (Object member : staff) {
+				view.getCboRecipient().addItem(String.valueOf(member));
+			}
+		} else {
+			logger.warn("The staff list could not be loaded for the chat combo");
+		}
+	}
+
+	/*
+	 * Pulls "STF0001" off the front of "STF0001 - Karen Reid (DOCTOR)". Same trick
+	 * the staff chat and vitals screens use on their patient combos.
+	 */
+	private String selectedRecipientId() {
+		Object selected = view.getCboRecipient().getSelectedItem();
+
+		if (selected == null) {
+			return "";
+		}
+
+		String display = String.valueOf(selected);
+		int dash = display.indexOf(" - ");
+
+		return (dash < 0 ? display : display.substring(0, dash)).trim();
 	}
 
 	public void sendMessage() {
 		String msg = view.getTxtMessage().getText().trim();
+		String recipient = selectedRecipientId();
 
 		if (msg.isEmpty()) {
 			view.showMessage("Message is required.");
 			logger.warn("Chat message rejected because the message was empty");
+
+			return;
+		}
+
+		if (recipient.isEmpty()) {
+			view.showMessage("Select who you want to message.");
+			logger.warn("Chat message rejected because no recipient was selected");
 
 			return;
 		}
@@ -71,9 +122,7 @@ public class ChatController {
 			logger.info("Chat message created: {}", chatMessage.toString());
 
 			req.putMap("chatMessage", chatMessage);
-			req.putMap(
-					"recipient",
-					String.valueOf(view.getCboRecipient().getSelectedItem()));
+			req.putMap("recipient", recipient);
 
 			Response res = Client.send(req);
 
@@ -114,11 +163,19 @@ public class ChatController {
 	 */
 	@SuppressWarnings("unchecked")
 	public void refresh() {
-		Response res = Client.send(
-				new Request(
-						RequestType.CHAT_POLL,
-						"user",
-						MainDashboard.getCurrentUser().getPersonId()));
+		/*
+		 * "with" narrows this to the conversation with whoever is picked in the combo,
+		 * so switching recipient switches conversation instead of showing every message
+		 * this patient has ever exchanged with anybody all mixed together.
+		 */
+		Request req = new Request(
+				RequestType.CHAT_POLL,
+				"user",
+				MainDashboard.getCurrentUser().getPersonId());
+
+		req.putMap("with", selectedRecipientId());
+
+		Response res = Client.send(req);
 
 		if (res == null || !Boolean.TRUE.equals(res.getSuccess())) {
 

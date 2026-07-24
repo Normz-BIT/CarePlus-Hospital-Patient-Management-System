@@ -26,6 +26,13 @@ public enum RequestType {
      * end up filing something against the wrong patient.
      */
     GET_PATIENTS,
+
+    /*
+     * The mirror of GET_PATIENTS: "STF0001 - Karen Reid (DOCTOR)" text for the
+     * patient's chat screen, so they pick an actual person to message rather than
+     * a job title and hope it reaches the right one.
+     */
+    GET_STAFF,
     GET_DEPARTMENTS,
     SCHEDULE_APPOINTMENT,  
     UPDATE_APPOINTMENT,
